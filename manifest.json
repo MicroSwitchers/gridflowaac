@@ -1,0 +1,21 @@
+{
+  "name": "GridFlowAAC",
+  "short_name": "GridFlowAAC",
+  "description": "Design and run AAC symbol communication boards for augmentative and alternative communication.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#1d4ed8",
+  "theme_color": "#ffffff",
+  "lang": "en",
+  "categories": ["education", "medical"],
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

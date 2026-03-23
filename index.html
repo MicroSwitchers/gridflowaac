@@ -1,0 +1,2745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GridFlowAAC</title>
+
+    <!-- PWA -->
+    <link rel="manifest" href="./manifest.json">
+    <meta id="meta-theme-color" name="theme-color" content="#ffffff">
+    <link rel="apple-touch-icon" href="./icon.svg">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="GridFlowAAC">
+    
+    <!-- Premium Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* ── Core Animations ── */
+        .animate-pop { animation: popScale 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        @keyframes popScale { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+        @keyframes splashFadeUp {
+            0%   { transform: translateY(14px); opacity: 0; }
+            100% { transform: translateY(0);    opacity: 1; }
+        }
+        @keyframes shimmer {
+            0%   { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            overflow: hidden; background-color: #f8fafc;
+            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            touch-action: none; user-select: none; -webkit-user-select: none;
+        }
+
+        #app-wrapper { position: relative; width: 100vw; height: 100vh; overflow: hidden; }
+
+        #bg-grid {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; transform-origin: 0 0;
+        }
+
+        #workspace { position: absolute; top: 0; left: 0; width: 0; height: 0; overflow: visible; }
+        #svg-layer { position: absolute; top: 0; left: 0; width: 1px; height: 1px; overflow: visible; pointer-events: none; z-index: 1; }
+        #nodes-layer { position: absolute; top: 0; left: 0; width: 0; height: 0; z-index: 2; pointer-events: none; }
+
+        /* ── Wires ── */
+        .wire-hit  { fill: none; stroke: transparent; stroke-width: 28; pointer-events: stroke; cursor: pointer; }
+        .wire-bg   { fill: none; stroke-width: 8; stroke-linecap: round; pointer-events: none; opacity: 0.10; }
+        .wire-visible { fill: none; stroke-width: 2.5; stroke-linecap: round; pointer-events: none; opacity: 0.90;
+                        transition: stroke 0.15s, stroke-width 0.15s, opacity 0.15s, filter 0.15s; }
+        .wire-temp { fill: none; stroke: #3b82f6; stroke-width: 2.5; stroke-dasharray: 8 5; stroke-linecap: round;
+                     pointer-events: none; animation: dash 0.6s linear infinite; }
+        @keyframes dash { to { stroke-dashoffset: -13; } }
+
+        /* ── Nodes ── */
+        .aac-node {
+            position: absolute; pointer-events: auto;
+            background: white; border-radius: 18px;
+            box-shadow:
+                0 0 0 1.5px rgba(0,0,0,0.06),
+                0 1px 3px rgba(0,0,0,0.04),
+                0 6px 18px -2px rgba(0,0,0,0.09),
+                0 20px 40px -4px rgba(0,0,0,0.08);
+            transform: translate(-50%, -50%);
+            transition: box-shadow 0.28s ease, transform 0.24s cubic-bezier(0.34,1.3,0.64,1), width 0.3s ease;
+            will-change: transform;
+        }
+        .aac-node:hover:not(.dragging) {
+            box-shadow:
+                0 0 0 2px var(--node-ring-color, rgba(0,0,0,0.12)),
+                0 2px 8px rgba(0,0,0,0.06),
+                0 14px 28px -2px rgba(0,0,0,0.12),
+                0 32px 60px -4px rgba(0,0,0,0.10);
+            transform: translate(-50%, -50%) translateY(-3px);
+        }
+        .aac-node.dragging {
+            box-shadow:
+                0 0 0 2.5px var(--node-ring-color, rgba(59,130,246,0.55)),
+                0 8px 16px rgba(0,0,0,0.10),
+                0 28px 52px rgba(0,0,0,0.16),
+                0 48px 88px rgba(0,0,0,0.10);
+            transform: translate(-50%, -50%) scale(1.04) translateY(-6px);
+            z-index: 100 !important;
+        }
+
+        /* Node Entrance Animation */
+        .node-enter { animation: popIn 0.44s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        @keyframes popIn {
+            0%   { transform: translate(-50%, -50%) scale(0.60); opacity: 0; }
+            100% { transform: translate(-50%, -50%) scale(1);    opacity: 1; }
+        }
+
+        /* ── Ports ── */
+        .port {
+            position: absolute; width: 18px; height: 18px;
+            background: white; border: 2.5px solid #94a3b8; border-radius: 50%;
+            top: 24px; transform: translateY(-50%); z-index: 10; transition: all 0.2s;
+            box-shadow: 0 0 0 3px white, 0 1px 5px rgba(0,0,0,0.16);
+        }
+        .port-in { left: -9px; cursor: crosshair; }
+        .port-in.highlight {
+            transform: translateY(-50%) scale(1.6); border-color: #3b82f6;
+            background: #dbeafe; box-shadow: 0 0 0 3px white, 0 0 0 6px rgba(59,130,246,0.28);
+        }
+
+        /* ── Grid Cells ── */
+        .grid-cell {
+            transition: outline 0.12s, opacity 0.2s, transform 0.12s, box-shadow 0.14s;
+            user-select: none; -webkit-user-select: none; cursor: grab;
+        }
+        .grid-cell:hover:not(.drop-target) { transform: scale(1.05); box-shadow: 0 6px 18px rgba(0,0,0,0.14) !important; }
+        .grid-cell:active { cursor: grabbing; transform: scale(0.93) !important; }
+        .grid-cell.drop-target {
+            outline: 2.5px solid #3b82f6; outline-offset: -2px;
+            box-shadow: 0 0 0 5px rgba(59,130,246,0.20) !important;
+        }
+
+        .node-header { cursor: grab; overflow: hidden; }
+        .node-header:active { cursor: grabbing; }
+        
+        /* ── Overlays & Modals ── */
+        #drop-dialog-overlay, #custom-modal-overlay { 
+            position: fixed; inset: 0; background: rgba(10, 18, 36, 0.50); backdrop-filter: blur(4px); z-index: 10005; 
+            opacity: 0; pointer-events: none; transition: opacity 0.22s; 
+        }
+        #drop-dialog-overlay.active, #custom-modal-overlay.active { opacity: 1; pointer-events: auto; }
+        
+        /* ── Scrollbars ── */
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* ── Inputs inside Modals ── */
+        .modal-input { user-select: auto; -webkit-user-select: auto; }
+
+        /* ── Symbol Picker ── */
+        /* ── Symbol Picker ── */
+        .symbol-picker-tabs { display:flex; gap:6px; padding:0; background:transparent; margin-bottom:0; }
+        .symbol-picker-tab { flex:1; padding:11px 14px; border:2px solid #e2e8f0; background:white; border-radius:14px; font-family:'Outfit',sans-serif; font-weight:700; font-size:0.80rem; color:#64748b; cursor:pointer; transition:all 0.22s cubic-bezier(0.34,1.2,0.64,1); display:flex; align-items:center; justify-content:center; gap:8px; }
+        .symbol-picker-tab:hover:not(.active) { border-color:#bfdbfe; color:#334155; background:#f8fafc; transform:translateY(-1px); }
+        #sp-tab-arasaac.active { background:linear-gradient(135deg, #3b82f6 0%, #6366f1 100%); border-color:transparent; color:white; box-shadow:0 4px 16px rgba(59,130,246,0.38); }
+        #sp-tab-picom.active   { background:linear-gradient(135deg, #10b981 0%, #059669 100%); border-color:transparent; color:white; box-shadow:0 4px 16px rgba(16,185,129,0.34); }
+        .symbol-tab-content { display:none; }
+        .symbol-tab-content.active { display:flex; flex-direction:column; flex:1; min-height:0; overflow-y:auto; padding:16px 16px 8px; }
+        /* Search */
+        .sp-search-wrapper { position:relative; margin-bottom:10px; }
+        .sp-search-icon { position:absolute; left:14px; top:50%; transform:translateY(-50%); color:#94a3b8; pointer-events:none; }
+        .sp-search-input { width:100%; padding:12px 16px 12px 46px; border:2px solid #e2e8f0; border-radius:16px; font-family:'Outfit',sans-serif; font-size:0.925rem; font-weight:500; color:#1e293b; outline:none; transition:all 0.2s; background:#f8fafc; box-sizing:border-box; user-select:auto; -webkit-user-select:auto; }
+        .sp-search-input::placeholder { color:#94a3b8; font-weight:400; }
+        .sp-search-input:focus { border-color:#3b82f6; background:white; box-shadow:0 0 0 4px rgba(59,130,246,0.10); }
+        /* Popular chips */
+        .sp-popular { display:flex; flex-wrap:wrap; gap:5px; margin-top:6px; }
+        .sp-popular-btn { padding:4px 10px; background:#f1f5f9; border:1.5px solid transparent; border-radius:20px; font-family:'Outfit',sans-serif; font-size:0.70rem; font-weight:700; color:#475569; cursor:pointer; transition:all 0.15s; white-space:nowrap; }
+        .sp-popular-btn:hover { background:#dbeafe; border-color:#93c5fd; color:#1d4ed8; transform:translateY(-1px); }
+        .sp-popular-btn:active { transform:scale(0.93); }
+        /* Results grid */
+        .sp-results-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; padding-top:10px; }
+        @media (min-width:520px) { .sp-results-grid { grid-template-columns:repeat(5,1fr); } }
+        @media (max-width:340px) { .sp-results-grid { grid-template-columns:repeat(3,1fr); } }
+        /* Symbol cards */
+        .sp-symbol-btn { aspect-ratio:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:8px 6px; background:white; border:2px solid #e8ecf0; border-radius:16px; cursor:pointer; transition:all 0.18s cubic-bezier(0.34,1.2,0.64,1); overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,0.05); }
+        .sp-symbol-btn:hover { background:#eff6ff; border-color:#93c5fd; transform:translateY(-3px) scale(1.04); box-shadow:0 8px 22px rgba(59,130,246,0.18); }
+        .sp-symbol-btn:active { transform:scale(0.93); box-shadow:none; transition-duration:0.08s; }
+        .sp-symbol-btn img { width:100%; height:68%; object-fit:contain; }
+        .sp-symbol-btn .sp-lbl { font-size:0.60rem; font-family:'Outfit',sans-serif; font-weight:700; color:#64748b; text-align:center; margin-top:5px; line-height:1.1; max-height:2.2em; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; line-clamp:2; -webkit-box-orient:vertical; }
+        .sp-symbol-btn:hover .sp-lbl { color:#1d4ed8; }
+        /* Loading / empty */
+        .sp-loading, .sp-empty { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:36px 20px; color:#94a3b8; text-align:center; grid-column:1/-1; }
+        .sp-loading-spinner { width:36px; height:36px; border:3px solid #e2e8f0; border-top-color:#3b82f6; border-radius:50%; animation:sp-spin 0.85s linear infinite; }
+        @keyframes sp-spin { to { transform:rotate(360deg); } }
+        .sp-empty svg { width:44px; height:44px; margin-bottom:10px; opacity:0.35; }
+        .sp-empty p { font-family:'Outfit',sans-serif; }
+
+        /* ── Client cell animations ── */
+        @keyframes cellPress {
+            0%   { transform: scale(1); }
+            35%  { transform: scale(0.90); filter: brightness(0.87); }
+            70%  { transform: scale(1.04); filter: brightness(1.04); }
+            100% { transform: scale(1);   filter: brightness(1); }
+        }
+        .cell-press { animation: cellPress 0.26s cubic-bezier(0.34, 1.4, 0.64, 1) forwards; }
+
+        @keyframes stripPress {
+            0%   { transform: scale(1); }
+            40%  { transform: scale(0.87); filter: brightness(0.85); }
+            100% { transform: scale(1);   filter: brightness(1); }
+        }
+        .strip-press { animation: stripPress 0.2s cubic-bezier(0.34, 1.3, 0.64, 1) forwards; }
+        .client-drag-cell { transition: transform 0.14s cubic-bezier(0.34, 1.25, 0.64, 1), box-shadow 0.12s ease; }
+        .cell-drag-hover { transform: scale(1.45) !important; z-index: 20 !important; position: relative !important; box-shadow: 0 16px 48px rgba(0,0,0,0.28), 0 0 0 4px rgba(59,130,246,0.88) !important; filter: brightness(1.05) !important; }
+        #undo-btn:disabled, #redo-btn:disabled { opacity: 0.32; cursor: not-allowed; pointer-events: none; }
+        .client-hold-btn:hover { opacity: 0.55; }
+        .client-hold-btn.holding { opacity: 1; }
+        .client-hold-btn::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: currentColor; transform: scaleX(0); transform-origin: left; transition: none; border-radius: 0 0 6px 6px; }
+        .client-hold-btn.holding::after { transform: scaleX(1); transition: transform 3s linear; }
+
+        /* ── Splash Screen ── */
+        #splash-screen {
+            position: fixed; inset: 0; z-index: 99999;
+            background: linear-gradient(145deg, #1a3a8f 0%, #3b30c4 45%, #7c3aed 100%);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: opacity 0.55s ease, visibility 0.55s ease;
+        }
+        #splash-screen.splash-hide { opacity: 0; visibility: hidden; pointer-events: none; }
+        .splash-icon-ring {
+            width: 112px; height: 112px; border-radius: 30px;
+            background: rgba(255,255,255,0.18);
+            display: flex; align-items: center; justify-content: center;
+            position: relative;
+            box-shadow:
+                0 0 0 1px rgba(255,255,255,0.25),
+                0 8px 32px rgba(0,0,0,0.30),
+                0 24px 64px rgba(0,0,0,0.20);
+            animation: splashPop 0.60s cubic-bezier(0.34,1.5,0.64,1) both;
+        }
+        /* Soft glow ring behind icon */
+        .splash-icon-ring::before {
+            content: '';
+            position: absolute; inset: -16px;
+            border-radius: 46px;
+            background: radial-gradient(ellipse at center, rgba(167,139,250,0.30) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .splash-icon-ring img { width: 72px; height: 72px; border-radius: 16px; }
+        @keyframes splashPop {
+            0%   { transform: scale(0.55); opacity: 0; }
+            100% { transform: scale(1);   opacity: 1; }
+        }
+        .splash-title {
+            margin-top: 28px;
+            font-family: 'Outfit', sans-serif; font-size: 2.1rem; font-weight: 800;
+            color: #ffffff; letter-spacing: -0.5px;
+            animation: splashFadeUp 0.5s 0.22s ease both;
+        }
+        .splash-tagline {
+            margin-top: 6px;
+            font-family: 'Outfit', sans-serif; font-size: 0.875rem; font-weight: 400;
+            color: rgba(255,255,255,0.60); letter-spacing: 0.03em;
+            animation: splashFadeUp 0.5s 0.36s ease both;
+        }
+        .splash-enter-btn {
+            margin-top: 52px;
+            padding: 15px 52px;
+            font-family: 'Outfit', sans-serif; font-size: 1.05rem; font-weight: 700;
+            color: #1d4ed8;
+            background: #ffffff;
+            border: none; border-radius: 999px;
+            cursor: pointer;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.28), 0 0 0 1px rgba(255,255,255,0.4) inset;
+            animation: splashFadeUp 0.5s 0.5s ease both;
+            transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+            -webkit-tap-highlight-color: transparent;
+            letter-spacing: 0.01em;
+        }
+        .splash-enter-btn:hover  { background: #eff6ff; transform: scale(1.05); box-shadow: 0 12px 40px rgba(0,0,0,0.32); }
+        .splash-enter-btn:active { transform: scale(0.96); box-shadow: 0 4px 16px rgba(0,0,0,0.22); }
+
+        /* ── Landscape / Tablet Layout Optimizations ── */
+        #client-grid-area { min-height: 0; }
+        @media (orientation: landscape) {
+            #client-strip-area { height: 80px !important; padding: 5px 10px !important; }
+            #client-grid-area  { padding: 6px !important; }
+        }
+        @media (orientation: landscape) and (max-height: 500px) {
+            #client-strip-area { height: 56px !important; padding: 3px 8px !important; gap: 6px !important; }
+            #client-strip-area svg { width: 1rem !important; height: 1rem !important; }
+            #client-grid-area  { padding: 3px !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Splash Screen -->
+    <div id="splash-screen">
+        <div class="splash-icon-ring">
+            <img src="./icon.svg" alt="GridFlowAAC icon">
+        </div>
+        <div class="splash-title">GridFlowAAC</div>
+        <div class="splash-tagline">Design functional AAC grids, fast</div>
+        <button class="splash-enter-btn" onclick="(function(){var s=document.getElementById('splash-screen');s.classList.add('splash-hide');setTimeout(function(){s.remove();},600);})()">Get Started</button>
+        <div style="margin-top:28px;font-family:'Outfit',sans-serif;font-size:0.72rem;color:rgba(255,255,255,0.38);letter-spacing:0.05em;animation:splashFadeUp 0.5s 0.65s ease both;">by Niall Brown</div>
+    </div>
+
+    <!-- UI Header -->
+    <div id="editor-header" class="fixed top-0 left-0 w-full bg-white z-50 flex items-center justify-between px-3 py-2 shadow-[0_1px_0_0_rgba(0,0,0,0.07),0_2px_8px_-1px_rgba(0,0,0,0.06)]">
+        <div class="flex items-center gap-2.5">
+            <div class="bg-gradient-to-br from-blue-500 via-indigo-500 to-violet-600 p-1.5 rounded-xl text-white shadow-sm flex items-center justify-center">
+                <i data-lucide="layout-grid" class="w-4 h-4"></i>
+            </div>
+            <div class="hidden md:block">
+                <h1 id="editor-title" class="text-sm font-bold text-slate-800 leading-tight tracking-tight">GridFlowAAC</h1>
+                <p id="editor-subtitle" class="text-[10px] text-slate-400 font-medium">Drag tabs to route · Tap cells to edit</p>
+            </div>
+        </div>
+        
+        <div id="editor-toolbar-controls" class="flex items-center gap-1">
+            <div class="flex items-center gap-1.5 bg-slate-50 border border-slate-200/80 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-100/80 rounded-lg px-2 py-1 mr-1 sm:mr-2 shadow-sm transition-all">
+                <label for="grid-size-select" class="sr-only">Grid Size</label>
+                <i data-lucide="grid-3x3" class="w-3.5 h-3.5 text-slate-400 hidden sm:block" aria-hidden="true"></i>
+                <select id="grid-size-select" onchange="handleGridSizeChange(this.value)" class="bg-transparent text-slate-700 text-xs font-bold outline-none cursor-pointer" aria-label="Select Grid Size">
+                    <option value="2x1">2x1</option> <option value="3x2">3x2</option> <option value="4x2">4x2</option> <option value="4x3">4x3</option>
+                    <option value="5x3">5x3</option> <option value="5x4">5x4</option> <option value="6x4">6x4</option> <option value="6x5">6x5</option>
+                    <option value="7x4">7x4</option> <option value="7x5">7x5</option> <option value="7x6">7x6</option>
+                </select>
+            </div>
+
+            <div id="zoom-btn-group" class="flex bg-slate-50 rounded-lg border border-slate-200/80 p-0.5 mr-1 sm:mr-2 shadow-sm">
+                <button onpointerdown="applyZoomBtn(-0.2)" class="p-1.5 hover:bg-white rounded-md transition text-slate-500 hover:text-slate-700" title="Zoom Out"><i data-lucide="zoom-out" class="w-3.5 h-3.5 pointer-events-none"></i></button>
+                <button onpointerdown="applyZoomBtn(0.2)" class="p-1.5 hover:bg-white rounded-md transition text-slate-500 hover:text-slate-700" title="Zoom In"><i data-lucide="zoom-in" class="w-3.5 h-3.5 pointer-events-none"></i></button>
+            </div>
+            
+            <button id="undo-btn" onpointerdown="undo()" disabled class="bg-white hover:bg-slate-50 border border-slate-200/80 p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 sm:gap-1.5 transition text-slate-600 shadow-sm" title="Undo (Ctrl+Z)">
+                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5 pointer-events-none"></i> <span class="hidden sm:inline">Undo</span>
+            </button>
+            <button id="redo-btn" onpointerdown="redo()" disabled class="bg-white hover:bg-slate-50 border border-slate-200/80 p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 sm:gap-1.5 transition text-slate-600 shadow-sm" title="Redo (Ctrl+Y)">
+                <i data-lucide="rotate-cw" class="w-3.5 h-3.5 pointer-events-none"></i> <span class="hidden sm:inline">Redo</span>
+            </button>
+            <button onpointerdown="promptClearAll()" class="bg-white hover:bg-red-50 border border-slate-200/80 p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 sm:gap-1.5 transition text-red-500 shadow-sm" title="Clear Map">
+                <i data-lucide="trash-2" class="w-3.5 h-3.5 pointer-events-none"></i> <span class="hidden sm:inline">Clear</span>
+            </button>
+            <button onpointerdown="fitAllNodes()" class="bg-white hover:bg-slate-50 border border-slate-200/80 p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 sm:gap-1.5 transition text-slate-600 shadow-sm">
+                <i data-lucide="scan" class="w-3.5 h-3.5 pointer-events-none"></i> <span class="hidden sm:inline">Show All</span>
+            </button>
+            <button onpointerdown="pushHistory(); spawnRootNode()" class="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 sm:gap-1.5 transition shadow-sm">
+                <i data-lucide="plus-circle" class="w-3.5 h-3.5 pointer-events-none"></i> <span class="hidden sm:inline">New Page</span>
+            </button>
+            <div id="toolbar-divider" class="w-px h-5 bg-slate-200 mx-0.5 sm:mx-1 flex-shrink-0"></div>
+            <button id="profile-toolbar-btn" onpointerdown="openProfileManager()" class="bg-white hover:bg-slate-50 border border-slate-200/80 p-1.5 sm:px-2 sm:py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 sm:gap-1.5 transition text-slate-600 shadow-sm" title="Profiles">
+                <i data-lucide="user-circle" class="w-3.5 h-3.5 pointer-events-none flex-shrink-0"></i>
+                <span id="active-profile-label" class="hidden sm:inline max-w-[90px] truncate font-bold">Default</span>
+                <i data-lucide="chevron-down" class="w-3 h-3 pointer-events-none text-slate-400 hidden sm:block flex-shrink-0"></i>
+            </button>
+            <button onpointerdown="startClientApp()" class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white p-1.5 sm:px-3 sm:py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 sm:gap-1.5 transition shadow-sm active:scale-95" title="Play App">
+                <i data-lucide="play" class="w-3.5 h-3.5 pointer-events-none fill-current"></i> <span class="hidden sm:inline">Play App</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Workspace -->
+    <div id="app-wrapper">
+        <div id="bg-grid"></div>
+        <div id="workspace">
+            <svg id="svg-layer"></svg>
+            <div id="nodes-layer"></div>
+        </div>
+    </div>
+
+    <!-- Drop Action Context Menu -->
+    <div id="drop-dialog-overlay"></div>
+    <div id="drop-dialog" class="hidden fixed z-[9999] bg-white rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.16),0_2px_8px_rgba(0,0,0,0.08)] border border-slate-100/80 p-1.5 flex flex-col gap-0.5 w-48 origin-top-left transition-all">
+        <div class="px-2 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">Cross-Grid Action</div>
+        <button id="btn-move-cell" class="flex items-center gap-2 w-full text-left px-3 py-2.5 text-sm font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-700 rounded-xl transition">
+            <i data-lucide="arrow-right-left" class="w-4 h-4 text-blue-500 pointer-events-none"></i> Swap / Move
+        </button>
+        <button id="btn-copy-cell" class="flex items-center gap-2 w-full text-left px-3 py-2.5 text-sm font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 rounded-xl transition">
+            <i data-lucide="copy" class="w-4 h-4 text-emerald-500 pointer-events-none"></i> Copy Symbol
+        </button>
+        <div class="mx-2 border-t border-slate-100 my-0.5"></div>
+        <button id="btn-cancel-drop" class="flex items-center gap-2 w-full text-left px-3 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 rounded-xl transition">
+            <i data-lucide="x" class="w-4 h-4 text-red-500 pointer-events-none"></i> Cancel
+        </button>
+    </div>
+
+    <!-- Global Custom Modal System -->
+    <div id="custom-modal-overlay" class="flex items-center justify-center">
+        <div id="custom-modal-container" class="bg-white rounded-2xl shadow-[0_24px_80px_rgba(0,0,0,0.18),0_4px_16px_rgba(0,0,0,0.10)] w-full max-w-lg max-h-[90vh] transform scale-95 opacity-0 transition-all duration-200 overflow-hidden border border-slate-100/60">
+            <!-- Content dynamically injected here -->
+        </div>
+    </div>
+
+    <script>
+        // --- 0. Security Utility ---
+        function escHtml(s) {
+            return String(s == null ? '' : s)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
+        // --- 1. Global Config & Data State ---
+        let gridCols = 4, gridRows = 3, NODE_WIDTH = 320;
+        let bgDotColor = '#cbd5e1'; // adapts with applyClientTheme 
+
+        try {
+            const savedConfig = localStorage.getItem('aacMapConfig');
+            if (savedConfig) {
+                const parsed = JSON.parse(savedConfig);
+                gridCols = parsed.cols || 4; gridRows = parsed.rows || 3;
+            }
+        } catch(e) { localStorage.removeItem('aacMapConfig'); }
+
+        function updateNodeDimensions() { NODE_WIDTH = Math.max(240, gridCols * 75); }
+        updateNodeDimensions();
+
+        const defaultCells = () => Array(gridCols * gridRows).fill(null).map(() => ({ label: '', linkId: null, src: null }));
+
+        let savedData = localStorage.getItem('aacMapData');
+        let _parsedData = null;
+        try { _parsedData = savedData ? JSON.parse(savedData) : null; } catch(e) { localStorage.removeItem('aacMapData'); }
+        let nodesData = _parsedData || {
+            'home': { 
+                id: 'home', title: 'Home Page', color: '#047857', x: -300, y: 0, 
+                cells: [{label: 'I', linkId: null, src: null}, {label: 'Stop', linkId: null, src: null}, {label: 'Yes', linkId: null, src: null}, {label: 'No', linkId: null, src: null},
+                        {label: 'People', linkId: 'people', src: null}, {label: 'Actions', linkId: 'actions', src: null}] 
+            },
+            'people': { 
+                id: 'people', title: 'People', color: '#b45309', x: 200, y: -200, 
+                cells: [{label: 'Mom', linkId: null, src: null}, {label: 'Dad', linkId: null, src: null}]
+            },
+            'actions': { 
+                id: 'actions', title: 'Actions', color: '#be123c', x: 200, y: 200, 
+                cells: [{label: 'Go', linkId: null, src: null}, {label: 'Stop', linkId: null, src: null}, {label: 'Eat', linkId: null, src: null}, {label: 'Drink', linkId: null, src: null}] 
+            }
+        };
+        let _undoHistory = []; let _undoHistIdx = -1;
+
+        // Migrate any saves that still store old Tailwind class strings
+        const _legacyColorMap = {
+            'bg-emerald-500':'#047857','bg-sky-500':'#0369a1','bg-blue-500':'#1d4ed8',
+            'bg-indigo-500':'#4338ca','bg-violet-600':'#6d28d9','bg-fuchsia-500':'#a21caf',
+            'bg-pink-500':'#be185d','bg-rose-500':'#be123c','bg-red-600':'#b91c1c',
+            'bg-orange-500':'#c2410c','bg-amber-500':'#b45309','bg-yellow-500':'#b45309',
+            'bg-lime-500':'#4d7c0f','bg-green-600':'#15803d','bg-teal-600':'#0f766e',
+            'bg-cyan-500':'#0e7490','bg-purple-500':'#7e22ce','bg-slate-600':'#1d4ed8',
+        };
+        Object.values(nodesData).forEach(node => {
+            if (node.color && node.color.startsWith('bg-'))
+                node.color = _legacyColorMap[node.color] || '#1d4ed8';
+        });
+
+        // Enforce array sizes; strip any legacy emoji fields
+        Object.values(nodesData).forEach(node => {
+            if (!node.cells) node.cells = [];
+            const targetLen = gridCols * gridRows;
+            while (node.cells.length < targetLen) node.cells.push({ label: '', linkId: null, src: null });
+            if (node.cells.length > targetLen) node.cells = node.cells.slice(0, targetLen);
+            node.cells.forEach(c => { delete c.emoji; });
+        });
+
+        // 18-colour hex palette — each a unique hue, all verified for white-text legibility
+        const nodeColorDefs = [
+            { hex: '#b91c1c', label: 'Crimson'   },  // red
+            { hex: '#c2410c', label: 'Brick'     },  // red-orange
+            { hex: '#b45309', label: 'Goldenrod' },  // amber
+            { hex: '#4d7c0f', label: 'Fern'      },  // lime-green
+            { hex: '#15803d', label: 'Forest'    },  // green
+            { hex: '#047857', label: 'Emerald'   },  // emerald
+            { hex: '#0f766e', label: 'Teal'      },  // teal
+            { hex: '#0e7490', label: 'Cerulean'  },  // cyan
+            { hex: '#0369a1', label: 'Azure'     },  // sky
+            { hex: '#1d4ed8', label: 'Cobalt'    },  // blue
+            { hex: '#4338ca', label: 'Indigo'    },  // indigo
+            { hex: '#6d28d9', label: 'Amethyst'  },  // violet
+            { hex: '#7e22ce', label: 'Purple'    },  // purple
+            { hex: '#a21caf', label: 'Orchid'    },  // fuchsia
+            { hex: '#be185d', label: 'Magenta'   },  // pink
+            { hex: '#be123c', label: 'Ruby'      },  // rose
+            { hex: '#9a3412', label: 'Sienna'    },  // deep orange-brown
+            { hex: '#065f46', label: 'Evergreen' },  // deep emerald
+        ];
+
+        // Convert hex to rgba string for tinted link-cell backgrounds
+        function hexToRgba(hex, alpha) {
+            const r = parseInt(hex.slice(1, 3), 16),
+                  g = parseInt(hex.slice(3, 5), 16),
+                  b = parseInt(hex.slice(5, 7), 16);
+            return `rgba(${r},${g},${b},${alpha})`;
+        }
+
+        // Pick next unused colour — cycles through all before repeating
+        function nextNodeColor() {
+            const used = new Set(Object.values(nodesData).map(n => n.color));
+            const all  = nodeColorDefs.map(d => d.hex);
+            const pool = all.filter(h => !used.has(h));
+            return (pool.length ? pool : all)[Math.floor(Math.random() * (pool.length || all.length))];
+        }
+
+        // UI View State
+        let panX = window.innerWidth / 2; let panY = window.innerHeight / 2; let scale = 1;
+        let isPanning = false, isDraggingNode = false, isWiring = false;
+        let startPointerX = 0, startPointerY = 0;
+        let activeSourceNodeId = null, activeSourceCellIdx = null; 
+        
+        const activePointers = new Map(); let prevPinchDiff = -1;
+        let isCellPointerDown = false, isDraggingCell = false;
+        let activeCellTarget = null, cellStartCoords = { x: 0, y: 0 }, cellGhostEl = null;
+        let isModalOpen = false;
+
+        const wrapper = document.getElementById('app-wrapper'); const workspace = document.getElementById('workspace');
+        const bgGrid = document.getElementById('bg-grid'); const svgLayer = document.getElementById('svg-layer');
+        const nodesLayer = document.getElementById('nodes-layer'); 
+        const dropDialog = document.getElementById('drop-dialog'); const dropDialogOverlay = document.getElementById('drop-dialog-overlay');
+        const modalOverlay = document.getElementById('custom-modal-overlay'); const modalContainer = document.getElementById('custom-modal-container');
+        let tempWire = null;
+
+        // --- 2. Custom Modal System ---
+        function openModal(htmlContent) {
+            isModalOpen = true;
+            activePointers.clear(); // Safety: cancel any lingering touch states
+            modalContainer.innerHTML = htmlContent;
+            modalOverlay.classList.add('active');
+            setTimeout(() => {
+                modalContainer.classList.remove('scale-95', 'opacity-0');
+                modalContainer.classList.add('scale-100', 'opacity-100');
+                const firstInput = modalContainer.querySelector('input');
+                if(firstInput) firstInput.focus();
+            }, 10);
+            lucide.createIcons();
+        }
+
+        function closeModal() {
+            modalContainer.classList.remove('scale-100', 'opacity-100');
+            modalContainer.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modalOverlay.classList.remove('active');
+                modalContainer.innerHTML = '';
+                try {
+                    const spOverlay = document.getElementById('symbol-picker-overlay');
+                    if (!spOverlay || spOverlay.style.display === 'none') {
+                        isModalOpen = false;
+                    }
+                } catch(e) {
+                    isModalOpen = false; 
+                }
+            }, 200);
+        }
+
+        function promptAlert(title, message) {
+            openModal(`
+                <div class="p-6">
+                    <div class="flex items-center gap-2.5 mb-3">
+                        <div class="w-8 h-8 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="info" class="w-4 h-4 text-blue-600"></i>
+                        </div>
+                        <h3 class="text-base font-bold text-slate-800">${title}</h3>
+                    </div>
+                    <p class="text-sm text-slate-500 mb-5 ml-10 leading-relaxed">${message}</p>
+                    <button onclick="closeModal()" class="w-full bg-blue-600 text-white font-bold py-2.5 rounded-xl hover:bg-blue-700 active:bg-blue-800 transition shadow-sm">Got it</button>
+                </div>
+            `);
+        }
+
+        function promptConfirm(title, message, confirmText, confirmColor, onConfirm) {
+            window.tempConfirmHandler = () => { closeModal(); onConfirm(); };
+            const isRed = confirmColor === 'red';
+            const iconBg = isRed ? 'bg-red-100' : 'bg-blue-100';
+            const iconColor = isRed ? 'text-red-600' : 'text-blue-600';
+            const icon = isRed ? 'alert-triangle' : 'help-circle';
+            const bg = isRed ? 'bg-red-600 hover:bg-red-700 active:bg-red-800' : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800';
+            openModal(`
+                <div class="p-6">
+                    <div class="flex items-center gap-2.5 mb-3">
+                        <div class="w-8 h-8 rounded-xl ${iconBg} flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="${icon}" class="w-4 h-4 ${iconColor}"></i>
+                        </div>
+                        <h3 class="text-base font-bold text-slate-800">${title}</h3>
+                    </div>
+                    <p class="text-sm text-slate-500 mb-5 ml-10 leading-relaxed">${message}</p>
+                    <div class="flex gap-2.5">
+                        <button onclick="closeModal()" class="flex-1 bg-slate-100 text-slate-600 font-bold py-2.5 rounded-xl hover:bg-slate-200 transition">Cancel</button>
+                        <button onclick="tempConfirmHandler()" class="flex-1 ${bg} text-white font-bold py-2.5 rounded-xl transition shadow-sm">${confirmText}</button>
+                    </div>
+                </div>
+            `);
+        }
+
+        function promptInput(title, label, defaultValue, onSave) {
+            window.tempSaveHandler = () => { 
+                const val = document.getElementById('modal-input-val').value;
+                if(val.trim() !== '') { closeModal(); onSave(val); }
+            };
+            openModal(`
+                <div class="p-6">
+                    <h3 class="text-base font-bold text-slate-800 mb-4">${escHtml(title)}</h3>
+                    <div class="mb-5">
+                        <label class="block text-xs font-bold text-slate-400 mb-1.5 uppercase tracking-wide">${escHtml(label)}</label>
+                        <input id="modal-input-val" type="text" value="${escHtml(defaultValue)}" class="modal-input w-full border-2 border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-800 focus:outline-none focus:ring-3 focus:ring-blue-100 focus:border-blue-500 transition font-medium" onkeydown="if(event.key === 'Enter') tempSaveHandler()">
+                    </div>
+                    <div class="flex gap-2.5">
+                        <button onclick="closeModal()" class="flex-1 bg-slate-100 text-slate-600 font-bold py-2.5 rounded-xl hover:bg-slate-200 transition">Cancel</button>
+                        <button onclick="tempSaveHandler()" class="flex-1 bg-blue-600 text-white font-bold py-2.5 rounded-xl hover:bg-blue-700 active:bg-blue-800 transition shadow-sm">Save</button>
+                    </div>
+                </div>
+            `);
+        }
+
+        function promptEditNode(nodeId) {
+            const node = nodesData[nodeId];
+            window.tempSelectedColor = node.color;
+
+            window.selectNodeColor = (hex) => {
+                window.tempSelectedColor = hex;
+                document.querySelectorAll('.color-swatch-btn').forEach(b => {
+                    const active = b.dataset.hex === hex;
+                    b.style.boxShadow = active ? `0 0 0 3px white, 0 0 0 5px ${b.dataset.hex}` : 'none';
+                    b.style.transform = active ? 'scale(1.25)' : 'scale(1)';
+                });
+            };
+
+            window.tempSaveNode = () => {
+                pushHistory();
+                const val = document.getElementById('modal-node-title').value.trim();
+                if (val) {
+                    nodesData[nodeId].title = val;
+                    Object.values(nodesData).forEach(n => n.cells.forEach(c => { if (c.linkId === nodeId) c.label = val; }));
+                }
+                nodesData[nodeId].color = window.tempSelectedColor;
+                closeModal(); renderMap(); setTimeout(updateAllWires, 50);
+            };
+
+            const swatchesHtml = nodeColorDefs.map(def => {
+                const isSelected = def.hex === node.color;
+                const shadow = isSelected ? `0 0 0 3px white, 0 0 0 5px ${def.hex}` : 'none';
+                const transform = isSelected ? 'scale(1.25)' : 'scale(1)';
+                return `<button class="color-swatch-btn w-8 h-8 rounded-full transition-all duration-150" style="background:${def.hex}; box-shadow:${shadow}; transform:${transform};" data-hex="${def.hex}" onclick="selectNodeColor('${def.hex}')" title="${def.label}"></button>`;
+            }).join('');
+
+            openModal(`
+                <div class="p-6">
+                    <div class="flex items-center gap-2.5 mb-4">
+                        <div class="w-8 h-8 rounded-xl bg-indigo-100 flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="folder" class="w-4 h-4 text-indigo-600"></i>
+                        </div>
+                        <h3 class="text-base font-bold text-slate-800">Edit Folder</h3>
+                    </div>
+                    <div class="mb-5">
+                        <label class="block text-xs font-bold text-slate-400 mb-1.5 uppercase tracking-wide">Folder Name</label>
+                        <input id="modal-node-title" type="text" value="${escHtml(node.title)}" class="modal-input w-full border-2 border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-800 font-medium focus:outline-none focus:ring-3 focus:ring-blue-100 focus:border-blue-500 transition" onkeydown="if(event.key==='Enter') tempSaveNode()">
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-xs font-bold text-slate-400 mb-2.5 uppercase tracking-wide">Colour</label>
+                        <div class="flex flex-wrap gap-3 py-1">
+                            ${swatchesHtml}
+                        </div>
+                    </div>
+                    <div class="flex gap-2.5">
+                        <button onclick="closeModal()" class="flex-1 bg-slate-100 text-slate-600 font-bold py-2.5 rounded-xl hover:bg-slate-200 transition">Cancel</button>
+                        <button onclick="tempSaveNode()" class="flex-1 bg-blue-600 text-white font-bold py-2.5 rounded-xl hover:bg-blue-700 active:bg-blue-800 transition shadow-sm">Save</button>
+                    </div>
+                </div>
+            `);
+        }
+
+        function toggleCellMask(nodeId, cellIdx) {
+            pushHistory();
+            const cell = nodesData[nodeId].cells[cellIdx];
+            cell.masked = !cell.masked;
+            renderMap();
+            setTimeout(updateAllWires, 50);
+            promptCellEdit(nodeId, cellIdx);
+        }
+
+        function promptCellEdit(nodeId, cellIdx) {
+            const cell = nodesData[nodeId].cells[cellIdx];
+            const isLink = !!cell.linkId;
+            
+            window.tempSaveCell = () => {
+                if(isLink) {
+                    // nothing to save in label-only mode for link cells (label is the target name)
+                } else {
+                    pushHistory();
+                    const lab = document.getElementById('modal-label-val').value.trim().substring(0, 40);
+                    const existing = nodesData[nodeId].cells[cellIdx];
+                    nodesData[nodeId].cells[cellIdx] = { ...existing, label: lab };
+                }
+                closeModal(); renderMap(); setTimeout(updateAllWires, 50);
+            };
+
+            window.tempClearCell = () => {
+                pushHistory();
+                if(isLink) nodesData[nodeId].links = nodesData[nodeId].links ? nodesData[nodeId].links.filter(id => id !== cell.linkId) : [];
+                nodesData[nodeId].cells[cellIdx] = { label: '', linkId: null, src: null };
+                closeModal(); renderMap(); setTimeout(updateAllWires, 50);
+            };
+
+            if (isLink) {
+                const imgPreview = cell.src ? `
+                    <div class="mb-3 flex items-center gap-3 p-2 bg-slate-50 rounded-lg border border-slate-200">
+                        <img src="${escHtml(cell.src)}" class="w-14 h-14 object-contain rounded flex-shrink-0" alt="current symbol">
+                        <span class="text-xs text-slate-500 flex-1">Current folder symbol. Use the buttons below to swap it.</span>
+                    </div>` : '';
+                openModal(`
+                    <div class="p-6">
+                        <div class="flex items-center gap-2.5 mb-4 text-indigo-600"><i data-lucide="folder-open" class="w-5 h-5"></i><h3 class="text-base font-bold text-slate-800">Folder Link</h3></div>
+                        <p class="text-sm text-slate-500 mb-4 leading-relaxed">This cell links to: <strong class="text-slate-800">${escHtml(cell.label)}</strong></p>
+                        ${imgPreview}
+                        <div class="flex gap-2 mb-5">
+                            <button onclick="closeModal(); openSymbolPickerModal('${nodeId}', ${cellIdx})" class="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-blue-50 text-blue-700 font-bold rounded-xl text-sm border border-blue-200 hover:bg-blue-100 transition active:scale-95">
+                                <i data-lucide="image-search" class="w-4 h-4 pointer-events-none"></i> Find Symbol
+                            </button>
+                            <button onclick="closeModal(); symbolPickerTarget={nodeId:'${nodeId}',cellIdx:${cellIdx}}; document.getElementById('sm-file-input').click()" class="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-slate-50 text-slate-700 font-bold rounded-xl text-sm border border-slate-200 hover:bg-slate-100 transition active:scale-95">
+                                <i data-lucide="upload" class="w-4 h-4 pointer-events-none"></i> Upload Photo
+                            </button>
+                        </div>
+                        <div class="flex gap-2 mb-3">
+                            <button onclick="toggleCellMask('${nodeId}', ${cellIdx})" class="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-bold border transition active:scale-95 ${cell.masked ? 'bg-amber-50 text-amber-700 border-amber-300 hover:bg-amber-100' : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'}">
+                                <i data-lucide="${cell.masked ? 'eye' : 'eye-off'}" class="w-4 h-4 pointer-events-none"></i> ${cell.masked ? 'Unmask Cell' : 'Mask Cell'}
+                            </button>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="tempClearCell()" class="flex-1 bg-red-50 text-red-600 font-bold py-2.5 rounded-xl hover:bg-red-100 transition border border-red-200 active:scale-95">Remove Link</button>
+                            <button onclick="closeModal()" class="flex-1 bg-slate-100 text-slate-600 font-bold py-2.5 rounded-xl hover:bg-slate-200 transition active:scale-95">Close</button>
+                        </div>
+                    </div>
+                `);
+            } else {
+                const imgPreview = cell.src ? `
+                    <div class="mb-3 flex items-center gap-3 p-2 bg-slate-50 rounded-lg border border-slate-200">
+                        <img src="${escHtml(cell.src)}" class="w-14 h-14 object-contain rounded flex-shrink-0" alt="current symbol">
+                        <span class="text-xs text-slate-500 flex-1">Current symbol. Use the buttons below to swap or remove it.</span>
+                    </div>` : '';
+                openModal(`
+                    <div class="p-6">
+                        <div class="flex items-center gap-2.5 mb-4">
+                            <div class="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="grid" class="w-4 h-4 text-slate-500"></i>
+                            </div>
+                            <h3 class="text-base font-bold text-slate-800">Edit Cell</h3>
+                        </div>
+                        ${imgPreview}
+                        <div class="flex gap-2 mb-4">
+                            <button onclick="closeModal(); openSymbolPickerModal('${nodeId}', ${cellIdx})" class="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-blue-50 text-blue-700 font-bold rounded-xl text-sm border border-blue-200 hover:bg-blue-100 transition active:scale-95">
+                                <i data-lucide="image-search" class="w-4 h-4 pointer-events-none"></i> Find Symbol
+                            </button>
+                            <button onclick="closeModal(); symbolPickerTarget={nodeId:'${nodeId}',cellIdx:${cellIdx}}; document.getElementById('sm-file-input').click()" class="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-slate-50 text-slate-700 font-bold rounded-xl text-sm border border-slate-200 hover:bg-slate-100 transition active:scale-95">
+                                <i data-lucide="upload" class="w-4 h-4 pointer-events-none"></i> Upload Photo
+                            </button>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-xs font-bold text-slate-400 mb-1.5 uppercase tracking-wide">Label</label>
+                            <div class="flex gap-2 items-stretch">
+                                <input id="modal-label-val" type="text" value="${escHtml(cell.label)}" maxlength="40" class="modal-input flex-1 border-2 border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 font-medium focus:outline-none focus:ring-3 focus:ring-blue-100 focus:border-blue-500 transition" onkeydown="if(event.key === 'Enter') tempSaveCell()">
+                                <button type="button" title="Preview voice" onclick="(function(btn){const txt=document.getElementById('modal-label-val').value.trim();if(!txt||!window.speechSynthesis)return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(txt);u.rate=0.95;u.pitch=1.0;btn.classList.add('scale-90','opacity-60');u.onend=()=>{btn.classList.remove('scale-90','opacity-60');};window.speechSynthesis.speak(u);})(this)" class="flex-shrink-0 flex items-center justify-center w-11 rounded-xl border-2 border-slate-200 bg-slate-50 text-slate-500 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600 transition active:scale-90">
+                                    <i data-lucide="play" class="w-4 h-4 pointer-events-none"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <button onclick="toggleCellMask('${nodeId}', ${cellIdx})" class="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-bold border transition active:scale-95 ${cell.masked ? 'bg-amber-50 text-amber-700 border-amber-300 hover:bg-amber-100' : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'}">
+                                <i data-lucide="${cell.masked ? 'eye' : 'eye-off'}" class="w-4 h-4 pointer-events-none"></i> ${cell.masked ? 'Unmask Cell (currently hidden from client)' : 'Mask Cell (hide from client)'}
+                            </button>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="tempClearCell()" class="flex-1 bg-slate-100 text-slate-500 font-bold py-2.5 rounded-xl hover:bg-slate-200 transition active:scale-95">Clear Cell</button>
+                            <button onclick="closeModal()" class="flex-1 bg-slate-100 text-slate-600 font-bold py-2.5 rounded-xl hover:bg-slate-200 transition active:scale-95">Cancel</button>
+                            <button onclick="tempSaveCell()" class="flex-1 bg-blue-600 text-white font-bold py-2.5 rounded-xl hover:bg-blue-700 active:bg-blue-800 transition shadow-sm">Save</button>
+                        </div>
+                    </div>
+                `);
+            }
+        }
+
+        // --- 3. Viewport & Setup ---
+        function init() {
+            lucide.createIcons(); document.getElementById('grid-size-select').value = `${gridCols}x${gridRows}`;
+            applyClientTheme();
+            updateProfileLabel();
+            pushHistory();
+            updateTransform(); renderMap(); setupGlobalPointers();
+            setTimeout(updateAllWires, 100); setTimeout(updateAllWires, 500);
+            window.addEventListener('resize', () => { fitAllNodes(); updateAllWires(); });
+            window.addEventListener('keydown', (e) => {
+                if (isModalOpen) return;
+                const undoKey = e.ctrlKey && !e.shiftKey && e.key.toLowerCase() === 'z';
+                const redoKey = (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'z') || (e.ctrlKey && e.key.toLowerCase() === 'y');
+                if (undoKey) { e.preventDefault(); undo(); }
+                else if (redoKey) { e.preventDefault(); redo(); }
+            });
+        }
+
+        function pushHistory() {
+            _undoHistory.splice(_undoHistIdx + 1);
+            _undoHistory.push(JSON.parse(JSON.stringify(nodesData)));
+            _undoHistIdx = _undoHistory.length - 1;
+            if (_undoHistory.length > 50) { _undoHistory.shift(); _undoHistIdx--; }
+            updateUndoRedoUI();
+        }
+        function undo() {
+            if (_undoHistIdx <= 0) return;
+            _undoHistIdx--;
+            nodesData = JSON.parse(JSON.stringify(_undoHistory[_undoHistIdx]));
+            renderMap(); setTimeout(updateAllWires, 50); updateUndoRedoUI();
+        }
+        function redo() {
+            if (_undoHistIdx >= _undoHistory.length - 1) return;
+            _undoHistIdx++;
+            nodesData = JSON.parse(JSON.stringify(_undoHistory[_undoHistIdx]));
+            renderMap(); setTimeout(updateAllWires, 50); updateUndoRedoUI();
+        }
+        function updateUndoRedoUI() {
+            const u = document.getElementById('undo-btn'), r = document.getElementById('redo-btn');
+            if (u) u.disabled = _undoHistIdx <= 0;
+            if (r) r.disabled = _undoHistIdx >= _undoHistory.length - 1;
+        }
+
+        function generateId() { return 'node_' + Math.random().toString(36).substr(2, 9); }
+        function getWorkspaceCoords(cX, cY) { return { x: (cX - panX) / scale, y: (cY - panY) / scale }; }
+        function getElCoords(el) {
+            if(!el) return null;
+            const rect = el.getBoundingClientRect(); const wsRect = workspace.getBoundingClientRect();
+            return { x: (rect.left + rect.width/2 - wsRect.left) / scale, y: (rect.top + rect.height/2 - wsRect.top) / scale };
+        }
+
+        function updateTransform() {
+            workspace.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
+            
+            // Adaptive Grid (Level of Detail) to prevent messy density when zoomed out
+            let gridSize = 24 * scale;
+            let dotSize = 1.5 * scale;
+            
+            // Subdivide or expand grid based on zoom thresholds
+            if (scale < 0.25) { gridSize *= 4; dotSize *= 4; }
+            else if (scale < 0.5) { gridSize *= 2; dotSize *= 2; }
+            else if (scale > 2) { gridSize /= 2; dotSize /= 2; }
+            
+            // Keep dot size visually stable and crisp
+            dotSize = Math.max(1, Math.min(dotSize, 2.5)); 
+
+            bgGrid.style.backgroundPosition = `${panX}px ${panY}px`; 
+            bgGrid.style.backgroundSize = `${gridSize}px ${gridSize}px`;
+            // Add a 0.5px soft edge to the transparent border for anti-aliasing
+            bgGrid.style.backgroundImage = `radial-gradient(circle, ${bgDotColor} ${dotSize}px, transparent ${dotSize + 0.5}px)`;
+        }
+
+        function fitAllNodes() {
+            const ids = Object.keys(nodesData);
+            if (!ids.length) { panX = window.innerWidth / 2; panY = window.innerHeight / 2; scale = 1; updateTransform(); updateAllWires(); return; }
+            // Estimate node height from DOM if possible, else use a reasonable default
+            const nodeEl = document.querySelector('.aac-node');
+            const nodeH = nodeEl ? nodeEl.offsetHeight : (gridRows * 60 + 60);
+            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+            ids.forEach(id => {
+                const n = nodesData[id];
+                minX = Math.min(minX, n.x - NODE_WIDTH / 2);
+                minY = Math.min(minY, n.y - nodeH / 2);
+                maxX = Math.max(maxX, n.x + NODE_WIDTH / 2);
+                maxY = Math.max(maxY, n.y + nodeH / 2);
+            });
+            const HEADER_H = 52;
+            const pad = 48;
+            const vw = window.innerWidth;
+            const vh = window.innerHeight - HEADER_H;
+            const bw = maxX - minX + pad * 2;
+            const bh = maxY - minY + pad * 2;
+            const newScale = Math.min(Math.max(0.2, Math.min(vw / bw, vh / bh)), 2);
+            panX = vw / 2 - ((minX + maxX) / 2) * newScale;
+            panY = HEADER_H + vh / 2 - ((minY + maxY) / 2) * newScale;
+            scale = newScale;
+            updateTransform(); updateAllWires();
+        }
+        function applyZoomExact(newScale, cx, cy) {
+            const oldScale = scale; scale = Math.min(Math.max(0.2, newScale), 3);
+            panX = cx - (cx - panX) * (scale / oldScale); panY = cy - (cy - panY) * (scale / oldScale);
+            updateTransform();
+        }
+        function applyZoomBtn(delta) { applyZoomExact(scale + delta, window.innerWidth / 2, window.innerHeight / 2); }
+
+        wrapper.addEventListener('wheel', (e) => { e.preventDefault(); applyZoomExact(scale * Math.exp(e.deltaY * -0.001), e.clientX, e.clientY); }, { passive: false });
+
+        // --- 4. Rendering Engine ---
+        function handleGridSizeChange(val) {
+            const [c, r] = val.split('x').map(Number); const newTotal = c * r;
+            let willLoseData = false;
+            if (newTotal < (gridCols * gridRows)) {
+                Object.values(nodesData).forEach(n => { for(let i = newTotal; i < n.cells.length; i++) { if (n.cells[i] && (n.cells[i].emoji || n.cells[i].linkId || n.cells[i].label || n.cells[i].src)) willLoseData = true; } });
+            }
+            
+            const applyResize = () => {
+                gridCols = c; gridRows = r; updateNodeDimensions();
+                document.getElementById('grid-size-select').value = `${gridCols}x${gridRows}`;
+                Object.values(nodesData).forEach(node => {
+                    if (node.cells.length < newTotal) while(node.cells.length < newTotal) node.cells.push({ label: '', linkId: null, src: null });
+                    else if (node.cells.length > newTotal) node.cells = node.cells.slice(0, newTotal);
+                });
+                localStorage.setItem('aacMapConfig', JSON.stringify({cols: gridCols, rows: gridRows})); renderMap(); setTimeout(updateAllWires, 50);
+            };
+
+            if (willLoseData) {
+                promptConfirm("Shrink Grid?", `Warning: Shrinking the grid to ${val} will permanently delete symbols placed outside the new boundaries.`, "Shrink", "red", applyResize);
+                document.getElementById('grid-size-select').value = `${gridCols}x${gridRows}`; // reset visually until confirmed
+            } else {
+                applyResize();
+            }
+        }
+
+        function renderMap() {
+            nodesLayer.innerHTML = ''; svgLayer.innerHTML = '';
+            const svgDefs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+            svgLayer.appendChild(svgDefs);
+            Object.values(nodesData).forEach(node => createNodeElement(node));
+            nodesLayer.getBoundingClientRect(); // flush
+            Object.values(nodesData).forEach(node => { node.cells.forEach((cell, idx) => { if(cell.linkId && nodesData[cell.linkId]) drawWire(node.id, idx, cell.linkId); }); });
+            localStorage.setItem('aacMapData', JSON.stringify(nodesData));
+            // Keep active profile's board snapshot in sync and automatically persist
+            const _ap = _profiles && _profiles.find(p => p.id === _activeProfileId);
+            if (_ap) { _ap.nodesData = JSON.parse(JSON.stringify(nodesData)); _ap.gridCols = gridCols; _ap.gridRows = gridRows; saveProfiles(); }
+            lucide.createIcons();
+        }
+
+        function createNodeElement(node) {
+            const el = document.createElement('div');
+            el.className = 'aac-node'; el.id = `dom-node-${node.id}`;
+            el.style.left = `${node.x}px`; el.style.top = `${node.y}px`;
+            el.style.width = `${NODE_WIDTH}px`;
+            el.style.borderColor = hexToRgba(node.color, 0.30);
+            el.style.setProperty('--node-ring-color', hexToRgba(node.color, 0.60));
+            el.style.boxShadow = [
+                `0 0 0 2px ${hexToRgba(node.color, 0.55)}`,
+                '0 2px 4px rgba(0,0,0,0.05)',
+                '0 8px 20px -2px rgba(0,0,0,0.10)',
+                '0 22px 44px -4px rgba(0,0,0,0.09)'
+            ].join(', ');
+
+            const cellsHtml = node.cells.map((cell, idx) => {
+                const isLink = !!cell.linkId;
+                let bgClass = 'border-slate-200 border shadow-sm';
+                let cellStyle = 'background-color:var(--map-cell-bg,#ffffff);';
+                let linkBadge = '';
+
+                if (isLink) {
+                    const tgtNode = nodesData[cell.linkId];
+                    if (tgtNode) {
+                        const c = tgtNode.color || '#1d4ed8';
+                        cellStyle = `background-color:var(--map-cell-bg,#ffffff);background-image:linear-gradient(${hexToRgba(c, 0.14)},${hexToRgba(c, 0.14)});border-color:${hexToRgba(c, 0.45)};`;
+                        bgClass = 'border-2 shadow-md text-slate-800';
+                        linkBadge = `<div class="absolute -top-2 -right-2 text-white rounded-full w-5 h-5 flex items-center justify-center shadow-md border-2 border-white" style="background-color:${c}"><i data-lucide="corner-down-right" class="w-3 h-3 pointer-events-none"></i></div>`;
+                    } else {
+                        bgClass = 'bg-slate-100 border-red-300 border-2 shadow-md opacity-80';
+                        linkBadge = `<div class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center shadow border-2 border-white"><i data-lucide="alert-triangle" class="w-3 h-3 pointer-events-none"></i></div>`;
+                    }
+                }
+
+                const icon = cell.src
+                    ? `<img src="${escHtml(cell.src)}" alt="${escHtml(cell.label)}" class="pointer-events-none mb-1" style="flex:1;min-height:0;width:100%;object-fit:contain;">`
+                    : (isLink ? `<i data-lucide="folder" class="w-6 h-6 text-slate-400 pointer-events-none mb-1 opacity-70"></i>` : `<i data-lucide="image-plus" class="w-6 h-6 text-slate-300 pointer-events-none mb-1 opacity-50"></i>`);
+                const label = cell.label ? `<span class="text-[11px] font-bold text-slate-700 leading-tight w-full text-center truncate pointer-events-none px-1">${escHtml(cell.label)}</span>` : '';
+                const maskOverlay = cell.masked ? `<div class="absolute inset-0 rounded-lg bg-amber-900/30 flex flex-col items-center justify-center pointer-events-none gap-0.5"><i data-lucide="eye-off" class="w-4 h-4 text-amber-100"></i><span class="text-[8px] font-bold text-amber-100 uppercase tracking-wide">Masked</span></div>` : '';
+                return `<div class="grid-cell aspect-square rounded-lg flex flex-col items-center justify-center relative ${bgClass} p-1 hover:shadow-md transition-all" style="${cellStyle}" data-index="${idx}">${icon} ${label} ${linkBadge} ${maskOverlay}</div>`;
+            }).join('');
+
+            const routingTabsHtml = node.cells.map((c, i) => {
+                if(!c.linkId || !nodesData[c.linkId]) return '';
+                const titleStr = nodesData[c.linkId].title;
+                const tabColor = nodesData[c.linkId].color;
+                return `
+                <div class="routing-tab flex items-center cursor-crosshair group pointer-events-auto" data-cell-idx="${i}">
+                    <div class="border border-y border-r border-slate-200/80 rounded-r-xl pl-2.5 pr-2 py-1.5 shadow-[0_2px_8px_rgba(0,0,0,0.08)] flex items-center gap-2 transition-all group-hover:shadow-[0_4px_14px_rgba(0,0,0,0.12)] group-hover:-translate-y-0.5" style="border-left: 3.5px solid ${tabColor}; background:#ffffff; width:120px;">
+                        <span class="text-[10px] font-bold text-slate-700 truncate pointer-events-none leading-none flex-1 min-w-0">${escHtml(titleStr)}</span>
+                        <div class="w-3 h-3 flex-shrink-0 rounded-full border-2 bg-white port-anchor pointer-events-none group-hover:scale-125 transition-all shadow-sm" style="border-color:${tabColor};"></div>
+                    </div>
+                </div>`;
+            }).join('');
+
+            const newLinkTabHtml = `
+                <div class="routing-tab-new flex items-center cursor-crosshair group pointer-events-auto" data-node="${node.id}" title="Drag to empty canvas for a new grid, or to an existing grid to link">
+                    <div class="border border-y border-r border-slate-200 border-dashed rounded-r-xl py-1.5 pr-2 shadow-sm flex items-center gap-1.5 transition-all group-hover:border-blue-400 group-hover:border-solid group-hover:shadow-[0_4px_12px_rgba(59,130,246,0.10)]" style="background:#f8fafc; width:120px;">
+                        <i data-lucide="plus" class="w-3 h-3 flex-shrink-0 text-slate-400 group-hover:text-blue-500 pointer-events-none"></i>
+                        <span class="text-[10px] font-bold text-slate-500 group-hover:text-blue-600 truncate pointer-events-none flex-1 min-w-0">New Link</span>
+                        <div class="w-3.5 h-3.5 flex-shrink-0 rounded-full border-2 border-slate-300 bg-white port-anchor-new pointer-events-none group-hover:border-blue-500 group-hover:scale-125 transition-transform shadow-sm"></div>
+                    </div>
+                </div>
+            `;
+
+            el.innerHTML = `
+                <div class="h-12 rounded-t-[18px] flex items-center px-4 justify-between text-white node-header select-none relative overflow-hidden" style="background-color:${node.color}; background-image:linear-gradient(160deg, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.04) 60%, rgba(0,0,0,0.12) 100%);">
+                    <div class="absolute inset-x-0 top-0 h-px bg-white/35 pointer-events-none"></div>
+                    <div class="absolute inset-x-0 bottom-0 h-px pointer-events-none" style="background:rgba(0,0,0,0.18);"></div>
+                    <div class="w-2 h-2 rounded-full bg-white/50 flex-shrink-0 mr-2.5 pointer-events-none"></div>
+                    <span class="font-bold text-[14px] truncate pointer-events-none flex-1 drop-shadow-sm tracking-wide">${escHtml(node.title)}</span>
+                    <div class="flex items-center gap-0.5 ml-2 pointer-events-auto">
+                        <button class="edit-btn opacity-75 hover:opacity-100 p-1.5 rounded-lg hover:bg-white/20 transition active:scale-95"><i data-lucide="pencil" class="w-3.5 h-3.5 pointer-events-none"></i></button>
+                        <button class="delete-btn opacity-75 hover:opacity-100 p-1.5 rounded-lg hover:bg-red-500/80 transition active:scale-95"><i data-lucide="trash-2" class="w-3.5 h-3.5 pointer-events-none"></i></button>
+                    </div>
+                </div>
+                <div class="grid gap-2 p-3 rounded-b-[18px] pointer-events-auto" style="background-color:var(--map-node-bg,#f8fafc); border-top: 1.5px solid ${hexToRgba(node.color, 0.18)}; grid-template-columns: repeat(${gridCols}, minmax(0, 1fr));">
+                    ${cellsHtml}
+                </div>
+                <div class="port port-in" data-node="${node.id}"></div>
+                <div class="absolute left-full top-12 bottom-0 flex flex-col items-start gap-1.5 z-10 pointer-events-none pl-[1px]">
+                    ${routingTabsHtml}
+                    ${newLinkTabHtml}
+                </div>
+            `;
+
+            el.querySelector('.node-header').addEventListener('pointerdown', (e) => {
+                if (e.target.closest('button')) return; 
+                e.stopPropagation(); pushHistory(); isDraggingNode = true; activeSourceNodeId = node.id;
+                const coords = getWorkspaceCoords(e.clientX, e.clientY);
+                startPointerX = coords.x - nodesData[node.id].x; startPointerY = coords.y - nodesData[node.id].y;
+                el.classList.add('dragging');
+            });
+
+            // Action Buttons
+            el.querySelector('.edit-btn').addEventListener('pointerdown', (e) => { e.stopPropagation(); promptEditNode(node.id); });
+            
+            el.querySelector('.delete-btn').addEventListener('pointerdown', (e) => { e.stopPropagation(); promptConfirm("Delete Folder?", `Are you sure you want to delete \"${escHtml(node.title)}\"? This will sever all connections.`, "Delete", "red", () => {
+                pushHistory(); delete nodesData[node.id];
+                Object.values(nodesData).forEach(n => n.cells.forEach(c => { if (c.linkId === node.id) { c.label = ''; c.linkId = null; c.src = null; } }));
+                renderMap(); setTimeout(updateAllWires, 50);
+            }); });
+
+            el.querySelectorAll('.grid-cell').forEach(cell => {
+                cell.addEventListener('pointerdown', (e) => { 
+                    e.stopPropagation(); activeCellTarget = cell; cellStartCoords = { x: e.clientX, y: e.clientY }; isCellPointerDown = true; 
+                });
+            });
+
+            el.querySelector('.routing-tab-new').addEventListener('pointerdown', (e) => {
+                e.stopPropagation();
+                isWiring = true; activeSourceNodeId = node.id; activeSourceCellIdx = null; 
+                tempWire = document.createElementNS('http://www.w3.org/2000/svg', 'path'); tempWire.setAttribute('class', 'wire-temp'); svgLayer.appendChild(tempWire);
+                updateTempWire(e.clientX, e.clientY);
+            });
+
+            el.querySelectorAll('.routing-tab').forEach(tab => {
+                tab.addEventListener('pointerdown', (e) => {
+                    e.stopPropagation(); isWiring = true; activeSourceNodeId = node.id; activeSourceCellIdx = tab.getAttribute('data-cell-idx');
+                    document.querySelectorAll(`path.wire-visible[data-source="${node.id}"][data-cell-idx="${activeSourceCellIdx}"]`).forEach(w => w.style.opacity = '0.2');
+                    tempWire = document.createElementNS('http://www.w3.org/2000/svg', 'path'); tempWire.setAttribute('class', 'wire-temp'); svgLayer.appendChild(tempWire);
+                    updateTempWire(e.clientX, e.clientY);
+                });
+            });
+
+            nodesLayer.appendChild(el);
+        }
+
+        // --- 5. High-Performance SVG Wiring ---
+        function getBezierPath(x1, y1, x2, y2) {
+            const tension = Math.max(Math.abs(x2 - x1) * 0.55, 80);
+            return `M ${x1} ${y1} C ${x1 + tension} ${y1}, ${x2 - tension} ${y2}, ${x2} ${y2}`;
+        }
+
+        function drawWire(sourceId, cellIdx, targetId) {
+            const sEl = document.getElementById(`dom-node-${sourceId}`);
+            const tEl = document.getElementById(`dom-node-${targetId}`);
+            if(!sEl || !tEl) return;
+            const sPort = sEl.querySelector(`.routing-tab[data-cell-idx="${cellIdx}"] .port-anchor`);
+            const tPort = tEl.querySelector('.port-in');
+            if(!sPort || !tPort) return;
+
+            const p1 = getElCoords(sPort); const p2 = getElCoords(tPort);
+            const pathData = getBezierPath(p1.x, p1.y, p2.x, p2.y);
+            const wireColor = nodesData[targetId].color || '#94a3b8';
+
+            // Arrowhead marker — strokeWidth-relative so it scales naturally with zoom
+            const defs = svgLayer.querySelector('defs');
+            const markerId = `arrowhead-${sourceId}-${cellIdx}`;
+            if (defs && !defs.querySelector(`[id="${markerId}"]`)) {
+                const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+                marker.setAttribute('id', markerId);
+                marker.setAttribute('markerWidth', '5'); marker.setAttribute('markerHeight', '4');
+                marker.setAttribute('refX', '4.8'); marker.setAttribute('refY', '2');
+                marker.setAttribute('orient', 'auto'); marker.setAttribute('markerUnits', 'strokeWidth');
+                const arrowPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                arrowPath.setAttribute('d', 'M 0 0 L 5 2 L 0 4 Z');
+                arrowPath.setAttribute('fill', wireColor); arrowPath.setAttribute('stroke', 'none');
+                marker.appendChild(arrowPath); defs.appendChild(marker);
+            }
+
+            // Glow / halo — wide, very transparent, same color
+            const glowPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            glowPath.setAttribute('d', pathData); glowPath.setAttribute('class', 'wire-bg');
+            glowPath.setAttribute('data-source', sourceId); glowPath.setAttribute('data-target', targetId); glowPath.setAttribute('data-cell-idx', cellIdx);
+            glowPath.style.stroke = wireColor;
+
+            // Invisible wide hit zone
+            const hitPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            hitPath.setAttribute('d', pathData); hitPath.setAttribute('class', 'wire-hit');
+            hitPath.setAttribute('data-source', sourceId); hitPath.setAttribute('data-target', targetId); hitPath.setAttribute('data-cell-idx', cellIdx);
+
+            // Visible stroke with arrowhead
+            const visiblePath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            visiblePath.setAttribute('d', pathData); visiblePath.setAttribute('class', 'wire-visible');
+            visiblePath.setAttribute('data-source', sourceId); visiblePath.setAttribute('data-target', targetId); visiblePath.setAttribute('data-cell-idx', cellIdx);
+            visiblePath.style.stroke = wireColor;
+            if (defs && defs.querySelector(`[id="${markerId}"]`)) visiblePath.setAttribute('marker-end', `url(#${markerId})`);
+
+            hitPath.addEventListener('pointerenter', () => {
+                visiblePath.style.stroke = '#ef4444'; visiblePath.style.strokeWidth = '3.5';
+                visiblePath.style.filter = 'drop-shadow(0 0 5px rgba(239,68,68,0.55))';
+                visiblePath.style.opacity = '1';
+                glowPath.style.stroke = '#ef4444'; glowPath.style.opacity = '0.22';
+            });
+            hitPath.addEventListener('pointerleave', () => {
+                visiblePath.style.stroke = wireColor; visiblePath.style.strokeWidth = '';
+                visiblePath.style.filter = ''; visiblePath.style.opacity = '';
+                glowPath.style.stroke = wireColor; glowPath.style.opacity = '';
+            });
+            hitPath.addEventListener('pointerdown', (e) => {
+                e.stopPropagation(); e.preventDefault();
+                promptConfirm("Delete Link?", `Sever the connection to ${escHtml(nodesData[targetId]?.title || 'Unknown')}?`, "Delete", "red", () => {
+                    if (!nodesData[sourceId]?.cells?.[cellIdx]) return;
+                    pushHistory(); nodesData[sourceId].cells[cellIdx] = { label: '', linkId: null, src: null };
+                    renderMap(); setTimeout(updateAllWires, 50);
+                });
+            });
+            svgLayer.appendChild(glowPath); svgLayer.appendChild(hitPath); svgLayer.appendChild(visiblePath);
+        }
+
+        function updateAllWires() {
+            document.querySelectorAll('path[data-source]').forEach(line => {
+                if(line.classList.contains('wire-temp')) return;
+                const srcId = line.getAttribute('data-source'); const tgtId = line.getAttribute('data-target'); const cellIdx = line.getAttribute('data-cell-idx');
+                const sPort = document.querySelector(`#dom-node-${srcId} .routing-tab[data-cell-idx="${cellIdx}"] .port-anchor`);
+                const tPort = document.querySelector(`#dom-node-${tgtId} .port-in`);
+                if(sPort && tPort) {
+                    const p1 = getElCoords(sPort); const p2 = getElCoords(tPort);
+                    if(p1 && p2) line.setAttribute('d', getBezierPath(p1.x, p1.y, p2.x, p2.y));
+                }
+            });
+        }
+
+        function updateLiveWires(nodeId) {
+            document.querySelectorAll(`path[data-source="${nodeId}"]`).forEach(line => {
+                const tgtId = line.getAttribute('data-target'); const cellIdx = line.getAttribute('data-cell-idx');
+                const p1 = getElCoords(document.querySelector(`#dom-node-${nodeId} .routing-tab[data-cell-idx="${cellIdx}"] .port-anchor`));
+                const p2 = getElCoords(document.querySelector(`#dom-node-${tgtId} .port-in`));
+                if(p1 && p2) line.setAttribute('d', getBezierPath(p1.x, p1.y, p2.x, p2.y));
+            });
+            document.querySelectorAll(`path[data-target="${nodeId}"]`).forEach(line => {
+                const srcId = line.getAttribute('data-source'); const cellIdx = line.getAttribute('data-cell-idx');
+                const p1 = getElCoords(document.querySelector(`#dom-node-${srcId} .routing-tab[data-cell-idx="${cellIdx}"] .port-anchor`));
+                const p2 = getElCoords(document.querySelector(`#dom-node-${nodeId} .port-in`));
+                if(p1 && p2) line.setAttribute('d', getBezierPath(p1.x, p1.y, p2.x, p2.y));
+            });
+        }
+
+        function updateTempWire(clientX, clientY) {
+            if(!activeSourceNodeId || !tempWire) return;
+            const tgtCoords = getWorkspaceCoords(clientX, clientY); let sPort = null;
+            if (activeSourceCellIdx !== null) sPort = document.querySelector(`#dom-node-${activeSourceNodeId} .routing-tab[data-cell-idx="${activeSourceCellIdx}"] .port-anchor`);
+            else sPort = document.querySelector(`#dom-node-${activeSourceNodeId} .routing-tab-new .port-anchor-new`);
+            const p1 = getElCoords(sPort) || {x: nodesData[activeSourceNodeId].x + NODE_WIDTH/2, y: nodesData[activeSourceNodeId].y};
+            tempWire.setAttribute('d', getBezierPath(p1.x, p1.y, tgtCoords.x, tgtCoords.y));
+        }
+
+        // --- 6. Global Map Controller ---
+        function executeCellDrop(srcNodeId, srcIdx, tgtNodeId, tgtIdx, action) {
+            pushHistory();
+            const srcCell = JSON.parse(JSON.stringify(nodesData[srcNodeId].cells[srcIdx]));
+            const tgtCell = JSON.parse(JSON.stringify(nodesData[tgtNodeId].cells[tgtIdx]));
+            if (action === 'move') { nodesData[srcNodeId].cells[srcIdx] = tgtCell; nodesData[tgtNodeId].cells[tgtIdx] = srcCell; } 
+            else if (action === 'copy') { nodesData[tgtNodeId].cells[tgtIdx] = srcCell; }
+            renderMap(); setTimeout(updateAllWires, 50);
+        }
+
+        function showDropDialog(x, y, onMove, onCopy, onCancel) {
+            dropDialog.classList.remove('hidden'); dropDialogOverlay.classList.add('active');
+            dropDialog.style.left = Math.min(x, window.innerWidth - 180) + 'px'; dropDialog.style.top = Math.min(y, window.innerHeight - 150) + 'px';
+            const cleanup = () => { dropDialog.classList.add('hidden'); dropDialogOverlay.classList.remove('active'); };
+            document.getElementById('btn-move-cell').onpointerdown = () => { cleanup(); onMove(); };
+            document.getElementById('btn-copy-cell').onpointerdown = () => { cleanup(); onCopy(); };
+            document.getElementById('btn-cancel-drop').onpointerdown = () => { cleanup(); onCancel(); };
+            dropDialogOverlay.onpointerdown = () => { cleanup(); onCancel(); }; 
+        }
+
+        function promptClearAll() {
+            promptConfirm("Clear Entire Map?", "This will delete all folders and symbols. This cannot be undone.", "Clear Map", "red", () => {
+                pushHistory(); nodesData = {}; localStorage.removeItem('aacMapData'); spawnRootNode(); fitAllNodes();
+            });
+        }
+
+        function resetPanZoomAnchors() {
+            if (activePointers.size === 1) {
+                isPanning = true; const pt = Array.from(activePointers.values())[0];
+                startPointerX = pt.clientX - panX; startPointerY = pt.clientY - panY; prevPinchDiff = -1;
+            } else if (activePointers.size === 2) {
+                isPanning = false; const pts = Array.from(activePointers.values());
+                prevPinchDiff = Math.hypot(pts[0].clientX - pts[1].clientX, pts[0].clientY - pts[1].clientY);
+            } else { isPanning = false; prevPinchDiff = -1; }
+        }
+
+        function setupGlobalPointers() {
+            wrapper.addEventListener('pointerdown', (e) => {
+                if (isModalOpen || e.target.closest('button') || !dropDialog.classList.contains('hidden') || e.target.tagName === 'SELECT') return; 
+                
+                if (e.target === wrapper || e.target === bgGrid || e.target === svgLayer) {
+                    wrapper.setPointerCapture(e.pointerId); activePointers.set(e.pointerId, e);
+                    if (!isCellPointerDown && !isDraggingNode && !isWiring) resetPanZoomAnchors();
+                }
+            });
+
+            window.addEventListener('pointermove', (e) => {
+                if (isModalOpen) return;
+                if (activePointers.has(e.pointerId)) activePointers.set(e.pointerId, e);
+
+                if (isCellPointerDown && activeCellTarget) {
+                    const dist = Math.hypot(e.clientX - cellStartCoords.x, e.clientY - cellStartCoords.y);
+                    if (!isDraggingCell && dist > 5) {
+                        isDraggingCell = true; activeCellTarget.classList.add('opacity-30'); 
+                        cellGhostEl = activeCellTarget.cloneNode(true);
+                        cellGhostEl.style.position = 'fixed'; cellGhostEl.style.pointerEvents = 'none'; cellGhostEl.style.zIndex = '9999'; cellGhostEl.style.opacity = '0.9'; cellGhostEl.style.boxShadow = '0 20px 25px -5px rgba(0,0,0,0.2)'; cellGhostEl.style.width = activeCellTarget.offsetWidth + 'px'; cellGhostEl.style.height = activeCellTarget.offsetHeight + 'px'; cellGhostEl.removeAttribute('id');
+                        document.body.appendChild(cellGhostEl);
+                    }
+                    if (isDraggingCell) {
+                        cellGhostEl.style.left = (e.clientX - activeCellTarget.offsetWidth / 2) + 'px'; cellGhostEl.style.top = (e.clientY - activeCellTarget.offsetHeight / 2) + 'px';
+                        document.querySelectorAll('.grid-cell').forEach(c => c.classList.remove('drop-target'));
+                        cellGhostEl.style.display = 'none'; const elem = document.elementFromPoint(e.clientX, e.clientY); cellGhostEl.style.display = '';
+                        if (elem) { const tCell = elem.closest('.grid-cell'); if (tCell && tCell !== activeCellTarget) { tCell.classList.add('drop-target'); } }
+                    }
+                    return; 
+                }
+
+                if (isDraggingNode && activeSourceNodeId) {
+                    nodesData[activeSourceNodeId].x = (e.clientX - panX) / scale - startPointerX;
+                    nodesData[activeSourceNodeId].y = (e.clientY - panY) / scale - startPointerY;
+                    const domNode = document.getElementById(`dom-node-${activeSourceNodeId}`);
+                    domNode.style.left = `${nodesData[activeSourceNodeId].x}px`; domNode.style.top = `${nodesData[activeSourceNodeId].y}px`;
+                    updateLiveWires(activeSourceNodeId); 
+                    return;
+                } 
+                
+                if (isWiring) {
+                    updateTempWire(e.clientX, e.clientY);
+                    document.querySelectorAll('.port-in').forEach(p => p.classList.remove('highlight'));
+                    if(tempWire) tempWire.style.display = 'none'; const t = document.elementFromPoint(e.clientX, e.clientY); if(tempWire) tempWire.style.display = '';
+                    if(t && t.classList.contains('port-in')) t.classList.add('highlight');
+                    return;
+                }
+
+                if (activePointers.size === 2) {
+                    const pts = Array.from(activePointers.values());
+                    const curDiff = Math.hypot(pts[0].clientX - pts[1].clientX, pts[0].clientY - pts[1].clientY);
+                    if (prevPinchDiff > 0) applyZoomExact(scale * (curDiff / prevPinchDiff), (pts[0].clientX + pts[1].clientX) / 2, (pts[0].clientY + pts[1].clientY) / 2);
+                    prevPinchDiff = curDiff;
+                } else if (isPanning && activePointers.size === 1) {
+                    const pt = Array.from(activePointers.values())[0];
+                    panX = pt.clientX - startPointerX; panY = pt.clientY - startPointerY; updateTransform();
+                }
+            });
+
+            const handlePointerUp = (e) => {
+                if (isModalOpen) return;
+                activePointers.delete(e.pointerId);
+                if (!isCellPointerDown && !isDraggingNode && !isWiring) resetPanZoomAnchors();
+
+                if (isCellPointerDown) {
+                    if (isDraggingCell) {
+                        cellGhostEl.style.display = 'none'; const elem = document.elementFromPoint(e.clientX, e.clientY);
+                        let targetCell = elem ? elem.closest('.grid-cell') : null;
+                        
+                        if (!targetCell && elem && elem.closest('.aac-node')) {
+                            const tNodeId = elem.closest('.aac-node').id.replace('dom-node-', '');
+                            const emptyIdx = nodesData[tNodeId].cells.findIndex(c => !c.label && !c.linkId);
+                            if (emptyIdx !== -1) targetCell = document.querySelector(`#dom-node-${tNodeId} .grid-cell[data-index="${emptyIdx}"]`);
+                        }
+                        
+                        if (targetCell && targetCell !== activeCellTarget) {
+                            const srcNodeId = activeCellTarget.closest('.aac-node').id.replace('dom-node-', ''); const srcIdx = parseInt(activeCellTarget.getAttribute('data-index'));
+                            const tgtNodeId = targetCell.closest('.aac-node').id.replace('dom-node-', ''); const tgtIdx = parseInt(targetCell.getAttribute('data-index'));
+
+                            if (srcNodeId !== tgtNodeId) showDropDialog(e.clientX, e.clientY, () => executeCellDrop(srcNodeId, srcIdx, tgtNodeId, tgtIdx, 'move'), () => executeCellDrop(srcNodeId, srcIdx, tgtNodeId, tgtIdx, 'copy'), () => { renderMap(); setTimeout(updateAllWires, 50); });
+                            else executeCellDrop(srcNodeId, srcIdx, tgtNodeId, tgtIdx, 'move');
+                        } else { renderMap(); setTimeout(updateAllWires, 50); } 
+                        
+                        if (cellGhostEl) cellGhostEl.remove(); cellGhostEl = null; isDraggingCell = false;
+                        document.querySelectorAll('.grid-cell').forEach(c => c.classList.remove('drop-target'));
+                    } else {
+                        promptCellEdit(activeCellTarget.closest('.aac-node').id.replace('dom-node-', ''), activeCellTarget.getAttribute('data-index'));
+                    }
+                    isCellPointerDown = false; activeCellTarget = null; return; 
+                }
+
+                if (isDraggingNode) {
+                    isDraggingNode = false; const domNode = document.getElementById(`dom-node-${activeSourceNodeId}`);
+                    if(domNode) domNode.classList.remove('dragging'); activeSourceNodeId = null; renderMap(); setTimeout(updateAllWires, 50);
+                }
+
+                if (isWiring) {
+                    if(tempWire) tempWire.style.display = 'none'; const dropTarget = document.elementFromPoint(e.clientX, e.clientY); if(tempWire) tempWire.style.display = '';
+                    const targetNodeEl = dropTarget ? dropTarget.closest('.aac-node') : null;
+
+                    if (targetNodeEl) {
+                        const targetId = targetNodeEl.id.replace('dom-node-', ''); const srcNode = nodesData[activeSourceNodeId];
+                        if (activeSourceNodeId !== targetId) {
+                            pushHistory();
+                            if (activeSourceCellIdx !== null) {
+                                srcNode.cells[activeSourceCellIdx].linkId = targetId; srcNode.cells[activeSourceCellIdx].label = nodesData[targetId].title;
+                            } else {
+                                const emptyIdx = srcNode.cells.findIndex(c => !c.label && !c.linkId);
+                                if(emptyIdx !== -1) srcNode.cells[emptyIdx] = { label: nodesData[targetId].title, linkId: targetId, src: null };
+                                else promptAlert("Grid Full", "Please clear a cell before routing a new link.");
+                            }
+                        } else { promptAlert("Invalid Link", "A folder cannot link to itself."); }
+                    } else if (!targetNodeEl && activeSourceCellIdx !== null) {
+                        promptConfirm("Disconnect Link?", "Are you sure you want to sever this routing link?", "Disconnect", "red", () => {
+                            pushHistory(); nodesData[activeSourceNodeId].cells[activeSourceCellIdx].linkId = null; renderMap(); setTimeout(updateAllWires, 50);
+                        });
+                    } else if (!targetNodeEl && activeSourceCellIdx === null) {
+                        const srcNode = nodesData[activeSourceNodeId]; const emptyIdx = srcNode.cells.findIndex(c => !c.label && !c.linkId);
+                        if(emptyIdx !== -1) {
+                            pushHistory();
+                            const newId = generateId(); const dropCoords = getWorkspaceCoords(e.clientX, e.clientY);
+                            nodesData[newId] = { id: newId, title: 'New Folder', color: nextNodeColor(), x: dropCoords.x, y: dropCoords.y, cells: defaultCells() };
+                            srcNode.cells[emptyIdx] = { label: 'New Folder', linkId: newId, src: null };
+                            setTimeout(() => { document.getElementById(`dom-node-${newId}`).classList.add('node-enter'); }, 50); // Add pop animation
+                        } else { promptAlert("Grid Full", "Please clear a cell before creating a new linked folder."); }
+                    }
+                    
+                    isWiring = false; activeSourceNodeId = null; activeSourceCellIdx = null;
+                    if(tempWire) { tempWire.remove(); tempWire = null; }
+                    document.querySelectorAll('.port-in').forEach(p => p.classList.remove('highlight'));
+                    renderMap(); setTimeout(updateAllWires, 50);
+                }
+            };
+            window.addEventListener('pointerup', handlePointerUp); window.addEventListener('pointercancel', handlePointerUp);
+        }
+
+        // --- 7. Generators ---
+        function spawnRootNode() {
+            const newId = generateId(); const center = getWorkspaceCoords(window.innerWidth/2, window.innerHeight/2);
+            nodesData[newId] = { id: newId, title: 'New Page', color: nextNodeColor(), x: center.x, y: center.y, cells: defaultCells() };
+            renderMap(); setTimeout(updateAllWires, 50);
+            setTimeout(() => { document.getElementById(`dom-node-${newId}`).classList.add('node-enter'); }, 10);
+        }
+
+        // --- 8. Symbol Picker ---
+        let symbolPickerTarget = { nodeId: null, cellIdx: null };
+
+        function openSymbolPickerModal(nodeId, cellIdx) {
+            symbolPickerTarget = { nodeId, cellIdx };
+            isModalOpen = true;
+            activePointers.clear();
+            // Reset search state so re-opening for a different cell always works
+            _lastArasaacQ = ''; _lastPicomQ = '';
+            const aInp = document.getElementById('sp-arasaac-input');
+            if (aInp) aInp.value = '';
+            const pInp = document.getElementById('sp-picom-input');
+            if (pInp) pInp.value = '';
+            _spState('arasaac', 'empty', 'Search ARASAAC Line Drawings', 'Simple, clear pictogram symbols');
+            _spState('picom', 'empty', 'Search PiCom AI Photographs', 'Realistic AI-generated photo symbols');
+            // Always open on ARASAAC tab
+            switchSymbolTab('arasaac');
+            document.getElementById('symbol-picker-overlay').style.display = 'flex';
+            setTimeout(() => { const inp = document.getElementById('sp-arasaac-input'); if (inp) inp.focus(); }, 100);
+        }
+
+        function closeSymbolPickerModal() {
+            document.getElementById('symbol-picker-overlay').style.display = 'none';
+            isModalOpen = false;
+            symbolPickerTarget = { nodeId: null, cellIdx: null };
+        }
+
+        function switchSymbolTab(tab) {
+            document.getElementById('sp-tab-arasaac').classList.toggle('active', tab === 'arasaac');
+            document.getElementById('sp-tab-picom').classList.toggle('active', tab === 'picom');
+            document.getElementById('sp-arasaac-content').classList.toggle('active', tab === 'arasaac');
+            document.getElementById('sp-picom-content').classList.toggle('active', tab === 'picom');
+            document.getElementById('sp-attr-arasaac').classList.toggle('hidden', tab !== 'arasaac');
+            document.getElementById('sp-attr-picom').classList.toggle('hidden', tab !== 'picom');
+        }
+
+        // ARASAAC search
+        let _arasaacTimeout = null, _lastArasaacQ = '';
+        function searchArasaac(q) {
+            if (!q || q.length < 2) { _spState('arasaac', 'empty', 'Search ARASAAC Line Drawings', 'Simple, clear pictogram symbols'); return; }
+            if (q === _lastArasaacQ) return;
+            _lastArasaacQ = q;
+            const inp = document.getElementById('sp-arasaac-input');
+            if (inp) inp.value = q;
+            _spState('arasaac', 'loading');
+            fetch(`https://api.arasaac.org/v1/pictograms/en/search/${encodeURIComponent(q)}`)
+                .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+                .then(data => {
+                    if (!data || data.length === 0) { _spState('arasaac', 'noresult', q); return; }
+                    const grid = document.getElementById('sp-arasaac-results');
+                    if (!grid) return;
+                    grid.innerHTML = data.slice(0, 24).map(item => {
+                        const id = item._id;
+                        const lbl = ((item.keywords||[]).find(k => k.keyword)||{}).keyword || `Symbol ${id}`;
+                        const url = `https://static.arasaac.org/pictograms/${id}/${id}_500.png`;
+                        return `<button class="sp-symbol-btn" data-id="${escHtml(String(id))}" data-label="${escHtml(lbl)}" data-url="${escHtml(url)}"><img src="${escHtml(url)}" alt="${escHtml(lbl)}" loading="lazy"><span class="sp-lbl">${escHtml(lbl)}</span></button>`;
+                    }).join('');
+                })
+                .catch(() => _spState('arasaac', 'error'));
+        }
+
+        // PiCom AI search
+        let _picomTimeout = null, _lastPicomQ = '';
+        function searchPicom(q) {
+            if (!q || q.length < 2) { _spState('picom', 'empty', 'Search PiCom AI Photographs', 'Realistic AI-generated photo symbols'); return; }
+            if (q === _lastPicomQ) return;
+            _lastPicomQ = q;
+            const inp = document.getElementById('sp-picom-input');
+            if (inp) inp.value = q;
+            _spState('picom', 'loading');
+            const apiUrl = `https://globalsymbols.com/api/v1/labels/search?query=${encodeURIComponent(q)}&symbolset=ai-realistic-symbols-a-picom-collection&language=en&language_iso_format=639-1&limit=24`;
+            fetch(apiUrl)
+                .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+                .then(data => {
+                    if (!data || data.length === 0) { _spState('picom', 'noresult', q); return; }
+                    const grid = document.getElementById('sp-picom-results');
+                    if (!grid) return;
+                    grid.innerHTML = data.map(item => {
+                        const lbl = item.text || 'Symbol';
+                        const url = item.picto?.image_url || '';
+                        const sid = String(item.picto?.id || item.id || '');
+                        if (!url) return '';
+                        return `<button class="sp-symbol-btn" data-id="${escHtml(sid)}" data-label="${escHtml(lbl)}" data-url="${escHtml(url)}"><img src="${escHtml(url)}" alt="${escHtml(lbl)}" loading="lazy" onerror="this.parentElement.style.display='none'"><span class="sp-lbl">${escHtml(lbl)}</span></button>`;
+                    }).join('');
+                })
+                .catch(err => {
+                    if (err instanceof TypeError) _spState('picom', 'cors');
+                    else _spState('picom', 'error');
+                });
+        }
+
+        function _spState(tab, state, arg1, arg2) {
+            const g = document.getElementById(`sp-${tab}-results`);
+            if (!g) return;
+            if (state === 'loading') {
+                g.innerHTML = `<div class="sp-loading"><div class="sp-loading-spinner"></div><p class="mt-3">Searching...</p></div>`;
+            } else if (state === 'empty') {
+                g.innerHTML = `<div class="sp-empty"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><p class="font-medium">${escHtml(arg1||'Search for symbols')}</p><p class="text-sm mt-1">${escHtml(arg2||'')}</p></div>`;
+            } else if (state === 'noresult') {
+                g.innerHTML = `<div class="sp-empty"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg><p class="font-medium">No symbols found for &ldquo;${escHtml(arg1||'')}&rdquo;</p><p class="text-sm mt-1">Try a different search term</p></div>`;
+            } else if (state === 'cors') {
+                g.innerHTML = `<div class="sp-empty"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg><p class="font-medium">Photographs Unavailable</p><p class="text-sm mt-1">Photo symbols require a web server. Use Line Drawings instead.</p></div>`;
+            } else {
+                g.innerHTML = `<div class="sp-empty"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><p class="font-medium">Unable to search</p><p class="text-sm mt-1">Please check your connection and try again</p></div>`;
+            }
+        }
+
+        function selectArasaacSymbol(id, label, imageUrl) {
+            const { nodeId, cellIdx } = symbolPickerTarget;
+            if (!nodeId || cellIdx == null) return;
+            pushHistory();
+            const existing = nodesData[nodeId]?.cells[cellIdx] || {};
+            const keepLabel = existing.linkId ? existing.label : label;
+            nodesData[nodeId].cells[cellIdx] = { label: keepLabel, linkId: existing.linkId || null, src: imageUrl, isArasaac: true, arasaacId: id };
+            closeSymbolPickerModal();
+            renderMap(); setTimeout(updateAllWires, 50);
+        }
+
+        function selectPicomSymbol(id, label, imageUrl) {
+            const { nodeId, cellIdx } = symbolPickerTarget;
+            if (!nodeId || cellIdx == null) return;
+            pushHistory();
+            const existing = nodesData[nodeId]?.cells[cellIdx] || {};
+            const keepLabel = existing.linkId ? existing.label : label;
+            nodesData[nodeId].cells[cellIdx] = { label: keepLabel, linkId: existing.linkId || null, src: imageUrl, isPicom: true, picomId: id };
+            closeSymbolPickerModal();
+            renderMap(); setTimeout(updateAllWires, 50);
+        }
+
+        function setupSymbolPickerInputs() {
+            // ARASAAC input debounce
+            const aInp = document.getElementById('sp-arasaac-input');
+            if (aInp) {
+                aInp.addEventListener('input', (e) => {
+                    clearTimeout(_arasaacTimeout); _lastArasaacQ = '';
+                    const q = e.target.value.trim();
+                    if (q.length < 2) { _spState('arasaac', 'empty', 'Search ARASAAC Line Drawings', 'Simple, clear pictogram symbols'); return; }
+                    _arasaacTimeout = setTimeout(() => searchArasaac(q), 400);
+                });
+                aInp.addEventListener('keydown', (e) => { if (e.key === 'Enter') { clearTimeout(_arasaacTimeout); _lastArasaacQ = ''; searchArasaac(aInp.value.trim()); } });
+            }
+            // PiCom input debounce
+            const pInp = document.getElementById('sp-picom-input');
+            if (pInp) {
+                pInp.addEventListener('input', (e) => {
+                    clearTimeout(_picomTimeout); _lastPicomQ = '';
+                    const q = e.target.value.trim();
+                    if (q.length < 2) { _spState('picom', 'empty', 'Search PiCom AI Photographs', 'Realistic AI-generated photo symbols'); return; }
+                    _picomTimeout = setTimeout(() => searchPicom(q), 400);
+                });
+                pInp.addEventListener('keydown', (e) => { if (e.key === 'Enter') { clearTimeout(_picomTimeout); _lastPicomQ = ''; searchPicom(pInp.value.trim()); } });
+            }
+            // Event delegation for results (safe: avoids inline onclick with API data)
+            const aGrid = document.getElementById('sp-arasaac-results');
+            if (aGrid) aGrid.addEventListener('click', (e) => { const btn = e.target.closest('.sp-symbol-btn'); if (btn) selectArasaacSymbol(btn.dataset.id, btn.dataset.label, btn.dataset.url); });
+            const pGrid = document.getElementById('sp-picom-results');
+            if (pGrid) pGrid.addEventListener('click', (e) => { const btn = e.target.closest('.sp-symbol-btn'); if (btn) selectPicomSymbol(btn.dataset.id, btn.dataset.label, btn.dataset.url); });
+            // Photo upload handler
+            const fileInput = document.getElementById('sm-file-input');
+            if (fileInput) {
+                fileInput.addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    // Accept all image/* types including HEIC/HEIF from iOS
+                    if (!file || !(file.type.startsWith('image/') || file.name.match(/\.(heic|heif)$/i))) {
+                        fileInput.value = ''; return;
+                    }
+                    const { nodeId, cellIdx } = symbolPickerTarget;
+                    if (!nodeId || cellIdx == null) { fileInput.value = ''; return; }
+
+                    const applyImage = (dataUrl) => {
+                        pushHistory();
+                        const existing = nodesData[nodeId]?.cells[cellIdx] || {};
+                        const newLabel = existing.linkId ? existing.label : (existing.label || file.name.replace(/\.[^.]+$/, '').substring(0, 15));
+                        nodesData[nodeId].cells[cellIdx] = { label: newLabel, linkId: existing.linkId || null, src: dataUrl, isUpload: true };
+                        symbolPickerTarget = { nodeId: null, cellIdx: null };
+                        renderMap(); setTimeout(updateAllWires, 50);
+                    };
+
+                    // Use createObjectURL for efficient memory handling on mobile
+                    const objectUrl = URL.createObjectURL(file);
+                    const img = new Image();
+                    img.onload = () => {
+                        // Resize to max 300px to keep localStorage footprint small
+                        const maxDim = 300, ratio = Math.min(maxDim / img.width, maxDim / img.height, 1);
+                        const canvas = document.createElement('canvas');
+                        canvas.width = Math.round(img.width * ratio) || 1;
+                        canvas.height = Math.round(img.height * ratio) || 1;
+                        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                        URL.revokeObjectURL(objectUrl);
+                        applyImage(canvas.toDataURL('image/jpeg', 0.82));
+                    };
+                    img.onerror = () => {
+                        // Canvas decode failed (e.g. HEIC on older Android) — fall back to raw FileReader
+                        URL.revokeObjectURL(objectUrl);
+                        const reader = new FileReader();
+                        reader.onload = (ev) => applyImage(ev.target.result);
+                        reader.onerror = () => { symbolPickerTarget = { nodeId: null, cellIdx: null }; promptAlert('Upload Failed', 'Could not read this image file. Please try a JPEG or PNG.'); };
+                        reader.readAsDataURL(file);
+                    };
+                    img.src = objectUrl;
+                    fileInput.value = '';
+                });
+            }
+        }
+
+        // --- 9. Client Side AAC App ---
+        let clientNavStack = [];
+        let clientCurrentNode = null;
+        let sentenceStrip = []; 
+        let clientSettings = {
+            borderColor: 'black',       // 'black', 'gray', 'none', or hex color
+            folderColorBorders: true,  // folder link cells use their folder's color for border
+            borderWidth: 2,           // 1 to 8
+            gap: 12,                  // 0 to 24
+            bgColor: '#f8fafc',       // background of the main area
+            cellBg: '#ffffff',        // filled cell background color
+            fontFamily: 'Outfit',     // 'Outfit', 'Poppins', 'sans-serif'
+            fontSize: 'md',           // 'sm', 'md', 'lg', 'xl'
+            labelPosition: 'bottom',  // 'bottom', 'top', 'hidden'
+            emptyCellStyle: 'dashed', // 'dashed', 'hidden', 'solid'
+            speakOnTap: true,         // speak word immediately on cell tap
+            showMasked: false,         // reveal masked (placeholder) cells in client mode
+            dragSelect: false,         // enlarge symbols as finger slides over; release to select
+            dragSelectPreview: true,   // speak each symbol name while hovering (false = only on release)
+            dragSelectDelay: 0         // ms to wait after hovering before speaking preview (0 = instant)
+        };
+
+        let _profiles = [];
+        let _activeProfileId = null;
+        initProfiles(); // hoisted — defined below
+
+        // Migrate old single 'borderColorType' setting to separate borderColor + folderColorBorders
+        if (clientSettings.borderColorType !== undefined) {
+            if (clientSettings.borderColorType === 'node') {
+                clientSettings.borderColor = 'black';
+                clientSettings.folderColorBorders = true;
+            } else {
+                clientSettings.borderColor = clientSettings.borderColorType;
+                clientSettings.folderColorBorders = false;
+            }
+            delete clientSettings.borderColorType;
+            localStorage.setItem('aacClientSettings', JSON.stringify(clientSettings));
+        }
+
+        let _clientHoldTimer = null;
+        let _clientHoldBtn = null;
+        function startClientHold(btn, action) {
+            cancelClientHold();
+            _clientHoldBtn = btn;
+            btn.classList.add('holding');
+            _clientHoldTimer = setTimeout(() => {
+                cancelClientHold();
+                if (action === 'exit') exitClientApp();
+                else if (action === 'settings') openClientSettings();
+            }, 3000);
+        }
+        function cancelClientHold() {
+            if (_clientHoldTimer) { clearTimeout(_clientHoldTimer); _clientHoldTimer = null; }
+            if (_clientHoldBtn) { _clientHoldBtn.classList.remove('holding'); _clientHoldBtn = null; }
+        }
+
+        function applyClientTheme() {
+            const bg = clientSettings.bgColor || '#f8fafc';
+
+            // Compute luminance for bgColor — must be first, used throughout
+            const hexBg = /^#[0-9a-f]{6}$/i.test(bg) ? bg : '#f8fafc';
+            const r = parseInt(hexBg.slice(1,3),16)/255;
+            const g = parseInt(hexBg.slice(3,5),16)/255;
+            const b2 = parseInt(hexBg.slice(5,7),16)/255;
+            const lum = 0.2126*r + 0.7152*g + 0.0722*b2;
+            const isLight = lum > 0.35;
+
+            // Sync OS chrome color with the AAC app background
+            const themeColorMeta = document.getElementById('meta-theme-color');
+            if (themeColorMeta) themeColorMeta.setAttribute('content', bg);
+
+            const clientApp = document.getElementById('aac-client-app');
+            if (clientApp) clientApp.style.backgroundColor = bg;
+            const topBar = document.getElementById('client-top-bar');
+            if (topBar) topBar.style.backgroundColor = bg;
+            const stripArea = document.getElementById('client-strip-area');
+            if (stripArea) stripArea.style.backgroundColor = bg;
+
+            // Theme the editor header to match
+            const editorHeader = document.getElementById('editor-header');
+            if (editorHeader) {
+                editorHeader.style.backgroundColor = bg;
+                editorHeader.style.borderBottomColor = isLight ? 'rgba(0,0,0,0.12)' : 'rgba(255,255,255,0.12)';
+            }
+            // Adapt editor header text/controls contrast
+            const editorTitle = document.getElementById('editor-title');
+            if (editorTitle) editorTitle.style.color = isLight ? '#0f172a' : '#f1f5f9';
+            const editorSubtitle = document.getElementById('editor-subtitle');
+            if (editorSubtitle) editorSubtitle.style.color = isLight ? '#64748b' : '#94a3b8';
+            // Adapt toolbar controls (grid select, zoom, Clear, Show All buttons)
+            const editorControls = document.getElementById('editor-toolbar-controls');
+            if (editorControls) {
+                const hdrBtnBg  = isLight ? '#ffffff' : 'rgba(255,255,255,0.10)';
+                const hdrBtnBdr = isLight ? '1px solid rgba(0,0,0,0.18)' : '1px solid rgba(255,255,255,0.20)';
+                const hdrBtnTxt = isLight ? '#374151' : '#e2e8f0';
+                editorControls.querySelectorAll('button:not(.bg-blue-600):not(.bg-emerald-600):not(.hover\\:bg-blue-700):not(.hover\\:bg-emerald-700)').forEach(b => {
+                    b.style.backgroundColor = hdrBtnBg;
+                    b.style.border = hdrBtnBdr;
+                    b.style.color = hdrBtnTxt;
+                });
+                const gsSel = document.getElementById('grid-size-select');
+                if (gsSel) {
+                    gsSel.style.color = hdrBtnTxt;
+                    gsSel.style.backgroundColor = hdrBtnBg;
+                    // Native OS dropdown always renders on a white background, so options must stay dark
+                    gsSel.querySelectorAll('option').forEach(o => { o.style.color = '#1e293b'; o.style.backgroundColor = '#ffffff'; });
+                    const gsWrap = gsSel.closest('div');
+                    if (gsWrap) { gsWrap.style.backgroundColor = hdrBtnBg; gsWrap.style.border = hdrBtnBdr; }
+                }
+                // Zoom button group wrapper — theme container, keep inner buttons transparent
+                const zoomGroup = document.getElementById('zoom-btn-group');
+                if (zoomGroup) {
+                    zoomGroup.style.backgroundColor = hdrBtnBg;
+                    zoomGroup.style.border = hdrBtnBdr;
+                    zoomGroup.querySelectorAll('button').forEach(b => {
+                        b.style.backgroundColor = 'transparent';
+                        b.style.border = 'none';
+                    });
+                }
+                // Separator divider line
+                const toolbarDivider = document.getElementById('toolbar-divider');
+                if (toolbarDivider) toolbarDivider.style.backgroundColor = isLight ? 'rgba(0,0,0,0.20)' : 'rgba(255,255,255,0.25)';
+            }
+            // Theme the canvas background
+            const canvasBg = document.getElementById('bg-grid');
+            if (canvasBg) canvasBg.style.backgroundColor = bg;
+            document.body.style.backgroundColor = bg;
+            const appWrapper = document.getElementById('app-wrapper');
+            if (appWrapper) appWrapper.style.backgroundColor = bg;
+
+            // Theme the editor map node backgrounds
+            document.documentElement.style.setProperty('--map-node-bg', bg);
+            document.documentElement.style.setProperty('--map-cell-bg', clientSettings.cellBg || '#ffffff');
+
+            // Compute luminance for cellBg (cell label / icon contrast)
+            const cellBgHex = /^#[0-9a-f]{6}$/i.test(clientSettings.cellBg) ? clientSettings.cellBg : '#ffffff';
+            const cr = parseInt(cellBgHex.slice(1,3),16)/255;
+            const cg = parseInt(cellBgHex.slice(3,5),16)/255;
+            const cb = parseInt(cellBgHex.slice(5,7),16)/255;
+            const cellLum = 0.2126*cr + 0.7152*cg + 0.0722*cb;
+            const cellIsLight = cellLum > 0.35;
+            const cellTextColor   = cellIsLight ? '#1e293b' : '#f1f5f9';
+            const cellIconColor   = cellIsLight ? '#64748b' : '#cbd5e1';
+            const cellIconFaint   = cellIsLight ? '#94a3b8' : '#94a3b8';
+            document.documentElement.style.setProperty('--cell-text', cellTextColor);
+            document.documentElement.style.setProperty('--cell-icon', cellIconColor);
+
+            // Strip item bg/text — use a near-white or near-black card contrasting against bgColor
+            const stripItemBg   = isLight ? '#ffffff' : 'rgba(255,255,255,0.12)';
+            const stripItemBorder = isLight ? 'rgba(0,0,0,0.12)' : 'rgba(255,255,255,0.20)';
+            const stripItemText = isLight ? '#1e293b' : '#f1f5f9';
+            document.documentElement.style.setProperty('--strip-item-bg', stripItemBg);
+            document.documentElement.style.setProperty('--strip-item-border', stripItemBorder);
+            document.documentElement.style.setProperty('--strip-item-text', stripItemText);
+
+            // Adaptive dot colour: light dots on dark bg, dark dots on light bg
+            bgDotColor = isLight ? 'rgba(0,0,0,0.18)' : 'rgba(255,255,255,0.18)';
+            updateTransform();
+
+            const btnBg     = isLight ? 'rgba(0,0,0,0.09)'   : 'rgba(255,255,255,0.14)';
+            const btnBorder = isLight ? '1.5px solid rgba(0,0,0,0.22)' : '1.5px solid rgba(255,255,255,0.28)';
+            const btnText   = isLight ? '#1e293b' : '#f1f5f9';
+            const stripBg   = isLight ? 'rgba(0,0,0,0.05)'   : 'rgba(255,255,255,0.07)';
+            const dividerBg = isLight ? 'rgba(0,0,0,0.15)'  : 'rgba(255,255,255,0.2)';
+
+            // Generic utility buttons (exit, settings) get adaptive contrast style
+            document.querySelectorAll('.client-bar-btn, .client-strip-btn').forEach(btn => {
+                btn.style.backgroundColor = btnBg;
+                btn.style.border = btnBorder;
+                btn.style.color = btnText;
+            });
+
+            // Action buttons get distinct, always-visible colours
+            const homeBtn = document.getElementById('client-home-btn');
+            if (homeBtn) { homeBtn.style.backgroundColor = '#3b82f6'; homeBtn.style.border = '2px solid #2563eb'; homeBtn.style.color = '#ffffff'; }
+            const clearBtn = document.getElementById('client-clear-btn');
+            if (clearBtn) { clearBtn.style.backgroundColor = '#f59e0b'; clearBtn.style.border = '2px solid #d97706'; clearBtn.style.color = '#ffffff'; }
+            const speakBtn = document.getElementById('client-speak-btn');
+            if (speakBtn) { speakBtn.style.backgroundColor = '#22c55e'; speakBtn.style.border = '2px solid #16a34a'; speakBtn.style.color = '#ffffff'; }
+
+            // Sentence strip inner trough
+            const strip = document.getElementById('client-sentence-strip');
+            if (strip) { strip.style.background = stripBg; strip.style.border = btnBorder; }
+
+            // Divider line in top bar
+            document.querySelectorAll('.client-divider').forEach(d => d.style.backgroundColor = dividerBg);
+        }
+
+        // ── Profile Management ────────────────────────────────────────────────────
+        function initProfiles() {
+            let needsSave = false;
+            try { const s = localStorage.getItem('aacProfiles'); if (s) _profiles = JSON.parse(s); } catch(e) {}
+            if (!_profiles.length) {
+                let seed = {};
+                try { const leg = localStorage.getItem('aacClientSettings'); if (leg) seed = JSON.parse(leg); } catch(e) {}
+                // Snapshot current board into the first Default profile
+                _profiles = [{ id: 'p' + Date.now(), name: 'Default', settings: { ...clientSettings, ...seed },
+                    nodesData: JSON.parse(JSON.stringify(nodesData)), gridCols, gridRows }];
+                needsSave = true;
+            }
+            try { _activeProfileId = localStorage.getItem('aacActiveProfile'); } catch(e) {}
+            if (!_profiles.find(p => p.id === _activeProfileId)) { 
+                _activeProfileId = _profiles[0].id;
+                needsSave = true;
+            }
+            const active = _profiles.find(p => p.id === _activeProfileId);
+            if (active) {
+                clientSettings = { ...clientSettings, ...active.settings };
+                // Restore board from profile if it has one (migration: legacy profiles without nodesData keep current board)
+                if (active.nodesData) {
+                    nodesData = JSON.parse(JSON.stringify(active.nodesData));
+                    gridCols = active.gridCols || gridCols;
+                    gridRows = active.gridRows || gridRows;
+                    updateNodeDimensions();
+                    localStorage.setItem('aacMapData', JSON.stringify(nodesData));
+                    localStorage.setItem('aacMapConfig', JSON.stringify({cols: gridCols, rows: gridRows}));
+                } else {
+                    active.nodesData = JSON.parse(JSON.stringify(nodesData));
+                    active.gridCols = gridCols;
+                    active.gridRows = gridRows;
+                    needsSave = true;
+                }
+            }
+            if (needsSave) saveProfiles();
+        }
+
+        function saveProfiles() {
+            localStorage.setItem('aacProfiles', JSON.stringify(_profiles));
+            localStorage.setItem('aacActiveProfile', _activeProfileId);
+        }
+
+        function switchProfile(id) {
+            const prof = _profiles.find(p => p.id === id);
+            if (!prof) return;
+            // Save current board into the outgoing profile before switching
+            const outgoing = _profiles.find(p => p.id === _activeProfileId);
+            if (outgoing) { outgoing.nodesData = JSON.parse(JSON.stringify(nodesData)); outgoing.gridCols = gridCols; outgoing.gridRows = gridRows; }
+            _activeProfileId = id;
+            clientSettings = { ...clientSettings, ...prof.settings };
+            // Restore board from the new profile
+            if (prof.nodesData) {
+                nodesData = JSON.parse(JSON.stringify(prof.nodesData));
+                gridCols = prof.gridCols || 4;
+                gridRows = prof.gridRows || 3;
+                updateNodeDimensions();
+                localStorage.setItem('aacMapData', JSON.stringify(nodesData));
+                localStorage.setItem('aacMapConfig', JSON.stringify({cols: gridCols, rows: gridRows}));
+                document.getElementById('grid-size-select').value = `${gridCols}x${gridRows}`;
+            }
+            saveProfiles();
+            updateProfileLabel();
+            if (clientCurrentNode) renderClientNode(clientCurrentNode);
+            applyClientTheme();
+            renderMap();
+            fitAllNodes();
+            setTimeout(updateAllWires, 100);
+            openProfileManager();
+        }
+
+        function createProfile() {
+            if (_profiles.length >= 15) return;
+            const id = 'p' + Date.now();
+            const defaultSettings = {
+                borderColor: 'black', folderColorBorders: true, borderWidth: 2, gap: 12,
+                bgColor: '#f8fafc', cellBg: '#ffffff', fontFamily: 'Outfit', fontSize: 'md',
+                labelPosition: 'bottom', emptyCellStyle: 'dashed', speakOnTap: true,
+                showMasked: false, dragSelect: false, dragSelectPreview: true, dragSelectDelay: 0
+            };
+            // Save current board into outgoing profile before switching
+            const outgoing = _profiles.find(p => p.id === _activeProfileId);
+            if (outgoing) { outgoing.nodesData = JSON.parse(JSON.stringify(nodesData)); outgoing.gridCols = gridCols; outgoing.gridRows = gridRows; }
+            // New profile starts with a blank board (single empty home node)
+            const newGridCols = 4, newGridRows = 3;
+            const emptyBoard = { 'home': { id: 'home', title: 'Home Page', color: '#047857', x: 0, y: 0,
+                cells: Array(newGridCols * newGridRows).fill(null).map(() => ({ label: '', linkId: null, src: null })) } };
+            _profiles.push({ id, name: 'Profile ' + (_profiles.length + 1), settings: { ...defaultSettings },
+                nodesData: JSON.parse(JSON.stringify(emptyBoard)), gridCols: newGridCols, gridRows: newGridRows });
+            _activeProfileId = id;
+            clientSettings = { ...defaultSettings };
+            nodesData = JSON.parse(JSON.stringify(emptyBoard));
+            gridCols = newGridCols; gridRows = newGridRows;
+            updateNodeDimensions();
+            localStorage.setItem('aacMapData', JSON.stringify(nodesData));
+            localStorage.setItem('aacMapConfig', JSON.stringify({cols: gridCols, rows: gridRows}));
+            document.getElementById('grid-size-select').value = `${gridCols}x${gridRows}`;
+            saveProfiles();
+            updateProfileLabel();
+            applyClientTheme();
+            if (clientCurrentNode) renderClientNode(clientCurrentNode);
+            renderMap();
+            fitAllNodes();
+            setTimeout(updateAllWires, 100);
+            openProfileManager();
+        }
+
+        function deleteProfile(id) {
+            if (_profiles.length <= 1) return;
+            _profiles = _profiles.filter(p => p.id !== id);
+            if (_activeProfileId === id) {
+                _activeProfileId = _profiles[0].id;
+                clientSettings = { ...clientSettings, ..._profiles[0].settings };
+                if (clientCurrentNode) renderClientNode(clientCurrentNode);
+                applyClientTheme();
+            }
+            saveProfiles();
+            updateProfileLabel();
+            openProfileManager();
+        }
+
+        function renameProfile(id, newName) {
+            const p = _profiles.find(p => p.id === id);
+            if (p && newName.trim()) { p.name = newName.trim().slice(0, 24); saveProfiles(); updateProfileLabel(); }
+        }
+
+        function updateProfileLabel() {
+            const active = _profiles.find(p => p.id === _activeProfileId);
+            const lbl = document.getElementById('active-profile-label');
+            if (lbl && active) lbl.textContent = active.name;
+        }
+
+        function buildProfileSectionHTML() {
+            const active = _profiles.find(p => p.id === _activeProfileId);
+            const others = _profiles.filter(p => p.id !== _activeProfileId);
+            const esc = s => s.replace(/"/g,'&quot;').replace(/</g,'&lt;');
+            return [
+                /* Active profile banner */
+                '<div class="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl p-4 text-white shadow-md">',
+                  '<div class="flex items-center gap-1.5 mb-2 opacity-70"><i data-lucide="user-circle" class="w-3.5 h-3.5"></i><span class="text-xs font-bold uppercase tracking-widest">Active Profile</span></div>',
+                  `<input id="active-profile-name-input" type="text" value="${esc(active ? active.name : '')}" maxlength="24" class="text-xl font-bold bg-transparent outline-none w-full border-b border-white/30 pb-1 focus:border-white/80 transition" placeholder="Profile name" onblur="renameProfile('${active ? active.id : ''}',this.value)">`,
+                  '<div class="text-[11px] opacity-50 mt-1.5">Tap name to rename</div>',
+                '</div>',
+
+                /* Switch-to section */
+                others.length ? [
+                    '<div class="space-y-2 mt-1">',
+                      '<div class="text-xs font-bold text-slate-400 uppercase tracking-widest px-1 mb-2">Switch to</div>',
+                      others.map(p => [
+                        `<button onclick="switchProfile('${p.id}')" class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl border-2 border-slate-200 bg-white hover:border-blue-400 hover:bg-blue-50 active:scale-[0.98] transition group text-left">`,
+                          '<div class="w-9 h-9 rounded-full bg-slate-100 group-hover:bg-blue-100 flex items-center justify-center flex-shrink-0 transition">',
+                            '<i data-lucide="user" class="w-4 h-4 text-slate-400 group-hover:text-blue-500 pointer-events-none"></i>',
+                          '</div>',
+                          `<span class="flex-1 font-bold text-slate-700 group-hover:text-blue-700 transition truncate">${esc(p.name)}</span>`,
+                          '<span class="text-xs font-bold text-slate-300 group-hover:text-blue-500 transition flex-shrink-0">Switch →</span>',
+                        '</button>'
+                      ].join('')).join(''),
+                    '</div>'
+                ].join('') : '<p class="text-xs text-center text-slate-400 py-2">No other profiles. Create one below.</p>',
+
+                /* New profile */
+                _profiles.length < 15
+                    ? `<button onclick="createProfile()" class="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-dashed border-slate-200 text-slate-400 hover:border-blue-400 hover:text-blue-600 hover:bg-blue-50 transition font-bold text-sm"><i data-lucide="plus" class="w-4 h-4 pointer-events-none"></i> New Profile <span class="text-xs font-normal opacity-60">(${_profiles.length}/15)</span></button>`
+                    : '<div class="text-center text-xs text-slate-400 py-1">Maximum 15 profiles reached</div>',
+
+                /* Delete section */
+                _profiles.length > 1 ? [
+                    '<div class="border-t border-slate-100 pt-3">',
+                      '<div class="text-xs font-bold text-slate-400 uppercase tracking-widest px-1 mb-2">Delete a Profile</div>',
+                      _profiles.map(p => [
+                        '<div class="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-red-50 group transition">',
+                          `<span class="text-sm truncate flex-1 ${p.id === _activeProfileId ? 'font-bold text-blue-700' : 'text-slate-600'} group-hover:text-red-700 transition">${esc(p.name)}${p.id === _activeProfileId ? ' <span class="text-[10px] bg-blue-100 text-blue-600 rounded px-1">active</span>' : ''}</span>`,
+                          `<button onclick="if(confirm('Delete profile?'))deleteProfile('${p.id}')" class="ml-3 flex-shrink-0 p-1.5 rounded-lg text-slate-300 hover:text-red-600 hover:bg-red-100 transition"><i data-lucide="trash-2" class="w-3.5 h-3.5 pointer-events-none"></i></button>`,
+                        '</div>'
+                      ].join('')).join(''),
+                    '</div>'
+                ].join('') : ''
+            ].join('');
+        }
+
+        function openProfileManager() {
+            openModal(`
+                <div class="p-5">
+                    <div class="flex items-center gap-2.5 mb-4">
+                        <div class="w-8 h-8 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="user-circle" class="w-4 h-4 text-blue-600"></i>
+                        </div>
+                        <h3 class="text-base font-bold text-slate-800">Profiles</h3>
+                    </div>
+                    <div class="space-y-3 overflow-y-auto max-h-[calc(90vh-9rem)] pr-1 custom-scrollbar">${buildProfileSectionHTML()}</div>
+                    <button type="button" onclick="closeModal()" class="w-full mt-5 bg-blue-600 text-white font-bold py-2.5 rounded-xl hover:bg-blue-700 active:bg-blue-800 transition-all flex items-center justify-center gap-2 shadow-sm">
+                        <i data-lucide="check" class="w-4 h-4"></i> Done
+                    </button>
+                </div>
+            `);
+        }
+        // ── End Profile Management ─────────────────────────────────────────────
+
+        function saveClientSettings() {
+            const activeProf = _profiles.find(p => p.id === _activeProfileId);
+            if (activeProf) activeProf.settings = JSON.parse(JSON.stringify(clientSettings));
+            saveProfiles();
+            localStorage.setItem('aacClientSettings', JSON.stringify(clientSettings));
+            if (clientCurrentNode) renderClientNode(clientCurrentNode);
+            applyClientTheme();
+        }
+
+        function setClientColor(type, color, btn) {
+            clientSettings[type] = color;
+            saveClientSettings();
+            // Re-render structure map so node elements pick up the new colour immediately
+            if (type === 'bgColor' || type === 'cellBg') renderMap();
+            
+            const parent = btn.parentElement;
+            const buttons = parent.querySelectorAll('button');
+            buttons.forEach(b => {
+                b.setAttribute('aria-pressed', 'false');
+                b.classList.remove('scale-110', 'border-blue-500');
+                b.classList.add('border-slate-200');
+                b.innerHTML = '';
+            });
+            
+            btn.setAttribute('aria-pressed', 'true');
+            btn.classList.remove('border-slate-200');
+            btn.classList.add('scale-110', 'border-blue-500');
+            const isDark = ['#1e293b', '#27272a', '#000000', '#0f172a', '#171717'].includes(color);
+            btn.innerHTML = `<div class="absolute inset-0 flex items-center justify-center"><i data-lucide="check" class="w-4 h-4 ${isDark ? 'text-white' : 'text-slate-800'}"></i></div>`;
+            lucide.createIcons();
+        }
+
+        function toggleSpeakOnTap(btn) {
+            clientSettings.speakOnTap = !(clientSettings.speakOnTap !== false);
+            saveClientSettings();
+            const isOn = clientSettings.speakOnTap !== false;
+            btn.setAttribute('aria-checked', isOn ? 'true' : 'false');
+            btn.className = `relative inline-flex h-6 w-11 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${isOn ? 'bg-blue-600' : 'bg-slate-200'}`;
+            btn.innerHTML = `<span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ${isOn ? 'translate-x-5' : 'translate-x-0'}"></span>`;
+        }
+
+        function toggleDragSelect(btn) {
+            clientSettings.dragSelect = !clientSettings.dragSelect;
+            saveClientSettings();
+            const isOn = clientSettings.dragSelect;
+            btn.setAttribute('aria-checked', isOn ? 'true' : 'false');
+            btn.className = `relative inline-flex h-6 w-11 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 ${isOn ? 'bg-violet-600' : 'bg-slate-200'}`;
+            btn.innerHTML = `<span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ${isOn ? 'translate-x-5' : 'translate-x-0'}"></span>`;
+        }
+
+        function toggleDragSelectPreview(btn) {
+            clientSettings.dragSelectPreview = !(clientSettings.dragSelectPreview !== false);
+            saveClientSettings();
+            const isOn = clientSettings.dragSelectPreview !== false;
+            btn.setAttribute('aria-checked', isOn ? 'true' : 'false');
+            btn.className = `relative inline-flex h-6 w-11 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 ${isOn ? 'bg-violet-600' : 'bg-slate-200'}`;
+            btn.innerHTML = `<span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ${isOn ? 'translate-x-5' : 'translate-x-0'}"></span>`;
+        }
+
+        function openClientSettings() {
+            // Reorganized settings with icon emphasis and without constant re-rendering
+            openModal(`
+                <div class="p-5">
+                    <div class="flex items-center gap-2.5 mb-4">
+                        <div class="w-8 h-8 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="palette" class="w-4 h-4 text-blue-600"></i>
+                        </div>
+                        <h3 class="text-base font-bold text-slate-800">Settings</h3>
+                    </div>
+                    
+                    <div id="settings-scroll-area" class="space-y-5 overflow-y-auto max-h-[calc(90vh-9rem)] pr-2 custom-scrollbar">
+                        
+                        <!-- General Display -->
+                        <div class="space-y-4">
+                            <h4 class="text-xs font-bold uppercase tracking-widest flex items-center gap-2 text-slate-400">
+                                <i data-lucide="type" class="w-3.5 h-3.5"></i> Labels & Text
+                            </h4>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                    <label class="block text-xs font-semibold text-slate-500 mb-1.5">Font Family</label>
+                                    <select class="w-full bg-transparent text-sm font-medium text-slate-800 outline-none cursor-pointer" onchange="clientSettings.fontFamily=this.value; saveClientSettings(); renderClientNode(clientCurrentNode);">
+                                        <option value="Outfit" ${clientSettings.fontFamily==='Outfit'?'selected':''}>Outfit</option>
+                                        <option value="Poppins" ${clientSettings.fontFamily==='Poppins'?'selected':''}>Poppins</option>
+                                        <option value="sans-serif" ${clientSettings.fontFamily==='sans-serif'?'selected':''}>System Default</option>
+                                    </select>
+                                </div>
+                                <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                    <label class="block text-xs font-semibold text-slate-500 mb-1.5">Position</label>
+                                    <select class="w-full bg-transparent text-sm font-medium text-slate-800 outline-none cursor-pointer" onchange="clientSettings.labelPosition=this.value; saveClientSettings(); renderClientNode(clientCurrentNode);">
+                                        <option value="bottom" ${clientSettings.labelPosition==='bottom'?'selected':''}>Below Image</option>
+                                        <option value="top" ${clientSettings.labelPosition==='top'?'selected':''}>Above Image</option>
+                                        <option value="cue" ${clientSettings.labelPosition==='cue'?'selected':''}>Cue Only (tiny)</option>
+                                        <option value="hidden" ${clientSettings.labelPosition==='hidden'?'selected':''}>Hidden</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                <i data-lucide="a-large-small" class="w-4 h-4 text-slate-400"></i>
+                                <span class="text-xs text-slate-500 font-medium">Size</span>
+                                <input type="range" min="1" max="4" value="${['sm','md','lg','xl'].indexOf(clientSettings.fontSize)+1}" class="flex-1 h-2 bg-slate-200 rounded-lg accent-blue-600" oninput="const sizes = ['sm','md','lg','xl']; clientSettings.fontSize = sizes[parseInt(this.value)-1]; saveClientSettings();">
+                            </div>
+                        </div>
+
+                        <!-- Cell Look -->
+                        <div class="space-y-4 pt-2 border-t border-slate-100">
+                            <h4 class="text-xs font-bold uppercase tracking-widest flex items-center gap-2 text-slate-400">
+                                <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i> Cell Layout
+                            </h4>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                    <label class="block text-xs font-semibold text-slate-500 mb-1.5">Outline Colour</label>
+                                    <select class="w-full bg-transparent text-sm font-medium text-slate-800 outline-none cursor-pointer" onchange="clientSettings.borderColor=this.value; saveClientSettings(); renderClientNode(clientCurrentNode);">
+                                        <option value="black" ${(clientSettings.borderColor||'black')==='black'?'selected':''}>Black</option>
+                                        <option value="gray" ${clientSettings.borderColor==='gray'?'selected':''}>Subtle Gray</option>
+                                        <option value="none" ${clientSettings.borderColor==='none'?'selected':''}>Shadow Only</option>
+                                        <option value="#ffffff" ${clientSettings.borderColor==='#ffffff'?'selected':''}>White</option>
+                                        <option value="#3b82f6" ${clientSettings.borderColor==='#3b82f6'?'selected':''}>Blue</option>
+                                        <option value="#d97706" ${clientSettings.borderColor==='#d97706'?'selected':''}>Buff / Gold</option>
+                                        <option value="#be123c" ${clientSettings.borderColor==='#be123c'?'selected':''}>Crimson</option>
+                                    </select>
+                                </div>
+                                <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex flex-col gap-2">
+                                    <label class="block text-xs font-semibold text-slate-500 mb-0.5">Empty Cells</label>
+                                    <select class="w-full bg-transparent text-sm font-medium text-slate-800 outline-none cursor-pointer" onchange="clientSettings.emptyCellStyle=this.value; saveClientSettings();">
+                                        <option value="hidden" ${clientSettings.emptyCellStyle==='hidden'?'selected':''}>Hidden</option>
+                                        <option value="dashed" ${clientSettings.emptyCellStyle==='dashed'?'selected':''}>Dashed</option>
+                                        <option value="solid" ${clientSettings.emptyCellStyle==='solid'?'selected':''}>Solid</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <label class="flex items-center justify-between cursor-pointer group bg-slate-50 p-3 rounded-xl border border-slate-100 hover:bg-slate-100 transition-colors">
+                                <div class="flex items-center gap-3">
+                                    <i data-lucide="folder" class="w-4 h-4 text-slate-400"></i>
+                                    <div>
+                                        <span class="text-sm font-semibold text-slate-700 block">Folder colours</span>
+                                        <span class="text-xs text-slate-500">Folder cells use their folder's colour for the outline</span>
+                                    </div>
+                                </div>
+                                <button type="button" role="switch" aria-checked="${clientSettings.folderColorBorders!==false?'true':'false'}" onclick="clientSettings.folderColorBorders=!clientSettings.folderColorBorders; saveClientSettings(); renderClientNode(clientCurrentNode); const isOn=clientSettings.folderColorBorders; this.className='relative inline-flex h-6 w-11 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 '+(isOn?'bg-blue-600':'bg-slate-200'); this.firstElementChild.className='pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 '+(isOn?'translate-x-5':'translate-x-0');" class="relative inline-flex h-6 w-11 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${clientSettings.folderColorBorders!==false?'bg-blue-600':'bg-slate-200'}">
+                                    <span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ${clientSettings.folderColorBorders!==false?'translate-x-5':'translate-x-0'}"></span>
+                                </button>
+                            </label>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="flex flex-col gap-1.5 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                    <label class="text-xs text-slate-500 flex items-center gap-1.5"><i data-lucide="monitor" class="w-3.5 h-3.5 text-slate-400"></i> Cell Spacing</label>
+                                    <input type="range" min="0" max="32" value="${clientSettings.gap}" class="w-full h-2 bg-slate-200 rounded-lg accent-blue-600" oninput="clientSettings.gap=parseInt(this.value); saveClientSettings();">
+                                </div>
+                                <div class="flex flex-col gap-1.5 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                    <label class="text-xs text-slate-500 flex items-center gap-1.5"><i data-lucide="square" class="w-3.5 h-3.5 text-slate-400"></i> Border Thickness</label>
+                                    <input type="range" min="0" max="8" value="${clientSettings.borderWidth}" class="w-full h-2 bg-slate-200 rounded-lg accent-blue-600" oninput="clientSettings.borderWidth=parseInt(this.value); saveClientSettings();">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Colors -->
+                        <div class="space-y-4 pt-2 border-t border-slate-100">
+                            <h4 class="text-xs font-bold uppercase tracking-widest flex items-center gap-2 text-slate-400">
+                                <i data-lucide="paint-bucket" class="w-3.5 h-3.5"></i> Colours
+                            </h4>
+                            
+                            <div>
+                                <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Buttons</span>
+                                <div class="flex flex-wrap gap-2.5 mt-2">
+                                    ${[
+                                        {c: '#ffffff', n: 'White'},
+                                        {c: '#f5f5f5', n: 'Off White'},
+                                        {c: '#e8e8e8', n: 'Light Gray'},
+                                        {c: '#d1d5db', n: 'Gray'},
+                                        {c: '#9ca3af', n: 'Mid Gray'},
+                                        {c: '#f5f0e8', n: 'Buff'},
+                                        {c: '#ede8dc', n: 'Warm Beige'},
+                                        {c: '#d9d3c7', n: 'Dark Beige'},
+                                        {c: '#cbd5e1', n: 'Slate Gray'},
+                                        {c: '#94a3b8', n: 'Mid Slate'},
+                                        {c: '#475569', n: 'Dark Slate'},
+                                        {c: '#2d3748', n: 'Desaturated Blue'},
+                                        {c: '#1e293b', n: 'Deep Slate'},
+                                        {c: '#374151', n: 'Charcoal'},
+                                        {c: '#111827', n: 'Near Black'},
+                                        {c: '#000000', n: 'Black'}
+                                    ].map(color => `
+                                        <button type="button" aria-pressed="${clientSettings.cellBg===color.c?'true':'false'}" title="${color.n}" onclick="setClientColor('cellBg', '${color.c}', this)" class="relative w-8 h-8 rounded-full border-2 outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition-transform hover:scale-110 ${clientSettings.cellBg===color.c?'scale-110 border-blue-500':'border-slate-200'}" style="background-color: ${color.c};">
+                                            ${clientSettings.cellBg===color.c ? `<div class="absolute inset-0 flex items-center justify-center"><i data-lucide="check" class="w-4 h-4 ${['#475569','#2d3748','#1e293b','#374151','#111827','#000000','#94a3b8'].includes(color.c) ? 'text-white' : 'text-slate-800'}"></i></div>` : ''}
+                                        </button>
+                                    `).join('')}
+                                </div>
+                            </div>
+
+                            <div class="pt-2">
+                                <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">App Backdrop</span>
+                                <div class="flex flex-wrap gap-2.5 mt-2">
+                                    ${[
+                                        {c: '#ffffff', n: 'White'},
+                                        {c: '#f5f5f5', n: 'Off White'},
+                                        {c: '#e8e8e8', n: 'Light Gray'},
+                                        {c: '#d1d5db', n: 'Gray'},
+                                        {c: '#f5f0e8', n: 'Buff'},
+                                        {c: '#ede8dc', n: 'Warm Beige'},
+                                        {c: '#d9d3c7', n: 'Dark Beige'},
+                                        {c: '#cbd5e1', n: 'Slate Gray'},
+                                        {c: '#94a3b8', n: 'Mid Slate'},
+                                        {c: '#475569', n: 'Dark Slate'},
+                                        {c: '#2d3748', n: 'Desaturated Blue'},
+                                        {c: '#1e293b', n: 'Deep Slate'},
+                                        {c: '#374151', n: 'Charcoal'},
+                                        {c: '#111827', n: 'Near Black'},
+                                        {c: '#000000', n: 'Black'}
+                                    ].map(color => `
+                                        <button type="button" aria-pressed="${clientSettings.bgColor===color.c?'true':'false'}" title="${color.n}" onclick="setClientColor('bgColor', '${color.c}', this)" class="relative w-8 h-8 rounded-full border-2 outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition-transform hover:scale-110 ${clientSettings.bgColor===color.c?'scale-110 border-blue-500':'border-slate-200'}" style="background-color: ${color.c};">
+                                            ${clientSettings.bgColor===color.c ? `<div class="absolute inset-0 flex items-center justify-center"><i data-lucide="check" class="w-4 h-4 ${['#475569','#2d3748','#1e293b','#374151','#111827','#000000','#94a3b8'].includes(color.c) ? 'text-white' : 'text-slate-800'}"></i></div>` : ''}
+                                        </button>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Masking -->
+                        <div class="space-y-2 pt-4 border-t border-slate-100">
+                            <h4 class="text-xs font-bold uppercase tracking-widest flex items-center gap-2 text-slate-400">
+                                <i data-lucide="eye-off" class="w-3.5 h-3.5 text-amber-400"></i> Masking
+                            </h4>
+                            <label class="flex items-center justify-between cursor-pointer group bg-amber-50 p-3 rounded-xl border border-amber-200 hover:bg-amber-100 transition-colors">
+                                <div class="flex items-center gap-3">
+                                    <i data-lucide="eye" class="w-5 h-5 text-amber-500 group-hover:text-amber-600 transition-colors"></i>
+                                    <div>
+                                        <span class="text-sm font-semibold text-slate-700 block">Show all masked symbols</span>
+                                        <span class="text-xs text-slate-500">Reveal all placeholder symbols to the client</span>
+                                    </div>
+                                </div>
+                                <button type="button" role="switch" aria-checked="${clientSettings.showMasked?'true':'false'}" onclick="clientSettings.showMasked=!clientSettings.showMasked; saveClientSettings(); const isOn=clientSettings.showMasked; this.className='relative inline-flex h-6 w-11 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 '+(isOn?'bg-amber-500':'bg-slate-200'); this.firstElementChild.className='pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 '+(isOn?'translate-x-5':'translate-x-0');" class="relative inline-flex h-6 w-11 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 ${clientSettings.showMasked?'bg-amber-500':'bg-slate-200'}">
+                                    <span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ${clientSettings.showMasked?'translate-x-5':'translate-x-0'}"></span>
+                                </button>
+                            </label>
+                            <p class="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 leading-relaxed">
+                                <i data-lucide="info" class="w-3 h-3 inline-block mr-1 align-middle"></i>
+                                To reveal individual symbols one at a time, return to the flowchart editor and click the cell to unmask it directly.
+                            </p>
+                        </div>
+
+                        <!-- Audio -->
+                        <div class="space-y-3 pt-4 border-t border-slate-100">
+                            <label class="flex items-center justify-between cursor-pointer group bg-slate-50 p-3 rounded-xl border border-slate-100 hover:bg-slate-100 transition-colors">
+                                <div class="flex items-center gap-3">
+                                    <i data-lucide="volume-2" class="w-5 h-5 text-slate-500 group-hover:text-blue-600 transition-colors"></i>
+                                    <span class="text-sm font-semibold text-slate-700 group-hover:text-slate-900 transition-colors">Speak on press</span>
+                                </div>
+                                <button type="button" role="switch" aria-checked="${clientSettings.speakOnTap!==false?'true':'false'}" onclick="toggleSpeakOnTap(this)" class="relative inline-flex h-6 w-11 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${clientSettings.speakOnTap!==false?'bg-blue-600':'bg-slate-200'}">
+                                    <span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ${clientSettings.speakOnTap!==false?'translate-x-5':'translate-x-0'}"></span>
+                                </button>
+                            </label>
+                        </div>
+
+                        <!-- Accessibility: Drag-select -->
+                        <div class="space-y-3 pt-4 border-t border-slate-100">
+                            <h4 class="text-xs font-bold uppercase tracking-widest flex items-center gap-2 text-slate-400">
+                                <i data-lucide="accessibility" class="w-3.5 h-3.5 text-violet-400"></i> Accessibility
+                            </h4>
+                            <label class="flex items-center justify-between cursor-pointer group bg-violet-50 p-3 rounded-xl border border-violet-100 hover:bg-violet-100 transition-colors">
+                                <div class="flex items-center gap-3">
+                                    <i data-lucide="hand" class="w-5 h-5 text-violet-500 group-hover:text-violet-600 transition-colors"></i>
+                                    <div>
+                                        <span class="text-sm font-semibold text-slate-700 group-hover:text-slate-900 transition-colors block">Drag to select</span>
+                                        <span class="text-xs text-slate-500">Slide finger over symbols to enlarge them. Lift to confirm.</span>
+                                    </div>
+                                </div>
+                                <button type="button" role="switch" aria-checked="${clientSettings.dragSelect?'true':'false'}" onclick="toggleDragSelect(this)" class="relative inline-flex h-6 w-11 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 ${clientSettings.dragSelect?'bg-violet-600':'bg-slate-200'}">
+                                    <span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ${clientSettings.dragSelect?'translate-x-5':'translate-x-0'}"></span>
+                                </button>
+                            </label>
+                            <label class="flex items-center justify-between cursor-pointer group p-3 rounded-xl border transition-colors ${clientSettings.dragSelect ? 'bg-violet-50 border-violet-100 hover:bg-violet-100' : 'bg-slate-50 border-slate-100 opacity-40 pointer-events-none'}">
+                                <div class="flex items-center gap-3">
+                                    <i data-lucide="ear" class="w-5 h-5 text-violet-400"></i>
+                                    <div>
+                                        <span class="text-sm font-semibold text-slate-700 block">Speak while scanning</span>
+                                        <span class="text-xs text-slate-500">Say each symbol name as the finger passes over it</span>
+                                    </div>
+                                </div>
+                                <button type="button" role="switch" aria-checked="${clientSettings.dragSelectPreview!==false?'true':'false'}" onclick="toggleDragSelectPreview(this)" class="relative inline-flex h-6 w-11 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 ${clientSettings.dragSelectPreview!==false?'bg-violet-600':'bg-slate-200'}">
+                                    <span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ${clientSettings.dragSelectPreview!==false?'translate-x-5':'translate-x-0'}"></span>
+                                </button>
+                            </label>
+                            <div class="p-3 rounded-xl border transition-colors ${clientSettings.dragSelect && clientSettings.dragSelectPreview !== false ? 'bg-violet-50 border-violet-100' : 'bg-slate-50 border-slate-100 opacity-40 pointer-events-none'}">
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <label class="flex items-center gap-2 text-xs font-semibold text-slate-600">
+                                        <i data-lucide="timer" class="w-3.5 h-3.5 text-violet-400"></i> Speak delay
+                                    </label>
+                                    <span id="drag-delay-label" class="text-xs font-bold text-violet-700 tabular-nums">${clientSettings.dragSelectDelay || 0} ms</span>
+                                </div>
+                                <input type="range" min="0" max="1500" step="50" value="${clientSettings.dragSelectDelay || 0}" class="w-full h-2 bg-slate-200 rounded-lg accent-violet-600"
+                                    oninput="clientSettings.dragSelectDelay=parseInt(this.value); saveClientSettings(); document.getElementById('drag-delay-label').textContent=this.value+' ms';">
+                                <div class="flex justify-between text-[10px] text-slate-400 mt-1"><span>0 ms (instant)</span><span>1500 ms</span></div>
+                            </div>
+                        </div>
+                        
+                    </div>
+
+                    <button type="button" onclick="closeModal()" class="w-full mt-4 bg-blue-600 text-white font-bold py-2.5 rounded-xl hover:bg-blue-700 active:bg-blue-800 transition-all flex items-center justify-center gap-2 shadow-sm focus:ring-2 focus:ring-blue-500">
+                        <i data-lucide="check" class="w-4 h-4"></i> Done
+                    </button>
+                </div>
+            `);
+        }
+
+        function startClientApp() {
+            let startNodeId = 'home';
+            if (!nodesData[startNodeId]) {
+                const keys = Object.keys(nodesData);
+                if (keys.length > 0) startNodeId = keys[0];
+                else { promptAlert("Empty Map", "Please create at least one page before playing."); return; }
+            }
+            
+            document.getElementById('aac-client-app').classList.remove('hidden');
+            document.getElementById('aac-client-app').classList.add('flex');
+            applyClientTheme();
+            clientNavStack = [];
+            sentenceStrip = [];
+            renderSentenceStrip();
+            renderClientNode(startNodeId);
+        }
+
+        function exitClientApp() {
+            document.getElementById('aac-client-app').classList.add('hidden');
+            document.getElementById('aac-client-app').classList.remove('flex');
+            window.speechSynthesis.cancel();
+            // Restore OS chrome to editor white
+            const themeColorMeta = document.getElementById('meta-theme-color');
+            if (themeColorMeta) themeColorMeta.setAttribute('content', '#ffffff');
+        }
+
+        function clientGoHome() {
+            if (clientSettings.speakOnTap !== false) speakWord('Home');
+            let startNodeId = 'home';
+            if (!nodesData[startNodeId]) startNodeId = Object.keys(nodesData)[0];
+            if (clientCurrentNode !== startNodeId) {
+                clientNavStack = []; // Reset stack when jumping home
+                renderClientNode(startNodeId);
+            }
+        }
+
+        function clientGoBack() {
+            if (clientNavStack.length > 0) {
+                const prevId = clientNavStack.pop();
+                renderClientNode(prevId);
+            }
+        }
+
+        function renderClientNode(nodeId) {
+            clientCurrentNode = nodeId;
+            const node = nodesData[nodeId];
+            if (!node) return;
+
+            const wrapper = document.getElementById('client-grid-wrapper');
+            wrapper.innerHTML = '';
+            
+            const grid = document.createElement('div');
+            grid.style.display = 'grid';
+            grid.style.gridTemplateColumns = `repeat(${gridCols}, minmax(0, 1fr))`;
+            grid.style.gridTemplateRows = `repeat(${gridRows}, minmax(0, 1fr))`;
+            grid.style.gap = clientSettings.gap + 'px';
+            grid.style.width = '100%';
+            grid.style.height = '100%';
+            
+            for(let i=0; i < gridCols * gridRows; i++) {
+                const cell = node.cells[i];
+                const btn = document.createElement('button');
+                
+                // Set typography 
+                const fontMap = { Outfit: "'Outfit', sans-serif", Poppins: "'Poppins', sans-serif", 'sans-serif': "sans-serif" };
+                btn.style.fontFamily = fontMap[clientSettings.fontFamily] || fontMap['Outfit'];
+
+                // Allow variable borders
+                btn.className = "relative flex flex-col items-center justify-center p-2 rounded-2xl transition shadow-sm overflow-hidden select-none touch-manipulation focus:outline-none";
+                btn.style.borderStyle = 'solid';
+                btn.style.borderWidth = clientSettings.borderWidth + 'px';
+                btn.style.backgroundColor = cell ? clientSettings.cellBg || '#ffffff' : 'transparent';
+                
+                // Determine actual border color for this cell
+                const isLinkCell = !!(cell && cell.linkId && nodesData[cell.linkId]);
+                const folderColor = isLinkCell ? (nodesData[cell.linkId].color || '#94a3b8') : null;
+                const chosenBorder = clientSettings.borderColor || 'black';
+                const useFolderColor = isLinkCell && (clientSettings.folderColorBorders !== false);
+                const resolvedBorderColor = useFolderColor ? folderColor : (chosenBorder === 'black' ? '#000000' : chosenBorder === 'gray' ? '#e2e8f0' : chosenBorder);
+
+                if (chosenBorder === 'none' && !useFolderColor) {
+                    btn.style.borderWidth = '0px';
+                    btn.classList.replace('shadow-sm', 'shadow-md');
+                } else {
+                    btn.style.borderColor = resolvedBorderColor;
+                }
+                
+                // Masked cells are hidden from the client unless SLP has enabled showMasked
+                const effectivelyEmpty = !cell || (!cell.label && !cell.src && !cell.linkId);
+                const isMaskedHidden = cell && cell.masked && !clientSettings.showMasked;
+                
+                if (!effectivelyEmpty && !isMaskedHidden) {
+                    let topWidgets = '';
+                    let innerContent = '';
+                    let labelHtml = '';
+
+                    // Compute cell background luminance once for all text/icon colours
+                    const cellBgHex2 = /^#[0-9a-f]{6}$/i.test(clientSettings.cellBg) ? clientSettings.cellBg : '#ffffff';
+                    const cr2=parseInt(cellBgHex2.slice(1,3),16)/255, cg2=parseInt(cellBgHex2.slice(3,5),16)/255, cb2=parseInt(cellBgHex2.slice(5,7),16)/255;
+                    const cellLum2 = 0.2126*cr2 + 0.7152*cg2 + 0.0722*cb2;
+                    const lblColor  = cellLum2 > 0.35 ? '#1e293b' : '#f1f5f9';
+                    const iconColor = cellLum2 > 0.35 ? '#64748b' : '#cbd5e1';
+
+                    if (cell.linkId) {
+                        // Folder tab indicator uses the target folder's colour
+                        const tabColor = (nodesData[cell.linkId] && nodesData[cell.linkId].color) ? nodesData[cell.linkId].color : '#94a3b8';
+                        topWidgets += `<div class="absolute top-0 right-0 w-8 h-8 rounded-bl-xl opacity-30" style="background-color: ${tabColor}"></div>`;
+                        topWidgets += `<div class="absolute top-1 right-1"><i data-lucide="folder-open" class="w-4 h-4 pointer-events-none" style="color:${iconColor}"></i></div>`;
+                    }
+
+                    if (cell.src) {
+                        innerContent += `<img src="${escHtml(cell.src)}" class="flex-1 min-h-0 w-full object-contain pointer-events-none drop-shadow-sm ${clientSettings.labelPosition === 'bottom' ? 'mb-1 sm:mb-2' : clientSettings.labelPosition === 'top' ? 'mt-1 sm:mt-2' : ''}">`;
+                    } else if (cell.linkId) {
+                        innerContent += `<i data-lucide="folder" class="w-10 h-10 sm:w-16 sm:h-16 flex-1 min-h-0 pointer-events-none ${clientSettings.labelPosition === 'bottom' ? 'mb-1 sm:mb-2' : clientSettings.labelPosition === 'top' ? 'mt-1 sm:mt-2' : ''}" style="color:${iconColor}"></i>`;
+                    } else {
+                        innerContent += `<div class="flex-1 min-h-0 w-full ${clientSettings.labelPosition === 'bottom' ? 'mb-1 sm:mb-2' : clientSettings.labelPosition === 'top' ? 'mt-1 sm:mt-2' : ''}"></div>`;
+                    }
+
+                    if (cell.label && clientSettings.labelPosition !== 'hidden' && clientSettings.labelPosition !== 'cue') {
+                        const fsSizeMap = { sm: 'text-xs sm:text-sm', md: 'text-sm sm:text-lg lg:text-xl', lg: 'text-base sm:text-xl lg:text-2xl', xl: 'text-lg sm:text-2xl lg:text-3xl' };
+                        const fsClass = fsSizeMap[clientSettings.fontSize] || fsSizeMap['md'];
+                        labelHtml = `<span class="font-bold ${fsClass} pointer-events-none leading-tight text-center break-words max-h-[2.4em] overflow-hidden" style="color:${lblColor}">${escHtml(cell.label)}</span>`;
+                    }
+
+                    // Cue mode: tiny helper text overlaid at bottom-left, invisible to AAC user from distance
+                    if (cell.label && clientSettings.labelPosition === 'cue') {
+                        topWidgets += `<div class="absolute bottom-0.5 left-2 right-2 pointer-events-none"><span class="text-[7px] leading-none truncate block text-left font-semibold" style="color:${lblColor}">${escHtml(cell.label)}</span></div>`;
+                    }
+
+                    if (clientSettings.labelPosition === 'top') {
+                        btn.innerHTML = topWidgets + labelHtml + innerContent;
+                    } else {
+                        btn.innerHTML = topWidgets + innerContent + labelHtml;
+                    }
+
+                    btn.classList.add('hover:brightness-95');
+
+                    if (clientSettings.dragSelect) {
+                        btn.classList.add('client-drag-cell');
+                        btn.dataset.cellIdx = String(i);
+                    } else {
+                        // Press animation on pointerdown
+                        btn.addEventListener('pointerdown', () => {
+                            btn.classList.remove('cell-press');
+                            void btn.offsetWidth; // force reflow to restart animation
+                            btn.classList.add('cell-press');
+                        });
+
+                        if (cell.linkId) {
+                            btn.onclick = () => {
+                                if (nodesData[cell.linkId]) {
+                                    if (clientSettings.speakOnTap !== false) speakWord(nodesData[cell.linkId].title);
+                                    clientNavStack.push(nodeId);
+                                    renderClientNode(cell.linkId);
+                                }
+                            };
+                        } else {
+                            btn.onclick = () => {
+                                handleClientCellClick(cell);
+                            };
+                        }
+                    }
+                } else {
+                    if (clientSettings.emptyCellStyle === 'hidden') {
+                        btn.style.opacity = '0';
+                        btn.className += " pointer-events-none";
+                    } else if (clientSettings.emptyCellStyle === 'solid') {
+                        btn.style.borderStyle = 'solid';
+                        btn.style.borderColor = resolvedBorderColor !== 'none' ? resolvedBorderColor : '#e2e8f0';
+                        btn.style.backgroundColor = clientSettings.cellBg || '#ffffff';
+                        btn.className += " pointer-events-none opacity-50";
+                    } else { // dashed
+                        btn.style.borderStyle = 'dashed';
+                        btn.style.borderColor = resolvedBorderColor !== 'none' ? resolvedBorderColor : '#cbd5e1';
+                        btn.style.backgroundColor = 'transparent';
+                        btn.className += " pointer-events-none opacity-40";
+                    }
+                }
+                grid.appendChild(btn);
+            }
+            
+            wrapper.appendChild(grid);
+
+            // --- Drag-select mode: grid-level pointer handlers ---
+            if (clientSettings.dragSelect) {
+                let activeDragBtn = null;
+                let isDragSel = false;
+                let _dragSpeakTimer = null;
+
+                const clearHover = () => {
+                    if (_dragSpeakTimer) { clearTimeout(_dragSpeakTimer); _dragSpeakTimer = null; }
+                    if (activeDragBtn) { activeDragBtn.classList.remove('cell-drag-hover'); activeDragBtn = null; }
+                };
+
+                // Find button under pointer without the transform of the scaled cell interfering
+                const getBtn = (clientX, clientY) => {
+                    if (activeDragBtn) activeDragBtn.style.pointerEvents = 'none';
+                    const el = document.elementFromPoint(clientX, clientY);
+                    if (activeDragBtn) activeDragBtn.style.pointerEvents = '';
+                    return el ? el.closest('.client-drag-cell') : null;
+                };
+
+                grid.addEventListener('pointerdown', (e) => {
+                    if (e.pointerType === 'mouse' && e.button !== 0) return;
+                    e.preventDefault();
+                    isDragSel = true;
+                    grid.setPointerCapture(e.pointerId);
+                    const btn = getBtn(e.clientX, e.clientY);
+                    if (btn) { clearHover(); activeDragBtn = btn; btn.classList.add('cell-drag-hover'); }
+                });
+
+                grid.addEventListener('pointermove', (e) => {
+                    if (!isDragSel) return;
+                    const btn = getBtn(e.clientX, e.clientY);
+                    if (btn && btn !== activeDragBtn) {
+                        clearHover();
+                        activeDragBtn = btn;
+                        btn.classList.add('cell-drag-hover');
+                        // Speak label as preview while scanning
+                        if (clientSettings.dragSelectPreview !== false) {
+                            const idx = parseInt(btn.dataset.cellIdx);
+                            const c = nodesData[nodeId]?.cells[idx];
+                            if (c?.label) {
+                                if (_dragSpeakTimer) clearTimeout(_dragSpeakTimer);
+                                const delay = clientSettings.dragSelectDelay || 0;
+                                if (delay <= 0) {
+                                    speakWord(c.label);
+                                } else {
+                                    _dragSpeakTimer = setTimeout(() => { speakWord(c.label); _dragSpeakTimer = null; }, delay);
+                                }
+                            }
+                        }
+                    }
+                });
+
+                grid.addEventListener('pointerup', (e) => {
+                    if (!isDragSel) return;
+                    isDragSel = false;
+                    grid.releasePointerCapture(e.pointerId);
+                    const btn = activeDragBtn;
+                    clearHover();
+                    if (btn) {
+                        const idx = parseInt(btn.dataset.cellIdx);
+                        const c = nodesData[nodeId]?.cells[idx];
+                        if (c?.linkId && nodesData[c.linkId]) {
+                            if (clientSettings.speakOnTap !== false) speakWord(nodesData[c.linkId].title);
+                            clientNavStack.push(nodeId);
+                            renderClientNode(c.linkId);
+                        } else if (c) {
+                            handleClientCellClick(c);
+                        }
+                    }
+                });
+
+                grid.addEventListener('pointercancel', (e) => { isDragSel = false; grid.releasePointerCapture(e.pointerId); clearHover(); });
+            }
+
+            lucide.createIcons();
+        }
+
+        function handleClientCellClick(cell) {
+            if (clientSettings.speakOnTap !== false && cell.label) speakWord(cell.label);
+            sentenceStrip.push(cell);
+            appendToSentenceStrip(cell, sentenceStrip.length - 1);
+        }
+
+        function speakWord(text) {
+            if(!text || !window.speechSynthesis) return;
+            // Stop current speech before speaking new to prevent long queues
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 0.95;
+            utterance.pitch = 1.0;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function makeSentenceStripItem(cell, idx, animate) {
+            const div = document.createElement('div');
+            const siBg   = getComputedStyle(document.documentElement).getPropertyValue('--strip-item-bg').trim()   || '#ffffff';
+            const siBdr  = getComputedStyle(document.documentElement).getPropertyValue('--strip-item-border').trim() || 'rgba(0,0,0,0.12)';
+            const siText = getComputedStyle(document.documentElement).getPropertyValue('--strip-item-text').trim()  || '#1e293b';
+            div.className = 'flex flex-col items-center justify-center p-1 px-2 rounded-xl min-w-[60px] max-w-[90px] sm:min-w-[72px] sm:max-w-[100px] h-full flex-shrink-0 overflow-hidden cursor-pointer transition drop-shadow-sm' + (animate ? ' animate-pop' : '');
+            div.style.backgroundColor = siBg;
+            div.style.border = `2px solid ${siBdr}`;
+            div.style.color = siText;
+            div.title = 'Tap to speak | long-press to remove';
+            div.onclick = () => {
+                div.classList.remove('strip-press');
+                void div.offsetWidth;
+                div.classList.add('strip-press');
+                if (cell.label) speakWord(cell.label);
+            };
+            // Long-press to remove
+            let removeTimer;
+            div.addEventListener('pointerdown', () => { removeTimer = setTimeout(() => { sentenceStrip.splice(idx, 1); renderSentenceStrip(); }, 600); });
+            div.addEventListener('pointerup',   () => clearTimeout(removeTimer));
+            div.addEventListener('pointerleave',() => clearTimeout(removeTimer));
+            if (cell.src) div.innerHTML += `<img src="${escHtml(cell.src)}" class="flex-1 min-h-0 w-full object-contain pointer-events-none" style="max-height:60%;">`;
+            if (cell.label) div.innerHTML += `<span class="font-bold text-[10px] sm:text-xs pointer-events-none leading-tight text-center w-full truncate block" style="color:${siText};flex-shrink:0;">${escHtml(cell.label)}</span>`;
+            return div;
+        }
+
+        function appendToSentenceStrip(cell, idx) {
+            const strip = document.getElementById('client-sentence-strip');
+            // Remove placeholder if present
+            const placeholder = strip.querySelector('span.italic');
+            if (placeholder) placeholder.remove();
+            strip.appendChild(makeSentenceStripItem(cell, idx, true));
+            setTimeout(() => { strip.scrollLeft = strip.scrollWidth; }, 10);
+        }
+
+        function renderSentenceStrip() {
+            const strip = document.getElementById('client-sentence-strip');
+            strip.innerHTML = '';
+            if (sentenceStrip.length === 0) {
+                strip.innerHTML = '<span class="text-slate-400 italic px-4 text-sm pointer-events-none">Construct your message here...</span>';
+                return;
+            }
+            sentenceStrip.forEach((cell, idx) => strip.appendChild(makeSentenceStripItem(cell, idx, false)));
+            setTimeout(() => { strip.scrollLeft = strip.scrollWidth; }, 10);
+        }
+
+        function clientBackspace() {
+            if (sentenceStrip.length > 0) {
+                sentenceStrip.pop();
+                renderSentenceStrip();
+            }
+        }
+
+        function clientClearAll() {
+            if (clientSettings.speakOnTap !== false) speakWord('Clear');
+            if (sentenceStrip.length > 0) {
+                sentenceStrip = [];
+                renderSentenceStrip();
+            }
+        }
+
+        function clientSpeakSentence() {
+            if (sentenceStrip.length === 0) { if (clientSettings.speakOnTap !== false) speakWord('Speak'); return; }
+            const sentence = sentenceStrip.map(c => c.label).filter(Boolean).join(' ');
+            speakWord(sentence);
+        }
+
+        init();
+    </script>
+    <!-- Symbol Picker Modal -->
+    <div id="symbol-picker-overlay" style="display:none;" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[10005] flex items-end sm:items-center justify-center" onclick="if(event.target===this)closeSymbolPickerModal()">
+        <div class="bg-white w-full sm:max-w-xl sm:rounded-2xl shadow-[0_32px_80px_rgba(0,0,0,0.22),0_8px_24px_rgba(0,0,0,0.14)] flex flex-col rounded-t-2xl" style="max-height:92vh;">
+
+            <!-- Header -->
+            <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100 flex-shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-800 leading-tight">Add Symbol</h3>
+                        <p class="text-[10px] text-slate-400 font-medium leading-tight">Choose a source, then search or pick a quick word</p>
+                    </div>
+                </div>
+                <button onclick="closeSymbolPickerModal()" class="w-8 h-8 flex items-center justify-center hover:bg-slate-100 rounded-xl text-slate-400 hover:text-slate-600 transition active:scale-90 flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+
+            <!-- Tabs -->
+            <div class="px-4 pt-4 pb-0 flex-shrink-0">
+                <div class="symbol-picker-tabs">
+                    <button id="sp-tab-arasaac" class="symbol-picker-tab active" onclick="switchSymbolTab('arasaac')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
+                        <span class="flex flex-col items-start leading-tight gap-px">
+                            <span>ARASAAC</span>
+                            <span class="text-[9px] font-medium opacity-70">Line drawings</span>
+                        </span>
+                    </button>
+                    <button id="sp-tab-picom" class="symbol-picker-tab" onclick="switchSymbolTab('picom')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                        <span class="flex flex-col items-start leading-tight gap-px">
+                            <span>PiCom AI</span>
+                            <span class="text-[9px] font-medium opacity-70">Photographs</span>
+                        </span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ARASAAC Tab Content -->
+            <div id="sp-arasaac-content" class="symbol-tab-content active">
+                <div class="sp-search-wrapper">
+                    <svg class="sp-search-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="sp-arasaac-input" class="sp-search-input" placeholder="Search ARASAAC symbols…" autocomplete="off">
+                </div>
+                <div id="sp-arasaac-results" class="sp-results-grid">
+                    <div class="sp-empty">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        <p class="font-bold text-sm text-slate-500 mt-1">Search ARASAAC</p>
+                        <p class="text-xs text-slate-400 mt-1 max-w-[200px]">Free pictogram line drawings, clear &amp; widely used in AAC</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PiCom AI Tab Content -->
+            <div id="sp-picom-content" class="symbol-tab-content">
+                <div class="sp-search-wrapper">
+                    <svg class="sp-search-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="sp-picom-input" class="sp-search-input" placeholder="Search PiCom AI photos…" autocomplete="off">
+                </div>
+                <div id="sp-picom-results" class="sp-results-grid">
+                    <div class="sp-empty">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        <p class="font-bold text-sm text-slate-500 mt-1">Search PiCom AI</p>
+                        <p class="text-xs text-slate-400 mt-1 max-w-[200px]">Realistic AI-generated photo symbols for everyday words</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="px-4 pb-4 pt-3 border-t border-slate-100 bg-slate-50/70 sm:rounded-b-2xl flex-shrink-0 space-y-3">
+                <!-- Attribution -->
+                <div id="sp-attr-arasaac" class="flex items-center gap-2 text-[10px] text-slate-400 leading-relaxed">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="flex-shrink-0 opacity-60"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    <span>Symbols by <a href="https://arasaac.org" target="_blank" rel="noopener" class="text-blue-500 hover:text-blue-700 hover:underline font-semibold">ARASAAC</a> (Sergio Palao / Gobierno de Aragón) · <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener" class="text-blue-500 hover:text-blue-700 hover:underline">CC BY-NC-SA 4.0</a></span>
+                </div>
+                <div id="sp-attr-picom" class="hidden flex items-center gap-2 text-[10px] text-slate-400 leading-relaxed">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="flex-shrink-0 opacity-60"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    <span>Symbols by <a href="https://www.sensoryapphouse.com/" target="_blank" rel="noopener" class="text-emerald-600 hover:text-emerald-800 hover:underline font-semibold">PiCom AI</a> (Sensory App House / Global Symbols) · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener" class="text-emerald-600 hover:text-emerald-800 hover:underline">CC BY-SA 4.0</a></span>
+                </div>
+                <!-- Cancel -->
+                <button onclick="closeSymbolPickerModal()" class="w-full py-2.5 bg-white hover:bg-slate-100 text-slate-600 font-bold rounded-xl transition active:scale-95 text-sm border-2 border-slate-200 hover:border-slate-300">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+<!-- Client App Overlay -->
+    <div id="aac-client-app" class="fixed inset-0 bg-slate-100 z-[10000] hidden flex-col">
+        <!-- Invisible top bar placeholder (keeps applyClientTheme target) -->
+        <div id="client-top-bar" class="flex-shrink-0" style="height:0;overflow:hidden;"></div>
+
+        <!-- Sentence Strip -->
+        <div id="client-strip-area" class="flex items-stretch gap-2 p-2 sm:p-3 flex-shrink-0 h-[110px] sm:h-[130px]" style="border-bottom: 1px solid rgba(0,0,0,0.1);">
+            <!-- Home button on the left -->
+            <button id="client-home-btn" onclick="clientGoHome()" class="client-strip-btn flex-shrink-0 px-3 sm:px-4 rounded-2xl font-bold transition flex flex-col items-center justify-center gap-1 active:scale-95 text-xs min-w-[56px] sm:min-w-[70px]">
+                <i data-lucide="home" class="w-5 h-5 sm:w-6 sm:h-6 pointer-events-none"></i>
+                <span>Home</span>
+            </button>
+            <!-- Sentence strip + Speak button side by side -->
+            <div id="client-sentence-strip" class="flex-1 rounded-2xl overflow-x-auto overflow-y-hidden flex items-center gap-2 p-2 px-3 scroll-smooth" style="background: rgba(0,0,0,0.06); border: 1.5px solid rgba(0,0,0,0.08);">
+                <!-- sentence items appended here -->
+            </div>
+            <button id="client-speak-btn" onclick="clientSpeakSentence()" class="client-strip-btn flex-shrink-0 px-3 sm:px-4 rounded-2xl transition flex flex-col items-center justify-center font-bold text-xs gap-1 min-w-[70px] sm:min-w-[90px] active:scale-95">
+                <i data-lucide="volume-2" class="w-6 h-6 sm:w-7 sm:h-7 pointer-events-none"></i> Speak
+            </button>
+
+            <!-- Controls -->
+            <div class="flex flex-col gap-2 sm:flex-row sm:gap-2">
+                <button id="client-clear-btn" onclick="clientClearAll()" class="client-strip-btn p-2 sm:p-3 rounded-2xl transition flex flex-col items-center justify-center font-bold text-xs gap-1 min-w-[60px] sm:min-w-[80px] active:scale-95">
+                    <i data-lucide="trash-2" class="w-5 h-5 sm:w-6 sm:h-6 pointer-events-none"></i> Clear
+                </button>
+            </div>
+
+            <!-- SLP hold-buttons: stacked vertically, far right, compact -->
+            <div class="flex flex-col gap-1 justify-center flex-shrink-0">
+                <button
+                    class="client-bar-btn client-hold-btn p-1 rounded-lg transition flex items-center justify-center"
+                    title="Exit to Editor (hold 3s)"
+                    onmousedown="startClientHold(this,'exit')"
+                    onmouseup="cancelClientHold()"
+                    onmouseleave="cancelClientHold()"
+                    ontouchstart="startClientHold(this,'exit');event.preventDefault();"
+                    ontouchend="cancelClientHold()"
+                    ontouchcancel="cancelClientHold()"
+                    oncontextmenu="return false">
+                    <i data-lucide="x" class="w-4 h-4 pointer-events-none"></i>
+                </button>
+                <button
+                    class="client-bar-btn client-hold-btn p-1 rounded-lg transition flex items-center justify-center"
+                    title="Visual Settings (hold 3s)"
+                    onmousedown="startClientHold(this,'settings')"
+                    onmouseup="cancelClientHold()"
+                    onmouseleave="cancelClientHold()"
+                    ontouchstart="startClientHold(this,'settings');event.preventDefault();"
+                    ontouchend="cancelClientHold()"
+                    ontouchcancel="cancelClientHold()"
+                    oncontextmenu="return false">
+                    <i data-lucide="palette" class="w-4 h-4 pointer-events-none"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Client Grid Area -->
+        <div id="client-grid-area" class="flex-1 overflow-hidden p-2 sm:p-4 bg-transparent w-full max-w-7xl mx-auto flex items-center justify-center">
+            <div id="client-grid-wrapper" class="w-full h-full">
+                <!-- grid container injected here with dynamically calculated columns/rows -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden file input for user photo uploads -->
+    <!-- Visually hidden (not display:none) so iOS Safari honours .click() from a user gesture -->
+    <input type="file" id="sm-file-input" accept="image/*,image/heic,image/heif" style="position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;pointer-events:none;z-index:-1;">
+
+    <script>
+        setupSymbolPickerInputs();
+    </script>
+
+    <script>
+        // Splash dismissed by button — no auto-timer needed
+    </script>
+
+    <script>
+        // Register service worker for offline support and auto-updates
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').catch(() => {});
+                // When a new SW takes control, reload to run the latest code
+                let reloading = false;
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    if (!reloading) { reloading = true; location.reload(); }
+                });
+            });
+        }
+    </script>
+</body>
+</html>

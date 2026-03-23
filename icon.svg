@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#1d4ed8"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" fill="url(#bg)"/>
+
+  <!--
+    3×3 grid of AAC symbol cells
+    Cell: 128×128px  |  Gap: 14px  |  Margin: 50px
+    Col x: 50, 192, 334   (centers: 114, 256, 398)
+    Row y: 50, 192, 334   (image centers: 102, 244, 386  — 104px image area + 24px label)
+  -->
+
+  <!-- ── Cell backgrounds ── -->
+  <rect x="50"  y="50"  width="128" height="128" rx="18" fill="white" opacity="0.90"/>
+  <rect x="192" y="50"  width="128" height="128" rx="18" fill="white" opacity="0.90"/>
+  <rect x="334" y="50"  width="128" height="128" rx="18" fill="white" opacity="0.90"/>
+  <rect x="50"  y="192" width="128" height="128" rx="18" fill="white" opacity="0.90"/>
+  <!-- Center cell: accent blue -->
+  <rect x="192" y="192" width="128" height="128" rx="18" fill="#93c5fd"/>
+  <rect x="334" y="192" width="128" height="128" rx="18" fill="white" opacity="0.90"/>
+  <rect x="50"  y="334" width="128" height="128" rx="18" fill="white" opacity="0.90"/>
+  <rect x="192" y="334" width="128" height="128" rx="18" fill="white" opacity="0.90"/>
+  <rect x="334" y="334" width="128" height="128" rx="18" fill="white" opacity="0.90"/>
+
+  <!-- ── Label bars (bottom of each cell) ── -->
+  <rect x="60"  y="154" width="108" height="14" rx="7" fill="#1e293b" opacity="0.12"/>
+  <rect x="202" y="154" width="108" height="14" rx="7" fill="#1e293b" opacity="0.12"/>
+  <rect x="344" y="154" width="108" height="14" rx="7" fill="#1e293b" opacity="0.12"/>
+  <rect x="60"  y="296" width="108" height="14" rx="7" fill="#1e293b" opacity="0.12"/>
+  <rect x="202" y="296" width="108" height="14" rx="7" fill="white"   opacity="0.35"/>
+  <rect x="344" y="296" width="108" height="14" rx="7" fill="#1e293b" opacity="0.12"/>
+  <rect x="60"  y="438" width="108" height="14" rx="7" fill="#1e293b" opacity="0.12"/>
+  <rect x="202" y="438" width="108" height="14" rx="7" fill="#1e293b" opacity="0.12"/>
+  <rect x="344" y="438" width="108" height="14" rx="7" fill="#1e293b" opacity="0.12"/>
+
+  <!-- ── Cell 1 (114, 102): Smiley face ── -->
+  <circle cx="114" cy="102" r="36" fill="#fcd34d"/>
+  <circle cx="104" cy="95"  r="5"  fill="#1e293b"/>
+  <circle cx="124" cy="95"  r="5"  fill="#1e293b"/>
+  <path d="M101,112 Q114,126 127,112" stroke="#1e293b" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+
+  <!-- ── Cell 2 (256, 102): Apple ── -->
+  <ellipse cx="256" cy="108" rx="28" ry="30" fill="#f87171"/>
+  <path d="M248,82 Q256,72 266,79" stroke="#4ade80" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <ellipse cx="267" cy="83" rx="7" ry="10" fill="#4ade80" transform="rotate(15,267,83)"/>
+  <ellipse cx="245" cy="96" rx="6"  ry="9"  fill="white" opacity="0.40" transform="rotate(-20,245,96)"/>
+
+  <!-- ── Cell 3 (398, 102): Water drop ── -->
+  <path d="M398,67 C398,67 425,100 425,116 A27,27 0 0 1 371,116 C371,100 398,67 398,67Z" fill="#38bdf8"/>
+  <ellipse cx="390" cy="102" rx="7" ry="11" fill="white" opacity="0.45" transform="rotate(-20,390,102)"/>
+
+  <!-- ── Cell 4 (114, 244): Person ── -->
+  <circle cx="114" cy="220" r="22" fill="#2dd4bf"/>
+  <path d="M74,280 Q77,248 114,240 Q151,248 154,280" fill="#2dd4bf"/>
+
+  <!-- ── Cell 5 (256, 244): Speech bubble (on accent blue) ── -->
+  <rect x="208" y="210" width="96" height="58" rx="16" fill="white"/>
+  <polygon points="234,268 220,290 264,268" fill="white"/>
+  <rect x="222" y="224" width="68" height="8" rx="4" fill="#4f46e5" opacity="0.75"/>
+  <rect x="222" y="238" width="50" height="8" rx="4" fill="#4f46e5" opacity="0.55"/>
+
+  <!-- ── Cell 6 (398, 244): House ── -->
+  <polygon points="398,210 436,240 436,280 360,280 360,240" fill="#fb923c"/>
+  <rect x="384" y="254" width="28" height="26" rx="4" fill="#c2410c" opacity="0.85"/>
+
+  <!-- ── Cell 7 (114, 386): Heart ── -->
+  <path d="M114,395 C114,385 96,372 84,378 C72,384 72,403 114,427 C156,403 156,384 144,378 C132,372 114,385 114,395Z" fill="#f472b6"/>
+
+  <!-- ── Cell 8 (256, 386): Play button ── -->
+  <polygon points="240,366 240,410 282,388" fill="#22c55e"/>
+
+  <!-- ── Cell 9 (398, 386): Star ── -->
+  <polygon points="398,348 406.8,373.9 434.1,374.3 412.3,390.6 420.3,416.8 398,401 375.7,416.8 383.7,390.6 361.9,374.3 389.2,373.9" fill="#c084fc"/>
+</svg>

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -43,6 +43,10 @@
         }
 
         #app-wrapper { position: relative; width: 100vw; height: 100vh; overflow: hidden; }
+        #app-wrapper::after {
+            content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 3;
+            background: radial-gradient(ellipse at 50% 50%, transparent 62%, rgba(0,0,0,0.06) 100%);
+        }
 
         #bg-grid {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
@@ -54,42 +58,42 @@
         #nodes-layer { position: absolute; top: 0; left: 0; width: 0; height: 0; z-index: 2; pointer-events: none; }
 
         /* ── Wires ── */
-        .wire-hit  { fill: none; stroke: transparent; stroke-width: 28; pointer-events: stroke; cursor: pointer; }
-        .wire-bg   { fill: none; stroke-width: 8; stroke-linecap: round; pointer-events: none; opacity: 0.10; }
-        .wire-visible { fill: none; stroke-width: 2.5; stroke-linecap: round; pointer-events: none; opacity: 0.90;
+        .wire-hit  { fill: none; stroke: transparent; stroke-width: 30; pointer-events: stroke; cursor: pointer; }
+        .wire-bg   { fill: none; stroke-width: 10; stroke-linecap: round; pointer-events: none; opacity: 0.13; }
+        .wire-visible { fill: none; stroke-width: 2.8; stroke-linecap: round; pointer-events: none; opacity: 0.92;
                         transition: stroke 0.15s, stroke-width 0.15s, opacity 0.15s, filter 0.15s; }
         .wire-temp { fill: none; stroke: #3b82f6; stroke-width: 2.5; stroke-dasharray: 8 5; stroke-linecap: round;
-                     pointer-events: none; animation: dash 0.6s linear infinite; }
+                     pointer-events: none; animation: dash 0.6s linear infinite; filter: drop-shadow(0 0 4px rgba(59,130,246,0.40)); }
         @keyframes dash { to { stroke-dashoffset: -13; } }
 
         /* ── Nodes ── */
         .aac-node {
             position: absolute; pointer-events: auto;
-            background: white; border-radius: 18px;
+            background: white; border-radius: 20px;
             box-shadow:
-                0 0 0 1.5px rgba(0,0,0,0.06),
-                0 1px 3px rgba(0,0,0,0.04),
-                0 6px 18px -2px rgba(0,0,0,0.09),
-                0 20px 40px -4px rgba(0,0,0,0.08);
+                0 0 0 1.5px rgba(0,0,0,0.07),
+                0 1px 4px rgba(0,0,0,0.05),
+                0 8px 24px -2px rgba(0,0,0,0.10),
+                0 24px 48px -4px rgba(0,0,0,0.09);
             transform: translate(-50%, -50%);
-            transition: box-shadow 0.28s ease, transform 0.24s cubic-bezier(0.34,1.3,0.64,1), width 0.3s ease;
+            transition: box-shadow 0.30s ease, transform 0.26s cubic-bezier(0.34,1.3,0.64,1), width 0.3s ease;
             will-change: transform;
         }
         .aac-node:hover:not(.dragging) {
             box-shadow:
-                0 0 0 2px var(--node-ring-color, rgba(0,0,0,0.12)),
-                0 2px 8px rgba(0,0,0,0.06),
-                0 14px 28px -2px rgba(0,0,0,0.12),
-                0 32px 60px -4px rgba(0,0,0,0.10);
-            transform: translate(-50%, -50%) translateY(-3px);
+                0 0 0 2.5px var(--node-ring-color, rgba(0,0,0,0.15)),
+                0 2px 8px rgba(0,0,0,0.07),
+                0 18px 40px -2px rgba(0,0,0,0.14),
+                0 40px 80px -4px rgba(0,0,0,0.10);
+            transform: translate(-50%, -50%) translateY(-5px);
         }
         .aac-node.dragging {
             box-shadow:
-                0 0 0 2.5px var(--node-ring-color, rgba(59,130,246,0.55)),
-                0 8px 16px rgba(0,0,0,0.10),
-                0 28px 52px rgba(0,0,0,0.16),
-                0 48px 88px rgba(0,0,0,0.10);
-            transform: translate(-50%, -50%) scale(1.04) translateY(-6px);
+                0 0 0 2.5px var(--node-ring-color, rgba(59,130,246,0.60)),
+                0 8px 20px rgba(0,0,0,0.12),
+                0 32px 60px rgba(0,0,0,0.18),
+                0 56px 96px rgba(0,0,0,0.10);
+            transform: translate(-50%, -50%) scale(1.05) translateY(-8px);
             z-index: 100 !important;
         }
 
@@ -115,25 +119,31 @@
 
         /* ── Grid Cells ── */
         .grid-cell {
-            transition: outline 0.12s, opacity 0.2s, transform 0.12s, box-shadow 0.14s;
+            transition: outline 0.12s, opacity 0.2s, transform 0.14s cubic-bezier(0.34,1.3,0.64,1), box-shadow 0.14s;
             user-select: none; -webkit-user-select: none; cursor: grab;
         }
-        .grid-cell:hover:not(.drop-target) { transform: scale(1.05); box-shadow: 0 6px 18px rgba(0,0,0,0.14) !important; }
-        .grid-cell:active { cursor: grabbing; transform: scale(0.93) !important; }
+        .grid-cell:hover:not(.drop-target) { transform: scale(1.07); box-shadow: 0 8px 22px rgba(0,0,0,0.16) !important; }
+        .grid-cell:active { cursor: grabbing; transform: scale(0.91) !important; }
         .grid-cell.drop-target {
             outline: 2.5px solid #3b82f6; outline-offset: -2px;
-            box-shadow: 0 0 0 5px rgba(59,130,246,0.20) !important;
+            box-shadow: 0 0 0 6px rgba(59,130,246,0.24) !important;
         }
 
         .node-header { cursor: grab; overflow: hidden; }
         .node-header:active { cursor: grabbing; }
         
         /* ── Overlays & Modals ── */
-        #drop-dialog-overlay, #custom-modal-overlay { 
+        #custom-modal-overlay { 
             position: fixed; inset: 0; background: rgba(10, 18, 36, 0.50); backdrop-filter: blur(4px); z-index: 10005; 
             opacity: 0; pointer-events: none; transition: opacity 0.22s; 
         }
-        #drop-dialog-overlay.active, #custom-modal-overlay.active { opacity: 1; pointer-events: auto; }
+        #custom-modal-overlay.active { opacity: 1; pointer-events: auto; }
+        /* Drop dialog overlay: no blur so the context menu stays readable */
+        #drop-dialog-overlay {
+            position: fixed; inset: 0; background: transparent; z-index: 9998;
+            opacity: 0; pointer-events: none; transition: opacity 0.22s;
+        }
+        #drop-dialog-overlay.active { opacity: 1; pointer-events: auto; }
         
         /* ── Scrollbars ── */
         .custom-scrollbar::-webkit-scrollbar { width: 5px; }
@@ -197,8 +207,8 @@
             100% { transform: scale(1);   filter: brightness(1); }
         }
         .strip-press { animation: stripPress 0.2s cubic-bezier(0.34, 1.3, 0.64, 1) forwards; }
-        .client-drag-cell { transition: transform 0.14s cubic-bezier(0.34, 1.25, 0.64, 1), box-shadow 0.12s ease; }
-        .cell-drag-hover { transform: scale(1.45) !important; z-index: 20 !important; position: relative !important; box-shadow: 0 16px 48px rgba(0,0,0,0.28), 0 0 0 4px rgba(59,130,246,0.88) !important; filter: brightness(1.05) !important; }
+        .client-drag-cell { transition: transform 0.08s ease-out, box-shadow 0.08s ease-out; }
+        .cell-drag-hover { transform: scale(1.32) !important; z-index: 20 !important; position: relative !important; box-shadow: 0 16px 48px rgba(0,0,0,0.28), 0 0 0 4px rgba(59,130,246,0.88) !important; filter: brightness(1.05) !important; }
         #undo-btn:disabled, #redo-btn:disabled { opacity: 0.32; cursor: not-allowed; pointer-events: none; }
         .client-hold-btn:hover { opacity: 0.55; }
         .client-hold-btn.holding { opacity: 1; }
@@ -276,6 +286,166 @@
             #client-strip-area { height: 56px !important; padding: 3px 8px !important; gap: 6px !important; }
             #client-strip-area svg { width: 1rem !important; height: 1rem !important; }
             #client-grid-area  { padding: 3px !important; }
+        }
+
+        /* ── Photo & Routine Manager Modals: Responsive ─────────────────────────── */
+        /* Phone portrait — fill the screen, stack nav 2×2 */
+        @media (max-width: 540px) {
+            #photo-mgr-overlay  > div,
+            #routine-mgr-overlay > div {
+                margin:  0 !important;
+                padding: 0 0 env(safe-area-inset-bottom, 20px) !important;
+            }
+            #photo-mgr-overlay  > div > div,
+            #routine-mgr-overlay > div > div {
+                border-radius: 0 !important;
+                min-height: 100svh;
+            }
+            /* 4-col nav → 2×2 */
+            #photo-mgr-nav-btns {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+            /* Photo grid: 2 evenly-sized columns */
+            #photo-mgr-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                padding: 12px !important;
+                gap:     10px !important;
+            }
+            /* Routine grid tightened (columns handled by JS) */
+            #routine-mgr-grid {
+                padding: 12px !important;
+                gap:     10px !important;
+            }
+            /* Hint text in routine header can hide on very small screens */
+            .routine-mgr-hint { display: none !important; }
+        }
+        /* Tiny phones — single photo column */
+        @media (max-width: 360px) {
+            #photo-mgr-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+        /* Tablet (541–820px) — already fine, just tighten outer margin slightly */
+        @media (min-width: 541px) and (max-width: 820px) {
+            #photo-mgr-overlay  > div,
+            #routine-mgr-overlay > div {
+                margin:  16px auto !important;
+                padding: 0 12px 32px !important;
+            }
+        }
+
+        /* ── Board Palette Sidebar ── */
+        #board-palette {
+            position: fixed; top: 56px; right: 0; bottom: 0; width: 220px;
+            background: #1e2638; border-left: 1.5px solid rgba(255,255,255,0.07);
+            z-index: 900; display: flex; flex-direction: column;
+            transform: translateX(100%); transition: transform 0.28s cubic-bezier(0.34,1.1,0.64,1);
+            box-shadow: -8px 0 40px rgba(0,0,0,0.28);
+        }
+        #board-palette.open { transform: translateX(0); }
+        #palette-toggle {
+            position: fixed; top: 50%; right: 0; z-index: 901;
+            transform: translateY(-50%);
+            background: #1e2638; border: 1.5px solid rgba(255,255,255,0.10);
+            border-right: none; border-radius: 10px 0 0 10px;
+            width: 28px; height: 80px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: -4px 0 16px rgba(0,0,0,0.22);
+            transition: background 0.15s, right 0.28s cubic-bezier(0.34,1.1,0.64,1);
+        }
+        #palette-toggle.open { right: 220px; }
+        #palette-toggle:hover { background: #2a3347; }
+        #palette-toggle svg { transition: transform 0.28s; }
+        #palette-toggle.open svg { transform: rotate(180deg); }
+        .palette-board-card {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 8px; padding: 14px 10px; border-radius: 14px;
+            background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.09);
+            cursor: pointer; transition: all 0.18s cubic-bezier(0.34,1.2,0.64,1);
+            color: #e2e8f0; font-family: 'Outfit', sans-serif; font-weight: 700;
+            font-size: 0.72rem; text-align: center; user-select: none;
+        }
+        .palette-board-card:hover {
+            background: rgba(255,255,255,0.13); border-color: rgba(255,255,255,0.22);
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.28);
+        }
+        .palette-board-card:active { transform: scale(0.96); }
+        .palette-board-card .pbc-icon {
+            width: 44px; height: 44px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        /* ── Whiteboard Node ── */
+        .wb-node {
+            background: #ffffff;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08), 0 12px 32px -4px rgba(0,0,0,0.14);
+            border: 1.5px solid #e2e8f0;
+        }
+        .wb-node.dragging { box-shadow: 0 8px 48px rgba(0,0,0,0.24) !important; transform: translate(-50%,-50%) scale(1.01) !important; }
+        .wb-toolbar { display: flex; align-items: center; gap: 4px; padding: 6px 10px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; flex-wrap: wrap; }
+        .wb-tool-btn { display:flex;align-items:center;justify-content:center; width:30px;height:30px;border-radius:8px;border:1.5px solid transparent;cursor:pointer;background:transparent;transition:all 0.14s;color:#475569;flex-shrink:0; }
+        .wb-tool-btn:hover { background:#e2e8f0; }
+        .wb-tool-btn.active { background:#dbeafe; border-color:#93c5fd; color:#1d4ed8; }
+        .wb-color-swatch { width:22px;height:22px;border-radius:50%;border:2px solid white;box-shadow:0 0 0 1.5px #cbd5e1;cursor:pointer;flex-shrink:0;transition:transform 0.12s; }
+        .wb-color-swatch:hover { transform: scale(1.2); }
+        .wb-color-swatch.active { box-shadow:0 0 0 2.5px #3b82f6; }
+
+        /* ── Gallery Node ── */
+        .gallery-node { background:#ffffff; border-radius:20px; overflow:hidden; box-shadow:0 2px 6px rgba(0,0,0,0.08),0 12px 32px -4px rgba(0,0,0,0.14); border:1.5px solid #e2e8f0; }
+        .gallery-node.dragging { box-shadow:0 8px 48px rgba(0,0,0,0.24)!important; transform:translate(-50%,-50%) scale(1.01)!important; }
+        .gal-thumb { aspect-ratio:1; border-radius:6px; object-fit:cover; width:100%; background:#e2e8f0; display:block; }
+        .gal-manage-btn { display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:7px 12px;background:linear-gradient(135deg,#10b981,#0ea5e9);color:white;font-size:12px;font-weight:700;font-family:Outfit,sans-serif;border:none;border-radius:10px;cursor:pointer;transition:opacity 0.15s; }
+        .gal-manage-btn:hover { opacity:0.88; }
+        .photo-drop-over { outline:2.5px dashed #10b981 !important; background:#f0fdf4 !important; }
+        @keyframes galFadeIn { from { opacity:0; transform:scale(1.032); } to { opacity:1; transform:scale(1); } }
+        .gal-photo-anim { animation:galFadeIn 0.22s ease; }
+        .gal-dot { width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.32);transition:background 0.18s,transform 0.18s;flex-shrink:0; }
+        .gal-dot.active { background:rgba(255,255,255,0.95);transform:scale(1.32); }
+
+        /* ── Routine Board Node ── */
+        .routine-node { background:#ffffff; border-radius:20px; overflow:hidden; box-shadow:0 2px 6px rgba(0,0,0,0.08),0 12px 32px -4px rgba(0,0,0,0.14); border:1.5px solid #e2e8f0; }
+        .routine-node.dragging { box-shadow:0 8px 48px rgba(0,0,0,0.24)!important; transform:translate(-50%,-50%) scale(1.01)!important; }
+        .routine-step-card { background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:12px; overflow:hidden; transition:opacity 0.15s,box-shadow 0.15s; cursor:grab; }
+        .routine-step-card.routine-drop-over { outline:2.5px dashed #f59e0b !important; background:#fffbeb !important; }
+        @keyframes routineSwipeUp { from { transform:translateY(0); opacity:1; } to { transform:translateY(-110%); opacity:0; } }
+        @keyframes routineChime { 0%{transform:scale(1);} 40%{transform:scale(1.18);} 70%{transform:scale(0.93);} 100%{transform:scale(1);} }
+        .routine-done-anim { animation:routineSwipeUp 0.45s cubic-bezier(0.4,0,0.2,1) forwards; }
+        .routine-chime-anim { animation:routineChime 0.38s ease; }
+        .routine-client-slot { position:relative; border-radius:18px; background:#1e293b; border:2px dashed rgba(255,255,255,0.12); display:flex; flex-direction:column; align-items:center; justify-content:center; transition:border-color 0.2s,background 0.2s; flex:1; min-width:0; }
+        .routine-client-slot.done { background:#14532d; border:2px solid #22c55e; }
+        .routine-client-step { position:relative; border-radius:18px; background:#1e293b; display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1; min-width:0; cursor:pointer; transition:transform 0.1s; -webkit-tap-highlight-color:transparent; }
+        .routine-client-step:active { transform:scale(0.96); }
+
+        /* ── Lost & Found Runner ── */
+        .lf-node {
+            background: #fffbeb !important;
+            border: 2px dashed #f59e0b !important;
+            box-shadow: 0 0 0 1px rgba(245,158,11,0.15), 0 8px 24px -2px rgba(0,0,0,0.10) !important;
+        }
+        .lf-node:hover:not(.dragging) {
+            box-shadow: 0 0 0 2px rgba(245,158,11,0.45), 0 18px 40px -2px rgba(0,0,0,0.14) !important;
+            transform: translate(-50%, -50%) translateY(-3px) !important;
+        }
+
+        /* ── Cell Resize Handle (merge via drag) ── */
+        .cell-resize-handle {
+            position: absolute; bottom: 3px; right: 3px;
+            width: 14px; height: 14px;
+            cursor: se-resize; opacity: 0; transition: opacity 0.15s;
+            display: flex; align-items: flex-end; justify-content: flex-end;
+            z-index: 2; touch-action: none; pointer-events: auto;
+        }
+        .grid-cell:hover .cell-resize-handle { opacity: 1; }
+        .grid-cell.merge-resize-src {
+            outline: 2px solid #7c3aed; outline-offset: -2px;
+            box-shadow: 0 0 0 6px rgba(124,58,237,0.20) !important;
+        }
+        .lf-node.dragging {
+            box-shadow: 0 0 0 2.5px rgba(245,158,11,0.7), 0 32px 60px rgba(0,0,0,0.18) !important;
+            transform: translate(-50%, -50%) scale(1.03) translateY(-6px) !important;
         }
     </style>
 </head>
@@ -355,6 +525,128 @@
             <div id="nodes-layer"></div>
         </div>
     </div>
+
+    <!-- Board Palette Sidebar -->
+    <button id="palette-toggle" title="Modules" onpointerdown="toggleBoardPalette()" style="flex-direction:column;gap:6px;">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 2L4 6L8 10" stroke="#94a3b8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span style="writing-mode:vertical-rl;text-orientation:mixed;transform:rotate(180deg);font-family:Outfit,sans-serif;font-size:9px;font-weight:700;color:#64748b;letter-spacing:0.08em;text-transform:uppercase;line-height:1;">Modules</span>
+    </button>
+    <div id="board-palette">
+        <div class="px-4 pt-4 pb-3 flex-shrink-0" style="border-bottom:1px solid rgba(255,255,255,0.07);">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+                <div class="text-[11px] font-bold text-slate-300 uppercase tracking-widest">Modules</div>
+            </div>
+            <div class="text-[11px] text-slate-500 font-medium" style="line-height:1.4;">Tap any module to place it on the canvas</div>
+        </div>
+        <div class="flex-1 overflow-y-auto p-3 flex flex-col gap-3">
+            <!-- Symbol Grid -->
+            <div class="palette-board-card" onpointerdown="pushHistory(); spawnRootNode(); if(window._paletteShouldClose) toggleBoardPalette();">
+                <div class="pbc-icon" style="background:linear-gradient(135deg,#3b82f6,#6366f1);">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                </div>
+                <span>Symbol Grid</span>
+                <span style="font-weight:400;color:#64748b;font-size:0.65rem;">Standard AAC board</span>
+            </div>
+            <!-- Whiteboard -->
+            <div class="palette-board-card" onpointerdown="pushHistory(); spawnWhiteboardNode();">
+                <div class="pbc-icon" style="background:linear-gradient(135deg,#f59e0b,#ef4444);">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                </div>
+                <span>Whiteboard</span>
+                <span style="font-weight:400;color:#64748b;font-size:0.65rem;">Freehand drawing board</span>
+            </div>
+            <!-- Photo Gallery -->
+            <div class="palette-board-card" onpointerdown="pushHistory(); spawnGalleryNode();">
+                <div class="pbc-icon" style="background:linear-gradient(135deg,#10b981,#0ea5e9);">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                </div>
+                <span>Photo Gallery</span>
+                <span style="font-weight:400;color:#64748b;font-size:0.65rem;">Swipeable photo board</span>
+            </div>
+            <!-- Routine Board -->
+            <div class="palette-board-card" onpointerdown="pushHistory(); spawnRoutineNode();">
+                <div class="pbc-icon" style="background:linear-gradient(135deg,#f59e0b,#ef4444);">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                </div>
+                <span>Routine Board</span>
+                <span style="font-weight:400;color:#64748b;font-size:0.65rem;">Step-by-step activity strip</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Photo Manager Modal -->
+    <div id="photo-mgr-overlay" style="display:none;position:fixed;inset:0;z-index:9998;background:rgba(15,23,42,0.72);backdrop-filter:blur(4px);overflow-y:auto;">
+        <div style="max-width:820px;margin:32px auto;padding:0 16px 48px;">
+            <div style="background:#fff;border-radius:24px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.32);">
+                <!-- Header -->
+                <div style="display:flex;align-items:center;gap:10px;padding:16px 20px;background:linear-gradient(135deg,#10b981,#0ea5e9);flex-shrink:0;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    <span id="photo-mgr-title" style="font-weight:700;font-size:15px;color:white;flex:1;font-family:Outfit,sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+                    <button onclick="closePhotoManager()" style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,0.20);border:none;cursor:pointer;color:white;flex-shrink:0;" title="Close">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                </div>
+                <!-- Upload strip -->
+                <div style="padding:14px 20px;border-bottom:1.5px solid #e2e8f0;display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#fff;">
+                    <label for="photo-mgr-file-input" style="display:inline-flex;align-items:center;gap:6px;padding:9px 18px;background:linear-gradient(135deg,#10b981,#0ea5e9);color:white;font-size:13px;font-weight:700;font-family:Outfit,sans-serif;border-radius:10px;cursor:pointer;flex-shrink:0;user-select:none;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        Add Photos
+                    </label>
+                    <input type="file" id="photo-mgr-file-input" accept="image/*" multiple style="display:none;" onchange="handlePhotoManagerUpload(event)">
+                    <span style="font-size:12px;color:#94a3b8;font-family:Outfit,sans-serif;">JPG, PNG, GIF, WebP &bull; Auto-resized &bull; <strong>Drag &amp; drop</strong> anywhere in this panel</span>
+                </div>
+                <!-- Navigation setting -->
+                <div id="photo-mgr-nav-bar" style="padding:14px 20px 12px;border-bottom:1.5px solid #e2e8f0;background:#f8fafc;">
+                    <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.07em;font-family:Outfit,sans-serif;margin-bottom:8px;">Navigation method in Play App</div>
+                    <div id="photo-mgr-nav-btns" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;"></div>
+                </div>
+                <!-- Photo grid -->
+                <div id="photo-mgr-grid" style="padding:20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;min-height:180px;background:#fff;"></div>
+                <!-- Empty state -->
+                <div id="photo-mgr-empty" style="display:none;padding:48px 20px;text-align:center;color:#94a3b8;font-family:Outfit,sans-serif;background:#fff;border-radius:0 0 24px 24px;">
+                    <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto 14px;display:block;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    <div style="font-weight:700;font-size:15px;color:#64748b;">No photos yet</div>
+                    <div style="font-size:12px;margin-top:6px;">Click "Add Photos" above to upload images to this gallery</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Routine Board Manager Modal -->
+    <div id="routine-mgr-overlay" style="display:none;position:fixed;inset:0;z-index:9998;background:rgba(15,23,42,0.72);backdrop-filter:blur(4px);overflow-y:auto;">
+        <div style="max-width:680px;margin:32px auto;padding:0 16px 48px;">
+            <div style="background:#fff;border-radius:24px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.32);">
+                <!-- Header -->
+                <div style="display:flex;align-items:center;gap:10px;padding:16px 20px;background:linear-gradient(135deg,#f59e0b,#ef4444);flex-shrink:0;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                    <span id="routine-mgr-title" style="font-weight:700;font-size:15px;color:white;flex:1;font-family:Outfit,sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+                    <button onclick="closeRoutineManager()" style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,0.20);border:none;cursor:pointer;color:white;flex-shrink:0;" title="Close">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                </div>
+                <!-- Steps count selector -->
+                <div style="padding:14px 20px;border-bottom:1.5px solid #e2e8f0;background:#fff;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+                    <span style="font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.07em;font-family:Outfit,sans-serif;white-space:nowrap;">Number of steps</span>
+                    <div id="routine-mgr-count-btns" style="display:flex;gap:6px;"></div>
+                    <span style="font-size:12px;color:#94a3b8;font-family:Outfit,sans-serif;margin-left:auto;" class="routine-mgr-hint">Tap a slot to add a photo &bull; <strong>Drag</strong> to reorder</span>
+                </div>
+                <!-- Step grid (populated by _renderRoutineMgrGrid) -->
+                <div id="routine-mgr-grid" style="padding:20px;display:grid;gap:14px;background:#fff;min-height:160px;"></div>
+                <!-- Empty state shown before first photo added -->
+                <div id="routine-mgr-empty" style="display:none;padding:40px 20px;text-align:center;color:#94a3b8;font-family:Outfit,sans-serif;background:#fff;border-radius:0 0 24px 24px;">
+                    <div style="font-weight:700;font-size:14px;color:#64748b;">Tap a step slot above to add a photo</div>
+                </div>
+                <!-- Hidden file input -->
+                <input type="file" id="routine-mgr-file-input" accept="image/*" style="display:none;" onchange="handleRoutineStepUpload(event)">
+            </div>
+        </div>
+    </div>
+
+    <!-- Merge Resize Preview Overlay -->
+    <div id="merge-preview-overlay" style="position:fixed;pointer-events:none;z-index:9997;border:2px dashed #7c3aed;border-radius:8px;background:rgba(124,58,237,0.10);display:none;"></div>
 
     <!-- Drop Action Context Menu -->
     <div id="drop-dialog-overlay"></div>
@@ -438,14 +730,29 @@
                 node.color = _legacyColorMap[node.color] || '#1d4ed8';
         });
 
-        // Enforce array sizes; strip any legacy emoji fields
-        Object.values(nodesData).forEach(node => {
-            if (!node.cells) node.cells = [];
-            const targetLen = gridCols * gridRows;
-            while (node.cells.length < targetLen) node.cells.push({ label: '', linkId: null, src: null });
-            if (node.cells.length > targetLen) node.cells = node.cells.slice(0, targetLen);
-            node.cells.forEach(c => { delete c.emoji; });
-        });
+        // Enforce array sizes; strip any legacy emoji fields; route surplus cells to Lost & Found
+        {
+            const _startupDisplaced = [];
+            Object.values(nodesData).forEach(node => {
+                if (!node.cells) node.cells = [];
+                node.cells.forEach(c => { delete c.emoji; });
+                if (node.id === '__lost_found__') return; // holds variable-length displaced cells
+                const targetLen = gridCols * gridRows;
+                while (node.cells.length < targetLen) node.cells.push({ label: '', linkId: null, src: null });
+                if (node.cells.length > targetLen) {
+                    const overflow = node.cells.splice(targetLen);
+                    overflow.forEach(c => { if (c && (c.label || c.linkId || c.src)) _startupDisplaced.push(c); });
+                }
+            });
+            if (_startupDisplaced.length > 0) {
+                if (!nodesData['__lost_found__']) {
+                    let maxY = 0;
+                    Object.values(nodesData).forEach(n => { if (n.id !== '__lost_found__') maxY = Math.max(maxY, n.y); });
+                    nodesData['__lost_found__'] = { id: '__lost_found__', title: 'Lost & Found', color: '#b45309', x: 0, y: maxY + 300, cells: [] };
+                }
+                _startupDisplaced.forEach(c => nodesData['__lost_found__'].cells.push(c));
+            }
+        }
 
         // 18-colour hex palette — each a unique hue, all verified for white-text legibility
         const nodeColorDefs = [
@@ -494,6 +801,7 @@
         const activePointers = new Map(); let prevPinchDiff = -1;
         let isCellPointerDown = false, isDraggingCell = false;
         let activeCellTarget = null, cellStartCoords = { x: 0, y: 0 }, cellGhostEl = null;
+        let isMergeResizing = false, mergeResizeAnchorEl = null, mergeResizeNodeId = null, mergeResizeAnchorIdx = -1;
         let isModalOpen = false;
 
         const wrapper = document.getElementById('app-wrapper'); const workspace = document.getElementById('workspace');
@@ -612,7 +920,7 @@
                 const val = document.getElementById('modal-node-title').value.trim();
                 if (val) {
                     nodesData[nodeId].title = val;
-                    Object.values(nodesData).forEach(n => n.cells.forEach(c => { if (c.linkId === nodeId) c.label = val; }));
+                    Object.values(nodesData).forEach(n => (n.cells || []).forEach(c => { if (c.linkId === nodeId) c.label = val; }));
                 }
                 nodesData[nodeId].color = window.tempSelectedColor;
                 closeModal(); renderMap(); setTimeout(updateAllWires, 50);
@@ -719,6 +1027,14 @@
                         <img src="${escHtml(cell.src)}" class="w-14 h-14 object-contain rounded flex-shrink-0" alt="current symbol">
                         <span class="text-xs text-slate-500 flex-1">Current symbol. Use the buttons below to swap or remove it.</span>
                     </div>` : '';
+                const isMergedCell = (cell.colspan > 1 || cell.rowspan > 1);
+                const cs = cell.colspan || 1, rs = cell.rowspan || 1;
+                const splitBtnHtml = isMergedCell ? `
+                    <div class="mb-3">
+                        <button onclick="closeModal();pushHistory();splitCell('${nodeId}',${cellIdx});renderMap();setTimeout(updateAllWires,50);" class="w-full flex items-center justify-center gap-1.5 py-2.5 bg-violet-50 text-violet-700 font-bold rounded-xl text-sm border border-violet-200 hover:bg-violet-100 transition active:scale-95">
+                            <i data-lucide="layout-template" class="w-4 h-4 pointer-events-none"></i> Split Cells (currently ${cs}×${rs})
+                        </button>
+                    </div>` : '';
                 openModal(`
                     <div class="p-6">
                         <div class="flex items-center gap-2.5 mb-4">
@@ -750,6 +1066,7 @@
                                 <i data-lucide="${cell.masked ? 'eye' : 'eye-off'}" class="w-4 h-4 pointer-events-none"></i> ${cell.masked ? 'Unmask Cell (currently hidden from client)' : 'Mask Cell (hide from client)'}
                             </button>
                         </div>
+                        ${splitBtnHtml}
                         <div class="flex gap-2">
                             <button onclick="tempClearCell()" class="flex-1 bg-slate-100 text-slate-500 font-bold py-2.5 rounded-xl hover:bg-slate-200 transition active:scale-95">Clear Cell</button>
                             <button onclick="closeModal()" class="flex-1 bg-slate-100 text-slate-600 font-bold py-2.5 rounded-xl hover:bg-slate-200 transition active:scale-95">Cancel</button>
@@ -803,7 +1120,7 @@
             if (r) r.disabled = _undoHistIdx >= _undoHistory.length - 1;
         }
 
-        function generateId() { return 'node_' + Math.random().toString(36).substr(2, 9); }
+        function generateId() { return 'node_' + Math.random().toString(36).slice(2, 11) || Math.random().toString(36).slice(2, 11); }
         function getWorkspaceCoords(cX, cY) { return { x: (cX - panX) / scale, y: (cY - panY) / scale }; }
         function getElCoords(el) {
             if(!el) return null;
@@ -824,12 +1141,18 @@
             else if (scale > 2) { gridSize /= 2; dotSize /= 2; }
             
             // Keep dot size visually stable and crisp
-            dotSize = Math.max(1, Math.min(dotSize, 2.5)); 
+            dotSize = Math.max(0.7, Math.min(dotSize, 1.4)); 
 
-            bgGrid.style.backgroundPosition = `${panX}px ${panY}px`; 
-            bgGrid.style.backgroundSize = `${gridSize}px ${gridSize}px`;
-            // Add a 0.5px soft edge to the transparent border for anti-aliasing
-            bgGrid.style.backgroundImage = `radial-gradient(circle, ${bgDotColor} ${dotSize}px, transparent ${dotSize + 0.5}px)`;
+            // Two-level dot grid: accent dots every 5 cells for a Figma-style major/minor pattern
+            const accentSize = Math.max(1.1, Math.min(dotSize * 1.6, 2.2));
+            const isLightDot = bgDotColor.startsWith('rgba(0,0,0');
+            const accentColor = isLightDot ? 'rgba(0,0,0,0.07)' : 'rgba(255,255,255,0.07)';
+            bgGrid.style.backgroundPosition = `${panX}px ${panY}px, ${panX}px ${panY}px`;
+            bgGrid.style.backgroundSize = `${gridSize * 5}px ${gridSize * 5}px, ${gridSize}px ${gridSize}px`;
+            bgGrid.style.backgroundImage = [
+                `radial-gradient(circle, ${accentColor} ${accentSize}px, transparent ${accentSize + 0.5}px)`,
+                `radial-gradient(circle, ${bgDotColor} ${dotSize}px, transparent ${dotSize + 0.5}px)`
+            ].join(', ');
         }
 
         function fitAllNodes() {
@@ -868,38 +1191,218 @@
         wrapper.addEventListener('wheel', (e) => { e.preventDefault(); applyZoomExact(scale * Math.exp(e.deltaY * -0.001), e.clientX, e.clientY); }, { passive: false });
 
         // --- 4. Rendering Engine ---
-        function handleGridSizeChange(val) {
-            const [c, r] = val.split('x').map(Number); const newTotal = c * r;
-            let willLoseData = false;
-            if (newTotal < (gridCols * gridRows)) {
-                Object.values(nodesData).forEach(n => { for(let i = newTotal; i < n.cells.length; i++) { if (n.cells[i] && (n.cells[i].emoji || n.cells[i].linkId || n.cells[i].label || n.cells[i].src)) willLoseData = true; } });
-            }
-            
-            const applyResize = () => {
-                gridCols = c; gridRows = r; updateNodeDimensions();
-                document.getElementById('grid-size-select').value = `${gridCols}x${gridRows}`;
-                Object.values(nodesData).forEach(node => {
-                    if (node.cells.length < newTotal) while(node.cells.length < newTotal) node.cells.push({ label: '', linkId: null, src: null });
-                    else if (node.cells.length > newTotal) node.cells = node.cells.slice(0, newTotal);
-                });
-                localStorage.setItem('aacMapConfig', JSON.stringify({cols: gridCols, rows: gridRows})); renderMap(); setTimeout(updateAllWires, 50);
-            };
 
-            if (willLoseData) {
-                promptConfirm("Shrink Grid?", `Warning: Shrinking the grid to ${val} will permanently delete symbols placed outside the new boundaries.`, "Shrink", "red", applyResize);
-                document.getElementById('grid-size-select').value = `${gridCols}x${gridRows}`; // reset visually until confirmed
-            } else {
-                applyResize();
+        // ── Cell Merge Helpers ─────────────────────────────────────────────────
+        function _cellPos(idx) { return { col: idx % gridCols, row: Math.floor(idx / gridCols) }; }
+        function _cellIdxAt(row, col) { return row * gridCols + col; }
+        function _mergeBox(idx1, idx2) {
+            const p1 = _cellPos(idx1), p2 = _cellPos(idx2);
+            return { minRow: Math.min(p1.row, p2.row), maxRow: Math.max(p1.row, p2.row),
+                     minCol: Math.min(p1.col, p2.col), maxCol: Math.max(p1.col, p2.col) };
+        }
+
+        // Resize-handle merge: top-left anchor is always fixed; only bottom-right extends to tgtIdx
+        function _anchorMergeBox(anchorIdx, tgtIdx) {
+            const ap = _cellPos(anchorIdx), tp = _cellPos(tgtIdx);
+            return { minRow: ap.row, minCol: ap.col,
+                     maxRow: Math.max(ap.row, tp.row), maxCol: Math.max(ap.col, tp.col) };
+        }
+
+        function mergeCells(nodeId, srcIdx, tgtIdx) {
+            const cells = nodesData[nodeId].cells;
+            // Resolve any consumed cells to anchors
+            const resolve = i => (cells[i] && cells[i]._mergedInto !== undefined) ? cells[i]._mergedInto : i;
+            const a = resolve(srcIdx), b = resolve(tgtIdx);
+            if (a === b) return;
+            const { minRow, maxRow, minCol, maxCol } = _mergeBox(a, b);
+            const anchorIdx = _cellIdxAt(minRow, minCol);
+            const cs = maxCol - minCol + 1;
+            const rs = maxRow - minRow + 1;
+            // Pre-split any existing merges that overlap the bounding box
+            for (let r = minRow; r <= maxRow; r++) {
+                for (let c = minCol; c <= maxCol; c++) {
+                    const idx = _cellIdxAt(r, c);
+                    const cell = cells[idx];
+                    if (!cell) continue;
+                    if (cell._mergedInto !== undefined) {
+                        // consumed by a different anchor outside our box — split that anchor
+                        const otherAnchor = cell._mergedInto;
+                        if (otherAnchor < minRow * gridCols + minCol || otherAnchor > maxRow * gridCols + maxCol) {
+                            splitCell(nodeId, otherAnchor);
+                        }
+                    } else if ((cell.colspan > 1 || cell.rowspan > 1) && idx !== a && idx !== b) {
+                        splitCell(nodeId, idx);
+                    }
+                }
+            }
+            // Prefer the cell with content as the anchor content
+            const srcCell = cells[a], tgtCell = cells[b];
+            const contentCell = (srcCell && (srcCell.label || srcCell.src || srcCell.linkId)) ? srcCell : tgtCell;
+            // Displaced: non-empty, non-source, non-target cells within the rectangle
+            const displaced = [];
+            for (let r = minRow; r <= maxRow; r++) {
+                for (let c = minCol; c <= maxCol; c++) {
+                    const idx = _cellIdxAt(r, c);
+                    if (idx === a || idx === b || idx === anchorIdx) continue;
+                    const cell = cells[idx];
+                    if (cell && !cell._mergedInto && (cell.label || cell.src || cell.linkId)) displaced.push({ ...cell });
+                }
+            }
+            // Set anchor with span
+            cells[anchorIdx] = { ...(contentCell || {}), colspan: cs, rowspan: rs };
+            delete cells[anchorIdx]._mergedInto;
+            // Mark all other bounding-box cells as consumed
+            for (let r = minRow; r <= maxRow; r++) {
+                for (let c = minCol; c <= maxCol; c++) {
+                    const idx = _cellIdxAt(r, c);
+                    if (idx === anchorIdx) continue;
+                    cells[idx] = { _mergedInto: anchorIdx };
+                }
+            }
+            // Any displaced content goes to Lost & Found
+            if (displaced.length > 0) {
+                if (!nodesData['__lost_found__']) {
+                    let maxY = 0;
+                    Object.values(nodesData).forEach(n => { if (n.id !== '__lost_found__') maxY = Math.max(maxY, n.y); });
+                    nodesData['__lost_found__'] = { id: '__lost_found__', title: 'Lost & Found', color: '#b45309', x: 0, y: maxY + 300, cells: [] };
+                }
+                displaced.forEach(c => nodesData['__lost_found__'].cells.push(c));
             }
         }
 
+        function splitCell(nodeId, cellIdx) {
+            const cells = nodesData[nodeId].cells;
+            const cell = cells[cellIdx];
+            if (!cell || cell._mergedInto !== undefined) return;
+            const cs = cell.colspan || 1, rs = cell.rowspan || 1;
+            if (cs === 1 && rs === 1) return;
+            const { col: anchorCol, row: anchorRow } = _cellPos(cellIdx);
+            for (let r = anchorRow; r < anchorRow + rs && r < gridRows; r++) {
+                for (let c = anchorCol; c < anchorCol + cs && c < gridCols; c++) {
+                    const idx = _cellIdxAt(r, c);
+                    if (idx === cellIdx || idx >= cells.length) continue;
+                    cells[idx] = { label: '', linkId: null, src: null };
+                }
+            }
+            delete cells[cellIdx].colspan;
+            delete cells[cellIdx].rowspan;
+        }
+
+        function _unmergeOverflowCells(nodeId, newCols, newRows) {
+            // Must be called BEFORE gridCols/gridRows are updated; _cellPos uses current globals
+            const cells = nodesData[nodeId].cells;
+            cells.forEach((cell, idx) => {
+                if (!cell || cell._mergedInto !== undefined) return;
+                const cs = cell.colspan || 1, rs = cell.rowspan || 1;
+                if (cs === 1 && rs === 1) return;
+                const { col, row } = _cellPos(idx);
+                if (col + cs > newCols || row + rs > newRows) splitCell(nodeId, idx);
+            });
+        }
+
+        function getCellIdxAtPoint(nodeId, clientX, clientY) {
+            const gridEl = document.querySelector(`[data-grid-container][data-node-id="${nodeId}"]`);
+            if (!gridEl) return -1;
+            const rect = gridEl.getBoundingClientRect();
+            if (clientX < rect.left || clientX > rect.right || clientY < rect.top || clientY > rect.bottom) return -1;
+            // Account for p-3 (12px) padding and gap-2 (8px) gap
+            const pad = 12, gap = 8;
+            const cellW = (rect.width  - 2 * pad - (gridCols - 1) * gap) / gridCols;
+            const cellH = (rect.height - 2 * pad - (gridRows - 1) * gap) / gridRows;
+            const relX = clientX - rect.left - pad;
+            const relY = clientY - rect.top  - pad;
+            const col = Math.min(gridCols - 1, Math.max(0, Math.floor(relX / (cellW + gap))));
+            const row = Math.min(gridRows - 1, Math.max(0, Math.floor(relY / (cellH + gap))));
+            return _cellIdxAt(row, col);
+        }
+
+        function _gridCellRect(nodeId, col, row) {
+            const gridEl = document.querySelector(`[data-grid-container][data-node-id="${nodeId}"]`);
+            if (!gridEl) return null;
+            const rect = gridEl.getBoundingClientRect();
+            const pad = 12, gap = 8;
+            const cellW = (rect.width  - 2 * pad - (gridCols - 1) * gap) / gridCols;
+            const cellH = (rect.height - 2 * pad - (gridRows - 1) * gap) / gridRows;
+            return {
+                left:   rect.left + pad + col * (cellW + gap),
+                top:    rect.top  + pad + row * (cellH + gap),
+                width:  cellW,
+                height: cellH
+            };
+        }
+
+        function getMergeBadge(cs, rs) {
+            return cs > 1 || rs > 1
+                ? `<div class="absolute top-0.5 left-1 text-[8px] font-bold text-blue-400 pointer-events-none leading-none">${cs}×${rs}</div>`
+                : '';
+        }
+        // ── End Merge Helpers ──────────────────────────────────────────────────
+
+        function handleGridSizeChange(val) {
+            const [c, r] = val.split('x').map(Number); const newTotal = c * r;
+            pushHistory();
+            gridCols = c; gridRows = r; updateNodeDimensions();
+            document.getElementById('grid-size-select').value = `${gridCols}x${gridRows}`;
+
+            const displaced = [];
+            Object.values(nodesData).forEach(node => {
+                if (node.id === '__lost_found__') return; // never resize the holding node itself
+                // Unmerge any cells whose span would overflow the new dimensions (uses current gridCols/gridRows)
+                _unmergeOverflowCells(node.id, c, r);
+                if (node.cells.length < newTotal) {
+                    while (node.cells.length < newTotal) node.cells.push({ label: '', linkId: null, src: null });
+                } else if (node.cells.length > newTotal) {
+                    const overflow = node.cells.splice(newTotal);
+                    overflow.forEach(c => { if (c && !c._mergedInto && (c.label || c.linkId || c.src)) displaced.push(c); });
+                }
+            });
+
+            if (displaced.length > 0) {
+                if (!nodesData['__lost_found__']) {
+                    let maxY = 0;
+                    Object.values(nodesData).forEach(n => { if (n.id !== '__lost_found__') maxY = Math.max(maxY, n.y); });
+                    nodesData['__lost_found__'] = { id: '__lost_found__', title: 'Lost & Found', color: '#b45309', x: 0, y: maxY + 300, cells: [] };
+                }
+                displaced.forEach(c => nodesData['__lost_found__'].cells.push(c));
+            }
+
+            localStorage.setItem('aacMapConfig', JSON.stringify({cols: gridCols, rows: gridRows}));
+            renderMap(); setTimeout(updateAllWires, 50);
+        }
+
+        function cleanupLostFound() {
+            const lf = nodesData['__lost_found__'];
+            if (!lf) return;
+            lf.cells = lf.cells.filter(c => c && (c.label || c.linkId || c.src));
+            if (lf.cells.length === 0) delete nodesData['__lost_found__'];
+        }
+
         function renderMap() {
+            cleanupLostFound();
+            // Sanitize: trim cells to exact grid size and fix any corrupt _mergedInto refs
+            const targetLen = gridCols * gridRows;
+            Object.values(nodesData).forEach(node => {
+                if (node.id === '__lost_found__' || !node.cells || node.type === 'whiteboard' || node.type === 'gallery' || node.type === 'routine' ) return;
+                if (node.cells.length > targetLen) node.cells.length = targetLen;
+                node.cells.forEach((c, i) => {
+                    if (!c) { node.cells[i] = { label: '', linkId: null, src: null }; return; }
+                    if (c._mergedInto !== undefined) {
+                        const anchor = node.cells[c._mergedInto];
+                        if (!anchor || anchor._mergedInto !== undefined || c._mergedInto >= targetLen)
+                            node.cells[i] = { label: '', linkId: null, src: null };
+                    }
+                });
+            });
             nodesLayer.innerHTML = ''; svgLayer.innerHTML = '';
             const svgDefs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
             svgLayer.appendChild(svgDefs);
             Object.values(nodesData).forEach(node => createNodeElement(node));
             nodesLayer.getBoundingClientRect(); // flush
-            Object.values(nodesData).forEach(node => { node.cells.forEach((cell, idx) => { if(cell.linkId && nodesData[cell.linkId]) drawWire(node.id, idx, cell.linkId); }); });
+            Object.values(nodesData).forEach(node => {
+                if (node.id === '__lost_found__') return;
+                if (node.type === 'whiteboard' || node.type === 'gallery' || node.type === 'routine' ) return;
+                node.cells.forEach((cell, idx) => { if(cell.linkId && nodesData[cell.linkId]) drawWire(node.id, idx, cell.linkId); });
+            });
             localStorage.setItem('aacMapData', JSON.stringify(nodesData));
             // Keep active profile's board snapshot in sync and automatically persist
             const _ap = _profiles && _profiles.find(p => p.id === _activeProfileId);
@@ -907,7 +1410,78 @@
             lucide.createIcons();
         }
 
+        function createLostFoundElement(node) {
+            const lfCols = Math.min(Math.max(node.cells.length, 2), 5);
+            const lfWidth = Math.max(280, lfCols * 76 + 32);
+            const el = document.createElement('div');
+            el.className = 'aac-node lf-node'; el.id = `dom-node-${node.id}`;
+            el.style.left = `${node.x}px`; el.style.top = `${node.y}px`;
+            el.style.width = `${lfWidth}px`;
+
+            const cellsHtml = node.cells.map((cell, idx) => {
+                const isLink = !!cell.linkId;
+                const icon = cell.src
+                    ? `<img src="${escHtml(cell.src)}" alt="${escHtml(cell.label)}" class="pointer-events-none mb-1" style="flex:1;min-height:0;width:100%;object-fit:contain;">`
+                    : (isLink
+                        ? `<i data-lucide="folder" class="w-6 h-6 text-amber-400 pointer-events-none mb-1 opacity-70"></i>`
+                        : `<i data-lucide="help-circle" class="w-5 h-5 text-amber-300 pointer-events-none mb-1"></i>`);
+                const label = cell.label
+                    ? `<span class="text-[11px] font-bold text-amber-900 leading-tight w-full text-center truncate pointer-events-none px-1">${escHtml(cell.label)}</span>`
+                    : '';
+                return `<div class="grid-cell aspect-square rounded-xl flex flex-col items-center justify-center relative p-1 shadow-sm transition-all border border-amber-200" style="background:#ffffff;" data-index="${idx}">${icon}${label}</div>`;
+            }).join('');
+
+            el.innerHTML = `
+                <div class="h-12 rounded-t-[20px] flex items-center px-4 justify-between text-amber-900 node-header select-none overflow-hidden" style="background:linear-gradient(135deg,#fef3c7 0%,#fde68a 100%);border-bottom:1.5px solid #fcd34d;">
+                    <div class="flex items-center gap-2 flex-1 min-w-0 pointer-events-none">
+                        <i data-lucide="archive" class="w-4 h-4 text-amber-600 flex-shrink-0"></i>
+                        <span class="font-bold text-[13px] truncate flex-1">Lost &amp; Found</span>
+                        <span class="text-[10px] font-semibold text-amber-700 bg-amber-100 rounded-full px-2 py-0.5 flex-shrink-0">${node.cells.length} symbol${node.cells.length !== 1 ? 's' : ''}</span>
+                    </div>
+                    <div class="flex items-center gap-0.5 ml-2 pointer-events-auto">
+                        <button class="lf-clear-btn opacity-75 hover:opacity-100 p-1.5 rounded-lg hover:bg-red-100 transition active:scale-95" title="Clear Lost &amp; Found"><i data-lucide="trash-2" class="w-3.5 h-3.5 text-red-500 pointer-events-none"></i></button>
+                    </div>
+                </div>
+                <div class="grid gap-2 p-3 pointer-events-auto" style="background:#fffbeb;border-top:1px solid #fde68a;grid-template-columns:repeat(${lfCols},minmax(0,1fr));">
+                    ${cellsHtml}
+                </div>
+                <div class="px-4 py-2 text-[10px] font-medium text-amber-600 text-center rounded-b-[20px]" style="background:#fffbeb;border-top:1px solid #fde68a;">
+                    Drag cells back to any folder to restore them
+                </div>
+            `;
+
+            el.querySelector('.node-header').addEventListener('pointerdown', (e) => {
+                if (e.target.closest('button')) return;
+                e.stopPropagation(); pushHistory(); isDraggingNode = true; activeSourceNodeId = node.id;
+                const coords = getWorkspaceCoords(e.clientX, e.clientY);
+                startPointerX = coords.x - nodesData[node.id].x;
+                startPointerY = coords.y - nodesData[node.id].y;
+                el.classList.add('dragging');
+            });
+
+            el.querySelector('.lf-clear-btn').addEventListener('pointerdown', (e) => {
+                e.stopPropagation();
+                promptConfirm('Clear Lost & Found?', 'Permanently delete all displaced symbols in the Lost & Found panel?', 'Clear All', 'red', () => {
+                    pushHistory(); delete nodesData['__lost_found__'];
+                    renderMap(); setTimeout(updateAllWires, 50);
+                });
+            });
+
+            el.querySelectorAll('.grid-cell').forEach(cell => {
+                cell.addEventListener('pointerdown', (e) => {
+                    e.stopPropagation(); activeCellTarget = cell; cellStartCoords = { x: e.clientX, y: e.clientY }; isCellPointerDown = true;
+                });
+            });
+
+            nodesLayer.appendChild(el);
+        }
+
         function createNodeElement(node) {
+            if (node.id === '__lost_found__') { createLostFoundElement(node); return; }
+            if (node.type === 'whiteboard') { createWhiteboardElement(node); return; }
+            if (node.type === 'gallery')    { createGalleryElement(node);    return; }
+            if (node.type === 'routine')    { createRoutineElement(node);    return; }
+
             const el = document.createElement('div');
             el.className = 'aac-node'; el.id = `dom-node-${node.id}`;
             el.style.left = `${node.x}px`; el.style.top = `${node.y}px`;
@@ -915,23 +1489,35 @@
             el.style.borderColor = hexToRgba(node.color, 0.30);
             el.style.setProperty('--node-ring-color', hexToRgba(node.color, 0.60));
             el.style.boxShadow = [
-                `0 0 0 2px ${hexToRgba(node.color, 0.55)}`,
-                '0 2px 4px rgba(0,0,0,0.05)',
-                '0 8px 20px -2px rgba(0,0,0,0.10)',
-                '0 22px 44px -4px rgba(0,0,0,0.09)'
+                `0 0 0 1.5px ${hexToRgba(node.color, 0.50)}`,
+                `0 0 0 4px ${hexToRgba(node.color, 0.10)}`,
+                '0 2px 6px rgba(0,0,0,0.06)',
+                '0 10px 28px -2px rgba(0,0,0,0.11)',
+                `0 28px 56px -4px ${hexToRgba(node.color, 0.14)}`
             ].join(', ');
 
             const cellsHtml = node.cells.map((cell, idx) => {
+                // Skip consumed cells – the spanning anchor occupies their grid area
+                if (!cell || cell._mergedInto !== undefined) return '';
+
+                const colPos = (idx % gridCols) + 1;
+                const rowPos = Math.floor(idx / gridCols) + 1;
+                const cs = cell.colspan || 1;
+                const rs = cell.rowspan || 1;
+                const isMerged = cs > 1 || rs > 1;
+                const posStyle = `grid-column:${colPos}/span ${cs};grid-row:${rowPos}/span ${rs};`;
+                const aspectClass = '';
+
                 const isLink = !!cell.linkId;
                 let bgClass = 'border-slate-200 border shadow-sm';
-                let cellStyle = 'background-color:var(--map-cell-bg,#ffffff);';
+                let cellStyle = `background-color:var(--map-cell-bg,#ffffff);${posStyle}`;
                 let linkBadge = '';
 
                 if (isLink) {
                     const tgtNode = nodesData[cell.linkId];
                     if (tgtNode) {
                         const c = tgtNode.color || '#1d4ed8';
-                        cellStyle = `background-color:var(--map-cell-bg,#ffffff);background-image:linear-gradient(${hexToRgba(c, 0.14)},${hexToRgba(c, 0.14)});border-color:${hexToRgba(c, 0.45)};`;
+                        cellStyle = `background-color:var(--map-cell-bg,#ffffff);background-image:linear-gradient(${hexToRgba(c, 0.14)},${hexToRgba(c, 0.14)});border-color:${hexToRgba(c, 0.45)};${posStyle}`;
                         bgClass = 'border-2 shadow-md text-slate-800';
                         linkBadge = `<div class="absolute -top-2 -right-2 text-white rounded-full w-5 h-5 flex items-center justify-center shadow-md border-2 border-white" style="background-color:${c}"><i data-lucide="corner-down-right" class="w-3 h-3 pointer-events-none"></i></div>`;
                     } else {
@@ -942,10 +1528,12 @@
 
                 const icon = cell.src
                     ? `<img src="${escHtml(cell.src)}" alt="${escHtml(cell.label)}" class="pointer-events-none mb-1" style="flex:1;min-height:0;width:100%;object-fit:contain;">`
-                    : (isLink ? `<i data-lucide="folder" class="w-6 h-6 text-slate-400 pointer-events-none mb-1 opacity-70"></i>` : `<i data-lucide="image-plus" class="w-6 h-6 text-slate-300 pointer-events-none mb-1 opacity-50"></i>`);
+                    : (isLink ? `<i data-lucide="folder" class="w-6 h-6 text-slate-400 pointer-events-none mb-1 opacity-60"></i>` : `<span class="pointer-events-none select-none mb-1" style="font-size:1.25rem;font-weight:100;line-height:1;color:#ffffff;mix-blend-mode:difference;opacity:0.55;letter-spacing:0">+</span>`);
                 const label = cell.label ? `<span class="text-[11px] font-bold text-slate-700 leading-tight w-full text-center truncate pointer-events-none px-1">${escHtml(cell.label)}</span>` : '';
                 const maskOverlay = cell.masked ? `<div class="absolute inset-0 rounded-lg bg-amber-900/30 flex flex-col items-center justify-center pointer-events-none gap-0.5"><i data-lucide="eye-off" class="w-4 h-4 text-amber-100"></i><span class="text-[8px] font-bold text-amber-100 uppercase tracking-wide">Masked</span></div>` : '';
-                return `<div class="grid-cell aspect-square rounded-lg flex flex-col items-center justify-center relative ${bgClass} p-1 hover:shadow-md transition-all" style="${cellStyle}" data-index="${idx}">${icon} ${label} ${linkBadge} ${maskOverlay}</div>`;
+                const mergeBadge = getMergeBadge(cs, rs);
+                const resizeHandle = `<div class="cell-resize-handle" data-index="${idx}" title="Drag to merge cells"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="8.5" cy="8.5" r="1.3" fill="#94a3b8"/><circle cx="4.5" cy="8.5" r="1.3" fill="#94a3b8"/><circle cx="8.5" cy="4.5" r="1.3" fill="#94a3b8"/></svg></div>`;
+                return `<div class="grid-cell ${aspectClass} rounded-xl flex flex-col items-center justify-center relative ${bgClass} p-1 transition-all" style="${cellStyle}" data-index="${idx}">${mergeBadge}${resizeHandle}${icon} ${label} ${linkBadge} ${maskOverlay}</div>`;
             }).join('');
 
             const routingTabsHtml = node.cells.map((c, i) => {
@@ -972,7 +1560,7 @@
             `;
 
             el.innerHTML = `
-                <div class="h-12 rounded-t-[18px] flex items-center px-4 justify-between text-white node-header select-none relative overflow-hidden" style="background-color:${node.color}; background-image:linear-gradient(160deg, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.04) 60%, rgba(0,0,0,0.12) 100%);">
+                <div class="h-12 rounded-t-[20px] flex items-center px-4 justify-between text-white node-header select-none relative overflow-hidden" style="background-color:${node.color}; background-image:linear-gradient(160deg, rgba(255,255,255,0.32) 0%, rgba(255,255,255,0.05) 55%, rgba(0,0,0,0.16) 100%);">
                     <div class="absolute inset-x-0 top-0 h-px bg-white/35 pointer-events-none"></div>
                     <div class="absolute inset-x-0 bottom-0 h-px pointer-events-none" style="background:rgba(0,0,0,0.18);"></div>
                     <div class="w-2 h-2 rounded-full bg-white/50 flex-shrink-0 mr-2.5 pointer-events-none"></div>
@@ -982,7 +1570,7 @@
                         <button class="delete-btn opacity-75 hover:opacity-100 p-1.5 rounded-lg hover:bg-red-500/80 transition active:scale-95"><i data-lucide="trash-2" class="w-3.5 h-3.5 pointer-events-none"></i></button>
                     </div>
                 </div>
-                <div class="grid gap-2 p-3 rounded-b-[18px] pointer-events-auto" style="background-color:var(--map-node-bg,#f8fafc); border-top: 1.5px solid ${hexToRgba(node.color, 0.18)}; grid-template-columns: repeat(${gridCols}, minmax(0, 1fr));">
+                <div class="grid gap-2 p-3 rounded-b-[20px] pointer-events-auto" data-grid-container data-node-id="${node.id}" style="background-color:var(--map-node-bg,#f8fafc); border-top: 1.5px solid ${hexToRgba(node.color, 0.22)}; box-shadow:inset 0 4px 10px rgba(0,0,0,0.04); grid-template-columns: repeat(${gridCols}, minmax(0, 1fr)); grid-template-rows: repeat(${gridRows}, minmax(0, 1fr)); height:${16 + gridRows * (NODE_WIDTH - 16) / gridCols}px;">
                     ${cellsHtml}
                 </div>
                 <div class="port port-in" data-node="${node.id}"></div>
@@ -1005,12 +1593,19 @@
             
             el.querySelector('.delete-btn').addEventListener('pointerdown', (e) => { e.stopPropagation(); promptConfirm("Delete Folder?", `Are you sure you want to delete \"${escHtml(node.title)}\"? This will sever all connections.`, "Delete", "red", () => {
                 pushHistory(); delete nodesData[node.id];
-                Object.values(nodesData).forEach(n => n.cells.forEach(c => { if (c.linkId === node.id) { c.label = ''; c.linkId = null; c.src = null; } }));
+                Object.values(nodesData).forEach(n => (n.cells || []).forEach(c => { if (c.linkId === node.id) { c.label = ''; c.linkId = null; c.src = null; } }));
                 renderMap(); setTimeout(updateAllWires, 50);
             }); });
 
             el.querySelectorAll('.grid-cell').forEach(cell => {
                 cell.addEventListener('pointerdown', (e) => { 
+                    if (e.target.closest('.cell-resize-handle')) {
+                        e.stopPropagation();
+                        isMergeResizing = true; mergeResizeAnchorEl = cell;
+                        mergeResizeNodeId = node.id; mergeResizeAnchorIdx = parseInt(cell.getAttribute('data-index'));
+                        cell.classList.add('merge-resize-src');
+                        return;
+                    }
                     e.stopPropagation(); activeCellTarget = cell; cellStartCoords = { x: e.clientX, y: e.clientY }; isCellPointerDown = true; 
                 });
             });
@@ -1147,6 +1742,11 @@
         // --- 6. Global Map Controller ---
         function executeCellDrop(srcNodeId, srcIdx, tgtNodeId, tgtIdx, action) {
             pushHistory();
+            // Auto-split any merged cells before swapping to avoid stale _mergedInto refs
+            const srcCell0 = nodesData[srcNodeId].cells[srcIdx];
+            const tgtCell0 = nodesData[tgtNodeId].cells[tgtIdx];
+            if (srcCell0 && (srcCell0.colspan > 1 || srcCell0.rowspan > 1)) splitCell(srcNodeId, srcIdx);
+            if (tgtCell0 && (tgtCell0.colspan > 1 || tgtCell0.rowspan > 1)) splitCell(tgtNodeId, tgtIdx);
             const srcCell = JSON.parse(JSON.stringify(nodesData[srcNodeId].cells[srcIdx]));
             const tgtCell = JSON.parse(JSON.stringify(nodesData[tgtNodeId].cells[tgtIdx]));
             if (action === 'move') { nodesData[srcNodeId].cells[srcIdx] = tgtCell; nodesData[tgtNodeId].cells[tgtIdx] = srcCell; } 
@@ -1154,14 +1754,21 @@
             renderMap(); setTimeout(updateAllWires, 50);
         }
 
-        function showDropDialog(x, y, onMove, onCopy, onCancel) {
+        function showDropDialog(x, y, onMove, onCopy, onCancel, opt) {
+            const moveLabel = (opt && opt.moveLabel) || 'Swap / Move';
+            const moveIcon  = (opt && opt.moveIcon)  || 'arrow-right-left';
+            const copyLabel = (opt && opt.copyLabel) || 'Copy Symbol';
+            const copyIcon  = (opt && opt.copyIcon)  || 'copy';
+            document.getElementById('btn-move-cell').innerHTML = `<i data-lucide="${moveIcon}" class="w-4 h-4 text-blue-500 pointer-events-none"></i> ${moveLabel}`;
+            document.getElementById('btn-copy-cell').innerHTML = `<i data-lucide="${copyIcon}" class="w-4 h-4 text-emerald-500 pointer-events-none"></i> ${copyLabel}`;
             dropDialog.classList.remove('hidden'); dropDialogOverlay.classList.add('active');
-            dropDialog.style.left = Math.min(x, window.innerWidth - 180) + 'px'; dropDialog.style.top = Math.min(y, window.innerHeight - 150) + 'px';
-            const cleanup = () => { dropDialog.classList.add('hidden'); dropDialogOverlay.classList.remove('active'); };
+            dropDialog.style.left = Math.min(x, window.innerWidth - 200) + 'px'; dropDialog.style.top = Math.min(y, window.innerHeight - 160) + 'px';
+            const cleanup = () => { dropDialog.classList.add('hidden'); dropDialogOverlay.classList.remove('active'); lucide.createIcons(); };
             document.getElementById('btn-move-cell').onpointerdown = () => { cleanup(); onMove(); };
             document.getElementById('btn-copy-cell').onpointerdown = () => { cleanup(); onCopy(); };
             document.getElementById('btn-cancel-drop').onpointerdown = () => { cleanup(); onCancel(); };
-            dropDialogOverlay.onpointerdown = () => { cleanup(); onCancel(); }; 
+            dropDialogOverlay.onpointerdown = () => { cleanup(); onCancel(); };
+            lucide.createIcons();
         }
 
         function promptClearAll() {
@@ -1194,6 +1801,26 @@
                 if (isModalOpen) return;
                 if (activePointers.has(e.pointerId)) activePointers.set(e.pointerId, e);
 
+                if (isMergeResizing) {
+                    const previewEl = document.getElementById('merge-preview-overlay');
+                    const tgtIdx = getCellIdxAtPoint(mergeResizeNodeId, e.clientX, e.clientY);
+                    if (tgtIdx !== -1) {
+                        const box = _anchorMergeBox(mergeResizeAnchorIdx, tgtIdx);
+                        const r0 = _gridCellRect(mergeResizeNodeId, box.minCol, box.minRow);
+                        const r1 = _gridCellRect(mergeResizeNodeId, box.maxCol, box.maxRow);
+                        if (r0 && r1) {
+                            previewEl.style.display = 'block';
+                            previewEl.style.left   = r0.left + 'px';
+                            previewEl.style.top    = r0.top  + 'px';
+                            previewEl.style.width  = (r1.left + r1.width  - r0.left) + 'px';
+                            previewEl.style.height = (r1.top  + r1.height - r0.top)  + 'px';
+                        }
+                    } else {
+                        previewEl.style.display = 'none';
+                    }
+                    return;
+                }
+
                 if (isCellPointerDown && activeCellTarget) {
                     const dist = Math.hypot(e.clientX - cellStartCoords.x, e.clientY - cellStartCoords.y);
                     if (!isDraggingCell && dist > 5) {
@@ -1206,7 +1833,12 @@
                         cellGhostEl.style.left = (e.clientX - activeCellTarget.offsetWidth / 2) + 'px'; cellGhostEl.style.top = (e.clientY - activeCellTarget.offsetHeight / 2) + 'px';
                         document.querySelectorAll('.grid-cell').forEach(c => c.classList.remove('drop-target'));
                         cellGhostEl.style.display = 'none'; const elem = document.elementFromPoint(e.clientX, e.clientY); cellGhostEl.style.display = '';
-                        if (elem) { const tCell = elem.closest('.grid-cell'); if (tCell && tCell !== activeCellTarget) { tCell.classList.add('drop-target'); } }
+                        if (elem) {
+                            const tCell = elem.closest('.grid-cell');
+                            if (tCell && tCell !== activeCellTarget) {
+                                tCell.classList.add('drop-target');
+                            }
+                        }
                     }
                     return; 
                 }
@@ -1242,7 +1874,27 @@
             const handlePointerUp = (e) => {
                 if (isModalOpen) return;
                 activePointers.delete(e.pointerId);
-                if (!isCellPointerDown && !isDraggingNode && !isWiring) resetPanZoomAnchors();
+                if (!isCellPointerDown && !isDraggingNode && !isWiring && !isMergeResizing) resetPanZoomAnchors();
+
+                if (isMergeResizing) {
+                    document.getElementById('merge-preview-overlay').style.display = 'none';
+                    document.querySelectorAll('.grid-cell.merge-resize-src').forEach(c => c.classList.remove('merge-resize-src'));
+                    const tgtIdx = getCellIdxAtPoint(mergeResizeNodeId, e.clientX, e.clientY);
+                    if (tgtIdx !== -1) {
+                        pushHistory();
+                        splitCell(mergeResizeNodeId, mergeResizeAnchorIdx);
+                        // If tgtIdx is not the anchor, merge to the clamped box (anchor always top-left)
+                        const tp = _cellPos(tgtIdx);
+                        const ap = _cellPos(mergeResizeAnchorIdx);
+                        const clampedTgtIdx = _cellIdxAt(Math.max(ap.row, tp.row), Math.max(ap.col, tp.col));
+                        if (clampedTgtIdx !== mergeResizeAnchorIdx) {
+                            mergeCells(mergeResizeNodeId, mergeResizeAnchorIdx, clampedTgtIdx);
+                        }
+                    }
+                    isMergeResizing = false; mergeResizeAnchorEl = null; mergeResizeNodeId = null; mergeResizeAnchorIdx = -1;
+                    renderMap(); setTimeout(updateAllWires, 50);
+                    return;
+                }
 
                 if (isCellPointerDown) {
                     if (isDraggingCell) {
@@ -1251,22 +1903,41 @@
                         
                         if (!targetCell && elem && elem.closest('.aac-node')) {
                             const tNodeId = elem.closest('.aac-node').id.replace('dom-node-', '');
-                            const emptyIdx = nodesData[tNodeId].cells.findIndex(c => !c.label && !c.linkId);
+                            const emptyIdx = nodesData[tNodeId].cells.findIndex(c => !c._mergedInto && !c.label && !c.linkId);
                             if (emptyIdx !== -1) targetCell = document.querySelector(`#dom-node-${tNodeId} .grid-cell[data-index="${emptyIdx}"]`);
                         }
                         
                         if (targetCell && targetCell !== activeCellTarget) {
-                            const srcNodeId = activeCellTarget.closest('.aac-node').id.replace('dom-node-', ''); const srcIdx = parseInt(activeCellTarget.getAttribute('data-index'));
-                            const tgtNodeId = targetCell.closest('.aac-node').id.replace('dom-node-', ''); const tgtIdx = parseInt(targetCell.getAttribute('data-index'));
+                            const srcNodeId = activeCellTarget.closest('.aac-node').id.replace('dom-node-', ''); let srcIdx = parseInt(activeCellTarget.getAttribute('data-index'));
+                            const tgtNodeId = targetCell.closest('.aac-node').id.replace('dom-node-', ''); let tgtIdx = parseInt(targetCell.getAttribute('data-index'));
+                            // Resolve any consumed cells to their anchors
+                            const srcCells = nodesData[srcNodeId]?.cells;
+                            const tgtCells = nodesData[tgtNodeId]?.cells;
+                            if (srcCells && srcCells[srcIdx]?._mergedInto !== undefined) srcIdx = srcCells[srcIdx]._mergedInto;
+                            if (tgtCells && tgtCells[tgtIdx]?._mergedInto !== undefined) tgtIdx = tgtCells[tgtIdx]._mergedInto;
 
-                            if (srcNodeId !== tgtNodeId) showDropDialog(e.clientX, e.clientY, () => executeCellDrop(srcNodeId, srcIdx, tgtNodeId, tgtIdx, 'move'), () => executeCellDrop(srcNodeId, srcIdx, tgtNodeId, tgtIdx, 'copy'), () => { renderMap(); setTimeout(updateAllWires, 50); });
-                            else executeCellDrop(srcNodeId, srcIdx, tgtNodeId, tgtIdx, 'move');
+                            if (srcNodeId !== tgtNodeId) {
+                                showDropDialog(e.clientX, e.clientY,
+                                    () => executeCellDrop(srcNodeId, srcIdx, tgtNodeId, tgtIdx, 'move'),
+                                    () => executeCellDrop(srcNodeId, srcIdx, tgtNodeId, tgtIdx, 'copy'),
+                                    () => { renderMap(); setTimeout(updateAllWires, 50); });
+                            } else if (srcIdx === tgtIdx) {
+                                renderMap(); setTimeout(updateAllWires, 50);
+                            } else {
+                                // Same node – direct swap
+                                executeCellDrop(srcNodeId, srcIdx, tgtNodeId, tgtIdx, 'move');
+                            }
                         } else { renderMap(); setTimeout(updateAllWires, 50); } 
                         
                         if (cellGhostEl) cellGhostEl.remove(); cellGhostEl = null; isDraggingCell = false;
                         document.querySelectorAll('.grid-cell').forEach(c => c.classList.remove('drop-target'));
-                    } else {
-                        promptCellEdit(activeCellTarget.closest('.aac-node').id.replace('dom-node-', ''), activeCellTarget.getAttribute('data-index'));
+                    } else if (e.type !== 'pointercancel') {
+                        const nodeId = activeCellTarget.closest('.aac-node').id.replace('dom-node-', '');
+                        let cellIdx = parseInt(activeCellTarget.getAttribute('data-index'));
+                        // If tapped cell is consumed, redirect to its anchor
+                        const cellData = nodesData[nodeId]?.cells[cellIdx];
+                        if (cellData && cellData._mergedInto !== undefined) cellIdx = cellData._mergedInto;
+                        promptCellEdit(nodeId, cellIdx);
                     }
                     isCellPointerDown = false; activeCellTarget = null; return; 
                 }
@@ -1278,7 +1949,7 @@
 
                 if (isWiring) {
                     if(tempWire) tempWire.style.display = 'none'; const dropTarget = document.elementFromPoint(e.clientX, e.clientY); if(tempWire) tempWire.style.display = '';
-                    const targetNodeEl = dropTarget ? dropTarget.closest('.aac-node') : null;
+                    const targetNodeEl = dropTarget ? dropTarget.closest('.aac-node:not(.lf-node)') : null;
 
                     if (targetNodeEl) {
                         const targetId = targetNodeEl.id.replace('dom-node-', ''); const srcNode = nodesData[activeSourceNodeId];
@@ -1324,8 +1995,756 @@
             setTimeout(() => { document.getElementById(`dom-node-${newId}`).classList.add('node-enter'); }, 10);
         }
 
-        // --- 8. Symbol Picker ---
+        // ── Board Palette ──────────────────────────────────────────────────────
+        function toggleBoardPalette() {
+            const palette = document.getElementById('board-palette');
+            const toggle  = document.getElementById('palette-toggle');
+            const isOpen  = palette.classList.toggle('open');
+            toggle.classList.toggle('open', isOpen);
+        }
+
+        // ── Whiteboard Node ────────────────────────────────────────────────────
+        const WB_WIDTH = 480, WB_HEIGHT = 340;
+
+        function spawnWhiteboardNode() {
+            const newId = generateId();
+            const center = getWorkspaceCoords(window.innerWidth / 2, window.innerHeight / 2);
+            nodesData[newId] = { id: newId, type: 'whiteboard', title: 'Whiteboard', color: '#f59e0b',
+                                 x: center.x, y: center.y, drawingData: null };
+            renderMap(); setTimeout(updateAllWires, 50);
+            setTimeout(() => { const el = document.getElementById(`dom-node-${newId}`); if (el) el.classList.add('node-enter'); }, 10);
+        }
+
+        function createWhiteboardElement(node) {
+            const el = document.createElement('div');
+            el.className = 'aac-node wb-node';
+            el.id = `dom-node-${node.id}`;
+            el.style.left = `${node.x}px`; el.style.top = `${node.y}px`;
+            el.style.width = `${WB_WIDTH}px`;
+
+            const WB_COLORS = ['#1e293b','#ef4444','#3b82f6','#10b981','#f59e0b','#8b5cf6','#ec4899','#ffffff'];
+
+            el.innerHTML = `
+                <div class="node-header h-10 flex items-center px-3 gap-2 text-white select-none" style="background:linear-gradient(135deg,#f59e0b,#ef4444);border-radius:18px 18px 0 0;">
+                    <i data-lucide="pen-line" class="w-3.5 h-3.5 pointer-events-none opacity-80 flex-shrink-0"></i>
+                    <span class="font-bold text-[13px] flex-1 truncate pointer-events-none">${escHtml(node.title)}</span>
+                    <button class="wb-rename-btn opacity-70 hover:opacity-100 p-1 rounded-lg hover:bg-white/20 transition pointer-events-auto active:scale-95"><i data-lucide="pencil" class="w-3 h-3 pointer-events-none"></i></button>
+                    <button class="wb-delete-btn opacity-70 hover:opacity-100 p-1 rounded-lg hover:bg-red-500/80 transition pointer-events-auto active:scale-95"><i data-lucide="trash-2" class="w-3 h-3 pointer-events-none"></i></button>
+                </div>
+                <div class="wb-toolbar pointer-events-auto" id="wbt-${node.id}">
+                    <button class="wb-tool-btn active" data-tool="pen" title="Pen"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>
+                    <button class="wb-tool-btn" data-tool="eraser" title="Eraser"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20H7L3 16l11-11 6 6-3.5 3.5"/><path d="M6.5 17.5l4-4"/></svg></button>
+                    <div class="w-px h-5 bg-slate-200 mx-1 flex-shrink-0"></div>
+                    ${WB_COLORS.map((c,i) => `<div class="wb-color-swatch${i===0?' active':''}" data-color="${c}" style="background:${c};" title="${c}"></div>`).join('')}
+                    <div class="w-px h-5 bg-slate-200 mx-1 flex-shrink-0"></div>
+                    <select class="text-[11px] font-semibold bg-transparent outline-none border border-slate-200 rounded px-1 py-0.5 cursor-pointer" id="wbsize-${node.id}">
+                        <option value="2">Fine</option><option value="4" selected>Medium</option><option value="8">Thick</option><option value="16">Bold</option>
+                    </select>
+                    <button class="wb-tool-btn ml-auto" data-action="clear" title="Clear canvas"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>
+                </div>
+                <canvas id="wbc-${node.id}" width="${WB_WIDTH}" height="${WB_HEIGHT - 40 - 44}" style="display:block;touch-action:none;cursor:crosshair;background:#fff;" class="pointer-events-auto"></canvas>
+                <div class="port port-in" data-node="${node.id}"></div>
+            `;
+
+            nodesLayer.appendChild(el);
+            lucide.createIcons({ nodes: [el] });
+
+            // ── Canvas drawing logic ──
+            const canvas  = document.getElementById(`wbc-${node.id}`);
+            const ctx     = canvas.getContext('2d');
+            let tool = 'pen', color = WB_COLORS[0], lineWidth = 4;
+            let drawing = false, lastX = 0, lastY = 0;
+
+            // Restore saved drawing
+            if (node.drawingData) { const img = new Image(); img.onload = () => ctx.drawImage(img, 0, 0); img.src = node.drawingData; }
+
+            const save = () => { node.drawingData = canvas.toDataURL('image/png'); localStorage.setItem('aacMapData', JSON.stringify(nodesData)); };
+
+            // Toolbar interactions
+            const toolbar = document.getElementById(`wbt-${node.id}`);
+            toolbar.addEventListener('pointerdown', (e) => {
+                e.stopPropagation();
+                const btn = e.target.closest('.wb-tool-btn');
+                const swatch = e.target.closest('.wb-color-swatch');
+                if (btn) {
+                    const action = btn.dataset.action;
+                    if (action === 'clear') {
+                        pushHistory(); ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        node.drawingData = null; save(); return;
+                    }
+                    tool = btn.dataset.tool;
+                    toolbar.querySelectorAll('.wb-tool-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                }
+                if (swatch) {
+                    color = swatch.dataset.color;
+                    toolbar.querySelectorAll('.wb-color-swatch').forEach(s => s.classList.remove('active'));
+                    swatch.classList.add('active');
+                    tool = 'pen';
+                    toolbar.querySelectorAll('.wb-tool-btn').forEach(b => b.classList.toggle('active', b.dataset.tool === 'pen'));
+                }
+                const sizeEl = document.getElementById(`wbsize-${node.id}`);
+                if (sizeEl && e.target === sizeEl) lineWidth = parseInt(sizeEl.value);
+            });
+            document.getElementById(`wbsize-${node.id}`).addEventListener('change', (e) => { lineWidth = parseInt(e.target.value); });
+
+            const getCanvasPos = (e) => {
+                const r = canvas.getBoundingClientRect();
+                return { x: (e.clientX - r.left) / scale, y: (e.clientY - r.top) / scale };
+            };
+            canvas.addEventListener('pointerdown', (e) => {
+                if (isModalOpen) return;
+                e.stopPropagation(); e.preventDefault();
+                canvas.setPointerCapture(e.pointerId);
+                drawing = true;
+                const p = getCanvasPos(e); lastX = p.x; lastY = p.y;
+                ctx.beginPath(); ctx.moveTo(lastX, lastY);
+            });
+            canvas.addEventListener('pointermove', (e) => {
+                if (!drawing || isModalOpen) return;
+                e.stopPropagation();
+                const p = getCanvasPos(e);
+                ctx.globalCompositeOperation = tool === 'eraser' ? 'destination-out' : 'source-over';
+                ctx.strokeStyle = color; ctx.lineWidth = lineWidth / scale;
+                ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+                ctx.lineTo(p.x, p.y); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(p.x, p.y);
+                lastX = p.x; lastY = p.y;
+            });
+            canvas.addEventListener('pointerup', (e) => { if (!drawing) return; drawing = false; save(); });
+            canvas.addEventListener('pointercancel', (e) => { drawing = false; });
+
+            // Header drag
+            el.querySelector('.node-header').addEventListener('pointerdown', (e) => {
+                if (e.target.closest('button')) return;
+                e.stopPropagation(); pushHistory(); isDraggingNode = true; activeSourceNodeId = node.id;
+                const coords = getWorkspaceCoords(e.clientX, e.clientY);
+                startPointerX = coords.x - nodesData[node.id].x; startPointerY = coords.y - nodesData[node.id].y;
+                el.classList.add('dragging');
+            });
+
+            el.querySelector('.wb-rename-btn').addEventListener('pointerdown', (e) => {
+                e.stopPropagation();
+                promptEditNode(node.id);
+            });
+
+            el.querySelector('.wb-delete-btn').addEventListener('pointerdown', (e) => {
+                e.stopPropagation();
+                promptConfirm('Delete Whiteboard?', `Delete "${escHtml(node.title)}"? This cannot be undone.`, 'Delete', 'red', () => {
+                    pushHistory(); delete nodesData[node.id]; renderMap(); setTimeout(updateAllWires, 50);
+                });
+            });
+        }
+
+        // ── Photo Gallery ──────────────────────────────────────────────────────────
+        function spawnGalleryNode() {
+            const newId = generateId();
+            const center = getWorkspaceCoords(window.innerWidth / 2, window.innerHeight / 2);
+            nodesData[newId] = { id: newId, type: 'gallery', title: 'Photo Gallery', color: '#10b981',
+                                 x: center.x, y: center.y, photos: [] };
+            renderMap(); setTimeout(updateAllWires, 50);
+            setTimeout(() => { const el = document.getElementById(`dom-node-${newId}`); if (el) el.classList.add('node-enter'); }, 10);
+        }
+
+        function createGalleryElement(node) {
+            const el = document.createElement('div');
+            el.className = 'aac-node gallery-node';
+            el.id = `dom-node-${node.id}`;
+            el.style.left = `${node.x}px`; el.style.top = `${node.y}px`;
+            el.style.width = '320px';
+
+            const photos = node.photos || [];
+            const navLabels = { buttons:'Buttons', swipe:'Swipe', tap:'Tap', all:'All Methods' };
+            const navHint  = navLabels[node.nav || 'buttons'];
+
+            // Cover photo + mini-strip preview
+            const previewHtml = photos.length > 0
+                ? `<div style="position:relative;overflow:hidden;background:#0f172a;border-bottom:1px solid #e2e8f0;">
+                       <img src="${escHtml(photos[0].dataUrl)}" style="width:100%;height:116px;object-fit:cover;display:block;">
+                       ${photos.length > 1 ? `<div style="position:absolute;bottom:8px;left:8px;display:flex;gap:3px;align-items:flex-end;">
+                           ${photos.slice(1, Math.min(5, photos.length)).map(p => `<img src="${escHtml(p.dataUrl)}" style="width:30px;height:30px;object-fit:cover;border-radius:5px;border:1.5px solid rgba(255,255,255,0.75);">`).join('')}
+                           ${photos.length > 5 ? `<div style="width:30px;height:30px;border-radius:5px;background:rgba(0,0,0,0.60);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:white;">+${photos.length - 5}</div>` : ''}
+                       </div>` : ''}
+                       <div style="position:absolute;top:8px;right:8px;font-size:11px;font-weight:700;color:white;background:rgba(0,0,0,0.50);border-radius:10px;padding:3px 10px;pointer-events:none;">${photos.length} photo${photos.length !== 1 ? 's' : ''}</div>
+                   </div>`
+                : `<div style="padding:22px 12px 18px;background:#f8fafc;text-align:center;cursor:pointer;border-bottom:1px solid #f1f5f9;" class="gal-empty-click">
+                       <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto 8px;display:block;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                       <div style="font-weight:600;font-size:12px;color:#94a3b8;font-family:Outfit,sans-serif;">No photos yet</div>
+                       <div style="font-size:11px;color:#cbd5e1;margin-top:3px;font-family:Outfit,sans-serif;">Click to add photos</div>
+                   </div>`;
+
+            el.innerHTML = `
+                <div class="node-header h-10 flex items-center px-3 gap-2 text-white select-none" style="background:linear-gradient(135deg,#10b981,#0ea5e9);border-radius:18px 18px 0 0;">
+                    <svg class="flex-shrink-0 opacity-80 pointer-events-none" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    <span class="font-bold text-[13px] flex-1 truncate pointer-events-none">${escHtml(node.title)}</span>
+                    <button class="gal-rename-btn opacity-70 hover:opacity-100 p-1 rounded-lg hover:bg-white/20 transition pointer-events-auto active:scale-95" title="Rename"><i data-lucide="pencil" class="w-3 h-3 pointer-events-none"></i></button>
+                    <button class="gal-delete-btn opacity-70 hover:opacity-100 p-1 rounded-lg hover:bg-red-500/80 transition pointer-events-auto active:scale-95" title="Delete"><i data-lucide="trash-2" class="w-3 h-3 pointer-events-none"></i></button>
+                </div>
+                ${previewHtml}
+                <div style="padding:7px 10px 9px;background:#ffffff;border-radius:0 0 18px 18px;border-top:1px solid #e2e8f0;display:flex;align-items:center;gap:8px;">
+                    <button class="gal-manage-btn" style="flex:1;">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                        ${photos.length === 0 ? 'Add Photos' : 'Edit Gallery'}
+                    </button>
+                    <span style="font-size:10px;font-weight:600;color:#94a3b8;font-family:Outfit,sans-serif;white-space:nowrap;flex-shrink:0;">${navHint}</span>
+                </div>
+                <div class="port port-in" data-node="${node.id}"></div>
+            `;
+
+            nodesLayer.appendChild(el);
+            lucide.createIcons({ nodes: [el] });
+
+            el.querySelector('.node-header').addEventListener('pointerdown', (e) => {
+                if (e.target.closest('button')) return;
+                e.stopPropagation(); pushHistory(); isDraggingNode = true; activeSourceNodeId = node.id;
+                const coords = getWorkspaceCoords(e.clientX, e.clientY);
+                startPointerX = coords.x - nodesData[node.id].x; startPointerY = coords.y - nodesData[node.id].y;
+                el.classList.add('dragging');
+            });
+            el.querySelector('.gal-rename-btn').addEventListener('pointerdown', (e) => {
+                e.stopPropagation(); promptEditNode(node.id);
+            });
+            el.querySelector('.gal-delete-btn').addEventListener('pointerdown', (e) => {
+                e.stopPropagation();
+                promptConfirm('Delete Gallery?', `Delete "${escHtml(node.title)}" and all its photos? This cannot be undone.`, 'Delete', 'red', () => {
+                    pushHistory(); delete nodesData[node.id]; renderMap(); setTimeout(updateAllWires, 50);
+                });
+            });
+            el.querySelector('.gal-manage-btn').addEventListener('pointerdown', (e) => {
+                e.stopPropagation(); openPhotoManager(node.id);
+            });
+            const emptyZone = el.querySelector('.gal-empty-click');
+            if (emptyZone) emptyZone.addEventListener('pointerdown', (e) => { e.stopPropagation(); openPhotoManager(node.id); });
+        }
+
+        let _photoMgrNodeId      = null;
+        let _galDragSrcIdx      = null;
+        let _galPointerDragState = null;
+
+        function _galOnPointerMove(e) {
+            const s = _galPointerDragState;
+            if (!s) return;
+            if (!s.started) {
+                if (Math.hypot(e.clientX - s.startX, e.clientY - s.startY) < 6) return;
+                s.started = true;
+                const rect = s.card.getBoundingClientRect();
+                s.cloneOffX = e.clientX - rect.left;
+                s.cloneOffY = e.clientY - rect.top;
+                const clone = s.card.cloneNode(true);
+                clone.style.position     = 'fixed';
+                clone.style.left         = rect.left + 'px';
+                clone.style.top          = rect.top  + 'px';
+                clone.style.width        = rect.width + 'px';
+                clone.style.height       = rect.height + 'px';
+                clone.style.pointerEvents = 'none';
+                clone.style.zIndex       = '99999';
+                clone.style.opacity      = '0.88';
+                clone.style.boxShadow    = '0 12px 40px rgba(0,0,0,0.28)';
+                clone.style.transition   = 'none';
+                clone.style.transform    = 'rotate(1.5deg) scale(1.04)';
+                clone.style.cursor       = 'grabbing';
+                document.body.appendChild(clone);
+                s.clone = clone;
+                s.card.style.opacity    = '0';
+                s.card.style.visibility = 'hidden';
+                document.body.style.cursor = 'grabbing';
+            }
+            s.clone.style.left = (e.clientX - s.cloneOffX) + 'px';
+            s.clone.style.top  = (e.clientY - s.cloneOffY) + 'px';
+            const els = document.elementsFromPoint(e.clientX, e.clientY);
+            for (const el of els) {
+                const tgt = el.closest && el.closest('.photo-card');
+                if (tgt && tgt !== s.card && tgt.closest('#photo-mgr-grid')) {
+                    if (tgt !== s.lastTarget) {
+                        s.lastTarget = tgt;
+                        const ch = [...s.grid.children];
+                        const phIdx = ch.indexOf(s.card);
+                        const tIdx  = ch.indexOf(tgt);
+                        if (phIdx !== -1 && tIdx !== -1) {
+                            if (tIdx > phIdx) s.grid.insertBefore(s.card, tgt.nextSibling);
+                            else              s.grid.insertBefore(s.card, tgt);
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+
+        function _galOnPointerUp() {
+            const s = _galPointerDragState;
+            if (!s) return;
+            document.removeEventListener('pointermove',   _galOnPointerMove);
+            document.removeEventListener('pointerup',     _galOnPointerUp);
+            document.removeEventListener('pointercancel', _galOnPointerUp);
+            document.body.style.cursor = '';
+            if (s.clone) s.clone.remove();
+            s.card.style.opacity    = '';
+            s.card.style.visibility = '';
+            if (s.started) {
+                const allCards = [...s.grid.querySelectorAll('.photo-card')];
+                const newIdx = allCards.indexOf(s.card);
+                if (newIdx !== -1 && newIdx !== s.startIdx) {
+                    const node = _photoMgrNodeId && nodesData[_photoMgrNodeId];
+                    if (node && node.photos) {
+                        const [moved] = node.photos.splice(s.startIdx, 1);
+                        node.photos.splice(newIdx, 0, moved);
+                        _saveAndSyncGallery();
+                    }
+                }
+                _renderPhotoMgrGrid();
+            }
+            _galPointerDragState = null;
+        }
+
+        function openPhotoManager(nodeId) {
+            const node = nodesData[nodeId];
+            if (!node) return;
+            _photoMgrNodeId = nodeId;
+            isModalOpen = true;
+            activePointers.clear();
+            document.getElementById('photo-mgr-title').textContent = node.title;
+            _renderPhotoMgrGrid();
+            _renderPhotoMgrNav();
+            const overlay = document.getElementById('photo-mgr-overlay');
+            overlay.ondragover = (e) => { if (!e.dataTransfer.types.includes('Files')) return; e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; };
+            overlay.ondrop    = (e) => { if (!e.dataTransfer.files.length) return; e.preventDefault(); const f = [...e.dataTransfer.files].filter(f => f.type.startsWith('image/')); if (f.length) _processGalleryFiles(f); };
+            overlay.style.display = 'block';
+            window.addEventListener('resize', _onPhotoMgrResize);
+        }
+
+        function _onPhotoMgrResize() { if (_photoMgrNodeId) _renderPhotoMgrGrid(); }
+
+        function closePhotoManager() {
+            window.removeEventListener('resize', _onPhotoMgrResize);
+            if (_galPointerDragState) _galOnPointerUp();
+            document.getElementById('photo-mgr-overlay').style.display = 'none';
+            isModalOpen = false;
+            _photoMgrNodeId = null;
+            renderMap(); setTimeout(updateAllWires, 50);
+        }
+
+        function _renderPhotoMgrNav() {
+            const node = nodesData[_photoMgrNodeId];
+            const current = node.nav || 'buttons';
+            const cfg = [
+                { id:'buttons', label:'Arrow Buttons',  desc:'Large on-screen arrows on both sides of the photo.' },
+                { id:'swipe',   label:'Swipe Gesture',  desc:'User swipes left/right to change photos.' },
+                { id:'tap',     label:'Tap to Advance', desc:'Tapping anywhere on the photo advances to the next.' },
+                { id:'all',     label:'All Methods',    desc:'Arrows, swipe, and tap all work simultaneously.' },
+            ];
+            const container = document.getElementById('photo-mgr-nav-btns');
+            container.innerHTML = '';
+            cfg.forEach(opt => {
+                const btn = document.createElement('button');
+                const isActive = current === opt.id;
+                btn.style.cssText = `display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:10px 4px;border-radius:10px;border:1.5px solid ${isActive?'#10b981':'#e2e8f0'};background:${isActive?'#10b981':'#fff'};color:${isActive?'white':'#475569'};font-size:11px;font-weight:600;font-family:Outfit,sans-serif;cursor:pointer;text-align:center;line-height:1.2;transition:all 0.13s;`;
+                btn.title = opt.desc;
+                btn.textContent = opt.label;
+                btn.addEventListener('click', () => {
+                    node.nav = opt.id;
+                    _saveAndSyncGallery();
+                    _renderPhotoMgrNav();
+                });
+                container.appendChild(btn);
+            });
+        }
+
+        function _renderPhotoMgrGrid() {
+            if (!_photoMgrNodeId) return;
+            const node  = nodesData[_photoMgrNodeId];
+            if (!node) return;
+            const grid  = document.getElementById('photo-mgr-grid');
+            const empty = document.getElementById('photo-mgr-empty');
+            if (!grid || !empty) return;
+            grid.innerHTML = '';
+            if (!node.photos || node.photos.length === 0) { empty.style.display = 'block'; return; }
+            empty.style.display = 'none';
+            node.photos.forEach((photo, idx) => {
+                const card = document.createElement('div');
+                card.className = 'photo-card';
+                card.style.cssText = 'border-radius:12px;overflow:hidden;border:1.5px solid #e2e8f0;background:#f8fafc;cursor:grab;transition:opacity 0.15s,box-shadow 0.15s;';
+                card.dataset.idx = idx;
+                card.innerHTML = `
+                    <div style="position:relative;aspect-ratio:4/3;overflow:hidden;background:#e2e8f0;">
+                        <img src="${escHtml(photo.dataUrl)}" style="width:100%;height:100%;object-fit:cover;display:block;" alt="">
+                        <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.26) 0%,transparent 40%);pointer-events:none;"></div>
+                        <div style="position:absolute;top:7px;left:8px;display:flex;align-items:center;gap:5px;">
+                            <div style="font-size:11px;font-weight:700;color:white;background:rgba(0,0,0,0.50);border-radius:6px;padding:2px 7px;">${idx + 1}</div>
+                            <div title="Drag to reorder" style="display:flex;flex-direction:column;gap:2px;padding:3px;cursor:grab;" class="gal-drag-grip">
+                                <div style="width:13px;height:1.5px;background:rgba(255,255,255,0.85);border-radius:1px;"></div>
+                                <div style="width:13px;height:1.5px;background:rgba(255,255,255,0.85);border-radius:1px;"></div>
+                                <div style="width:13px;height:1.5px;background:rgba(255,255,255,0.85);border-radius:1px;"></div>
+                            </div>
+                        </div>
+                        <button onclick="deleteGalleryPhoto(${idx})" style="position:absolute;top:6px;right:6px;width:28px;height:28px;border-radius:8px;background:rgba(239,68,68,0.90);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;" title="Remove photo">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        </button>
+                    </div>
+                    <div style="padding:8px;">
+                        <input type="text" placeholder="Caption (optional)" value="${escHtml(photo.caption || '')}"
+                               oninput="updatePhotoCaption(${idx},this.value)"
+                               style="width:100%;box-sizing:border-box;font-size:11px;font-family:Outfit,sans-serif;border:1.5px solid #e2e8f0;border-radius:6px;padding:5px 8px;outline:none;background:#fff;color:#1e293b;" />
+                    </div>
+                `;
+                // Pointer-based drag-to-reorder (live shifting)
+                card.addEventListener('pointerdown', (e) => {
+                    if (e.target.closest('button') || e.target.closest('input')) return;
+                    if (e.pointerType === 'mouse' && e.button !== 0) return;
+                    e.preventDefault();
+                    _galPointerDragState = { card, startIdx: idx, startX: e.clientX, startY: e.clientY, grid, started: false, clone: null, lastTarget: null };
+                    document.addEventListener('pointermove',   _galOnPointerMove);
+                    document.addEventListener('pointerup',     _galOnPointerUp);
+                    document.addEventListener('pointercancel', _galOnPointerUp);
+                });
+                grid.appendChild(card);
+            });
+        }
+
+        function handlePhotoManagerUpload(event) {
+            const files = [...event.target.files].filter(f => f.type.startsWith('image/'));
+            event.target.value = '';
+            _processGalleryFiles(files);
+        }
+
+        async function _processGalleryFiles(files) {
+            if (!files.length || !_photoMgrNodeId) return;
+            const mgrId = _photoMgrNodeId;
+            const node = nodesData[mgrId];
+            if (!node) return;
+            if (!node.photos) node.photos = [];
+            // Process sequentially to preserve file-picker order
+            for (const file of files) {
+                await new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        const img = new Image();
+                        img.onload = () => {
+                            const MAX = 1400;
+                            let w = img.width, h = img.height;
+                            if (w > MAX || h > MAX) { if (w >= h) { h = Math.round(h * MAX / w); w = MAX; } else { w = Math.round(w * MAX / h); h = MAX; } }
+                            const cvs = document.createElement('canvas');
+                            cvs.width = w; cvs.height = h;
+                            cvs.getContext('2d').drawImage(img, 0, 0, w, h);
+                            node.photos.push({ id: generateId(), dataUrl: cvs.toDataURL('image/jpeg', 0.85), caption: '' });
+                            resolve();
+                        };
+                        img.onerror = () => resolve();
+                        img.src = ev.target.result;
+                    };
+                    reader.onerror = () => resolve();
+                    reader.readAsDataURL(file);
+                });
+            }
+            if (_photoMgrNodeId === mgrId) {
+                _renderPhotoMgrGrid();
+                _saveAndSyncGallery();
+            }
+        }
+
+        function deleteGalleryPhoto(idx) {
+            const node = nodesData[_photoMgrNodeId];
+            if (!node || !node.photos) return;
+            node.photos.splice(idx, 1);
+            _renderPhotoMgrGrid();
+            _saveAndSyncGallery();
+        }
+
+        function updatePhotoCaption(idx, val) {
+            const node = nodesData[_photoMgrNodeId];
+            if (!node || !node.photos || !node.photos[idx]) return;
+            node.photos[idx].caption = val;
+            _saveAndSyncGallery();
+        }
+
+        function _saveAndSyncGallery() {
+            try { localStorage.setItem('aacMapData', JSON.stringify(nodesData)); } catch(e) { console.warn('Storage quota exceeded — gallery data not saved:', e); }
+            const _ap = _profiles && _profiles.find(p => p.id === _activeProfileId);
+            if (_ap) { _ap.nodesData = JSON.parse(JSON.stringify(nodesData)); _ap.gridCols = gridCols; _ap.gridRows = gridRows; saveProfiles(); }
+        }
+        // ── End Photo Gallery ──────────────────────────────────────────────────────
+
+
+        // ════════════════════════════════════════════════════════════════════════════
+        // ── Routine Board ─────────────────────────────────────────────────────────
+        // ════════════════════════════════════════════════════════════════════════════
+
+        function spawnRoutineNode() {
+            const newId = generateId();
+            const center = getWorkspaceCoords(window.innerWidth / 2, window.innerHeight / 2);
+            nodesData[newId] = { id: newId, type: 'routine', title: 'My Routine',
+                                 color: '#f59e0b', x: center.x, y: center.y,
+                                 steps: [
+                                     { id: generateId(), label: '', dataUrl: null },
+                                     { id: generateId(), label: '', dataUrl: null },
+                                     { id: generateId(), label: '', dataUrl: null }
+                                 ] };
+            renderMap();
+            setTimeout(() => { const el = document.getElementById(`dom-node-${newId}`); if (el) el.classList.add('node-enter'); }, 10);
+        }
+
+        function createRoutineElement(node) {
+            const el = document.createElement('div');
+            el.className = 'aac-node routine-node';
+            el.id = `dom-node-${node.id}`;
+            el.style.left = `${node.x}px`; el.style.top = `${node.y}px`;
+            el.style.width = '300px';
+
+            const steps = node.steps || [];
+            const filled = steps.filter(s => s.dataUrl).length;
+            const total  = steps.length;
+
+            const stepsPreviewHtml = steps.length > 0
+                ? `<div style="display:flex;gap:6px;padding:10px 12px 12px;background:#f8fafc;border-bottom:1px solid #e2e8f0;">
+                    ${steps.map((s, i) => s.dataUrl
+                        ? `<div style="flex:1;aspect-ratio:1;border-radius:10px;overflow:hidden;border:1.5px solid #e2e8f0;position:relative;">
+                               <img src="${escHtml(s.dataUrl)}" style="width:100%;height:100%;object-fit:cover;display:block;">
+                               <div style="position:absolute;bottom:3px;left:0;right:0;text-align:center;font-size:9px;font-weight:700;color:white;text-shadow:0 1px 3px rgba(0,0,0,0.7);">${escHtml(s.label||'')}</div>
+                           </div>`
+                        : `<div style="flex:1;aspect-ratio:1;border-radius:10px;background:#e2e8f0;border:1.5px dashed #cbd5e1;display:flex;align-items:center;justify-content:center;">
+                               <span style="font-size:18px;color:#94a3b8;font-weight:300;">+</span>
+                           </div>`
+                    ).join('')}
+                   </div>`
+                : '';
+
+            el.innerHTML = `
+                <div class="node-header h-10 flex items-center px-3 gap-2 text-white select-none" style="background:linear-gradient(135deg,#f59e0b,#ef4444);border-radius:18px 18px 0 0;">
+                    <svg class="flex-shrink-0 opacity-80 pointer-events-none" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                    <span class="font-bold text-[13px] flex-1 truncate pointer-events-none">${escHtml(node.title)}</span>
+                    <button class="routine-rename-btn opacity-70 hover:opacity-100 p-1 rounded-lg hover:bg-white/20 transition pointer-events-auto active:scale-95" title="Rename"><i data-lucide="pencil" class="w-3 h-3 pointer-events-none"></i></button>
+                    <button class="routine-delete-btn opacity-70 hover:opacity-100 p-1 rounded-lg hover:bg-red-500/80 transition pointer-events-auto active:scale-95" title="Delete"><i data-lucide="trash-2" class="w-3 h-3 pointer-events-none"></i></button>
+                </div>
+                ${stepsPreviewHtml}
+                <div style="padding:7px 10px 9px;background:#ffffff;border-radius:0 0 18px 18px;border-top:1px solid #e2e8f0;display:flex;align-items:center;gap:8px;">
+                    <button class="routine-manage-btn" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:7px 12px;background:linear-gradient(135deg,#f59e0b,#ef4444);color:white;font-size:12px;font-weight:700;font-family:Outfit,sans-serif;border:none;border-radius:10px;cursor:pointer;">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                        ${filled === 0 ? 'Set Up Routine' : 'Edit Routine'}
+                    </button>
+                    <span style="font-size:10px;font-weight:600;color:#94a3b8;font-family:Outfit,sans-serif;white-space:nowrap;flex-shrink:0;">${total} step${total !== 1 ? 's' : ''}</span>
+                </div>
+                <div class="port port-in" data-node="${node.id}"></div>
+            `;
+
+            nodesLayer.appendChild(el);
+            lucide.createIcons({ nodes: [el] });
+
+            el.querySelector('.node-header').addEventListener('pointerdown', (e) => {
+                if (e.target.closest('button')) return;
+                e.stopPropagation(); pushHistory(); isDraggingNode = true; activeSourceNodeId = node.id;
+                const coords = getWorkspaceCoords(e.clientX, e.clientY);
+                startPointerX = coords.x - nodesData[node.id].x; startPointerY = coords.y - nodesData[node.id].y;
+                el.classList.add('dragging');
+            });
+            el.querySelector('.routine-rename-btn').addEventListener('pointerdown', (e) => {
+                e.stopPropagation(); promptEditNode(node.id);
+            });
+            el.querySelector('.routine-delete-btn').addEventListener('pointerdown', (e) => {
+                e.stopPropagation();
+                promptConfirm('Delete Routine Board?', `Delete "${escHtml(node.title)}"? This cannot be undone.`, 'Delete', 'red', () => {
+                    pushHistory(); delete nodesData[node.id]; renderMap();
+                });
+            });
+            el.querySelector('.routine-manage-btn').addEventListener('pointerdown', (e) => {
+                e.stopPropagation(); openRoutineManager(node.id);
+            });
+        }
+
+        // ── Routine Manager ──────────────────────────────────────────────────────
+
+        let _routineMgrNodeId   = null;
+        let _routineDragSrcIdx  = null;
+        let _routineUploadSlot  = null;
+
+        function openRoutineManager(nodeId) {
+            const node = nodesData[nodeId];
+            if (!node) return;
+            _routineMgrNodeId = nodeId;
+            isModalOpen = true; activePointers.clear();
+            document.getElementById('routine-mgr-title').textContent = node.title;
+            _renderRoutineMgrCounts();
+            _renderRoutineMgrGrid();
+            document.getElementById('routine-mgr-overlay').style.display = 'block';
+            window.addEventListener('resize', _onRoutineMgrResize);
+        }
+
+        function _onRoutineMgrResize() { if (_routineMgrNodeId) _renderRoutineMgrGrid(); }
+
+        function closeRoutineManager() {
+            window.removeEventListener('resize', _onRoutineMgrResize);
+            document.getElementById('routine-mgr-overlay').style.display = 'none';
+            isModalOpen = false; _routineMgrNodeId = null;
+            renderMap(); setTimeout(updateAllWires, 50);
+        }
+
+        function _renderRoutineMgrCounts() {
+            const node = nodesData[_routineMgrNodeId];
+            const current = node.steps.length;
+            const container = document.getElementById('routine-mgr-count-btns');
+            container.innerHTML = '';
+            [3, 4, 5, 6].forEach(n => {
+                const btn = document.createElement('button');
+                const active = current === n;
+                btn.style.cssText = `width:36px;height:36px;border-radius:10px;border:1.5px solid ${active?'#f59e0b':'#e2e8f0'};background:${active?'#f59e0b':'#fff'};color:${active?'white':'#475569'};font-size:14px;font-weight:700;font-family:Outfit,sans-serif;cursor:pointer;transition:all 0.13s;`;
+                btn.textContent = String(n);
+                btn.addEventListener('click', () => {
+                    const old = node.steps;
+                    if (n > old.length) {
+                        while (node.steps.length < n) node.steps.push({ id: generateId(), label: '', dataUrl: null });
+                    } else {
+                        node.steps = old.slice(0, n);
+                    }
+                    _saveAndSyncRoutine();
+                    _renderRoutineMgrCounts();
+                    _renderRoutineMgrGrid();
+                });
+                container.appendChild(btn);
+            });
+        }
+
+        function _renderRoutineMgrGrid() {
+            const node  = nodesData[_routineMgrNodeId];
+            const grid  = document.getElementById('routine-mgr-grid');
+            const empty = document.getElementById('routine-mgr-empty');
+            grid.innerHTML = '';
+            const routineCols = window.innerWidth <= 540
+                ? Math.min(node.steps.length, 3)
+                : node.steps.length;
+            grid.style.gridTemplateColumns = `repeat(${routineCols}, 1fr)`;
+            const hasSome = node.steps.some(s => s.dataUrl);
+            empty.style.display = hasSome ? 'none' : 'block';
+
+            node.steps.forEach((step, idx) => {
+                const card = document.createElement('div');
+                card.className = 'routine-step-card';
+                card.setAttribute('draggable', 'true');
+                card.dataset.idx = idx;
+
+                const imgHtml = step.dataUrl
+                    ? `<div style="position:relative;aspect-ratio:1;overflow:hidden;background:#e2e8f0;border-radius:12px 12px 0 0;">
+                           <img src="${escHtml(step.dataUrl)}" style="width:100%;height:100%;object-fit:cover;display:block;" alt="">
+                           <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.22) 0%,transparent 40%);pointer-events:none;"></div>
+                           <div style="position:absolute;top:7px;left:8px;font-size:11px;font-weight:700;color:white;background:rgba(0,0,0,0.50);border-radius:6px;padding:2px 7px;">${idx + 1}</div>
+                           <button onclick="clearRoutineStep(${idx})" style="position:absolute;top:6px;right:6px;width:26px;height:26px;border-radius:8px;background:rgba(239,68,68,0.90);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;" title="Clear">
+                               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                           </button>
+                       </div>`
+                    : `<div style="aspect-ratio:1;border-radius:12px 12px 0 0;background:#f1f5f9;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;" class="routine-slot-click" data-slot="${idx}">
+                           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                           <span style="font-size:10px;color:#94a3b8;font-weight:600;font-family:Outfit,sans-serif;">Step ${idx + 1}</span>
+                       </div>`;
+
+                card.innerHTML = `
+                    ${imgHtml}
+                    <div style="padding:7px 8px;">
+                        <input type="text" placeholder="Label (optional)" value="${escHtml(step.label || '')}"
+                               oninput="updateRoutineStepLabel(${idx},this.value)"
+                               style="width:100%;box-sizing:border-box;font-size:11px;font-family:Outfit,sans-serif;border:1.5px solid #e2e8f0;border-radius:6px;padding:5px 7px;outline:none;background:#fff;color:#1e293b;" />
+                    </div>
+                `;
+
+                // Click empty slot to upload
+                const slotClick = card.querySelector('.routine-slot-click');
+                if (slotClick) {
+                    slotClick.addEventListener('click', () => {
+                        _routineUploadSlot = parseInt(slotClick.dataset.slot);
+                        document.getElementById('routine-mgr-file-input').click();
+                    });
+                }
+                // Click filled photo to replace
+                const imgDiv = card.querySelector('img');
+                if (imgDiv) {
+                    imgDiv.style.cursor = 'pointer';
+                    imgDiv.addEventListener('click', () => {
+                        _routineUploadSlot = idx;
+                        document.getElementById('routine-mgr-file-input').click();
+                    });
+                }
+
+                // Drag-to-reorder
+                card.addEventListener('dragstart', (e) => {
+                    _routineDragSrcIdx = idx; e.dataTransfer.effectAllowed = 'move';
+                    requestAnimationFrame(() => { card.style.opacity = '0.42'; });
+                });
+                card.addEventListener('dragend', () => {
+                    card.style.opacity = '';
+                    _routineDragSrcIdx = null;
+                    grid.querySelectorAll('.routine-step-card').forEach(c => c.classList.remove('routine-drop-over'));
+                });
+                card.addEventListener('dragover', (e) => {
+                    e.preventDefault(); e.dataTransfer.dropEffect = 'move';
+                    if (_routineDragSrcIdx !== null && _routineDragSrcIdx !== idx) {
+                        grid.querySelectorAll('.routine-step-card').forEach(c => c.classList.remove('routine-drop-over'));
+                        card.classList.add('routine-drop-over');
+                    }
+                });
+                card.addEventListener('dragleave', (e) => {
+                    if (!card.contains(e.relatedTarget)) card.classList.remove('routine-drop-over');
+                });
+                card.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    if (_routineDragSrcIdx === null || _routineDragSrcIdx === idx) return;
+                    card.classList.remove('routine-drop-over');
+                    const [moved] = node.steps.splice(_routineDragSrcIdx, 1);
+                    node.steps.splice(idx, 0, moved);
+                    _routineDragSrcIdx = null;
+                    _saveAndSyncRoutine(); _renderRoutineMgrGrid();
+                });
+
+                grid.appendChild(card);
+            });
+        }
+
+        function handleRoutineStepUpload(event) {
+            const file = event.target.files[0];
+            event.target.value = '';
+            if (!file || !file.type.startsWith('image/') || _routineUploadSlot === null) return;
+            const node = _routineMgrNodeId && nodesData[_routineMgrNodeId];
+            if (!node || !node.steps[_routineUploadSlot]) { _routineUploadSlot = null; return; }
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                const img = new Image();
+                img.onload = () => {
+                    if (_routineUploadSlot === null || !node.steps[_routineUploadSlot]) { _routineUploadSlot = null; return; }
+                    const MAX = 800;
+                    let w = img.width, h = img.height;
+                    if (w > MAX || h > MAX) { if (w >= h) { h = Math.round(h * MAX / w); w = MAX; } else { w = Math.round(w * MAX / h); h = MAX; } }
+                    const cvs = document.createElement('canvas');
+                    cvs.width = w; cvs.height = h;
+                    cvs.getContext('2d').drawImage(img, 0, 0, w, h);
+                    node.steps[_routineUploadSlot].dataUrl = cvs.toDataURL('image/jpeg', 0.82);
+                    _routineUploadSlot = null;
+                    _saveAndSyncRoutine(); _renderRoutineMgrGrid();
+                };
+                img.onerror = () => { _routineUploadSlot = null; };
+                img.src = ev.target.result;
+            };
+            reader.onerror = () => { _routineUploadSlot = null; };
+            reader.readAsDataURL(file);
+        }
+
+        function clearRoutineStep(idx) {
+            const node = _routineMgrNodeId && nodesData[_routineMgrNodeId];
+            if (!node || !node.steps[idx]) return;
+            node.steps[idx].dataUrl = null;
+            _saveAndSyncRoutine(); _renderRoutineMgrGrid();
+        }
+
+        function updateRoutineStepLabel(idx, value) {
+            const node = _routineMgrNodeId && nodesData[_routineMgrNodeId];
+            if (!node || !node.steps[idx]) return;
+            node.steps[idx].label = value;
+            _saveAndSyncRoutine();
+        }
+
+        function _saveAndSyncRoutine() {
+            try { localStorage.setItem('aacMapData', JSON.stringify(nodesData)); } catch(e) { console.warn('Storage quota exceeded — routine data not saved:', e); }
+            const _ap = _profiles && _profiles.find(p => p.id === _activeProfileId);
+            if (_ap) { _ap.nodesData = JSON.parse(JSON.stringify(nodesData)); _ap.gridCols = gridCols; _ap.gridRows = gridRows; saveProfiles(); }
+        }
+        // ── End Routine Board ─────────────────────────────────────────────────────
+
         let symbolPickerTarget = { nodeId: null, cellIdx: null };
+
 
         function openSymbolPickerModal(nodeId, cellIdx) {
             symbolPickerTarget = { nodeId, cellIdx };
@@ -1624,7 +3043,7 @@
                 const hdrBtnBg  = isLight ? '#ffffff' : 'rgba(255,255,255,0.10)';
                 const hdrBtnBdr = isLight ? '1px solid rgba(0,0,0,0.18)' : '1px solid rgba(255,255,255,0.20)';
                 const hdrBtnTxt = isLight ? '#374151' : '#e2e8f0';
-                editorControls.querySelectorAll('button:not(.bg-blue-600):not(.bg-emerald-600):not(.hover\\:bg-blue-700):not(.hover\\:bg-emerald-700)').forEach(b => {
+                editorControls.querySelectorAll('button:not(.bg-blue-600):not(.from-emerald-500):not(.hover\\:bg-blue-700):not(.hover\\:bg-emerald-700)').forEach(b => {
                     b.style.backgroundColor = hdrBtnBg;
                     b.style.border = hdrBtnBdr;
                     b.style.color = hdrBtnTxt;
@@ -1685,7 +3104,7 @@
             document.documentElement.style.setProperty('--strip-item-text', stripItemText);
 
             // Adaptive dot colour: light dots on dark bg, dark dots on light bg
-            bgDotColor = isLight ? 'rgba(0,0,0,0.18)' : 'rgba(255,255,255,0.18)';
+            bgDotColor = isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.04)';
             updateTransform();
 
             const btnBg     = isLight ? 'rgba(0,0,0,0.09)'   : 'rgba(255,255,255,0.14)';
@@ -1777,6 +3196,12 @@
                 localStorage.setItem('aacMapData', JSON.stringify(nodesData));
                 localStorage.setItem('aacMapConfig', JSON.stringify({cols: gridCols, rows: gridRows}));
                 document.getElementById('grid-size-select').value = `${gridCols}x${gridRows}`;
+            } else {
+                // Profile has no saved board — seed it from the current board so the
+                // renderMap auto-save never accidentally overwrites it with stale data
+                prof.nodesData = JSON.parse(JSON.stringify(nodesData));
+                prof.gridCols = gridCols;
+                prof.gridRows = gridRows;
             }
             saveProfiles();
             updateProfileLabel();
@@ -1829,13 +3254,34 @@
             _profiles = _profiles.filter(p => p.id !== id);
             if (_activeProfileId === id) {
                 _activeProfileId = _profiles[0].id;
-                clientSettings = { ...clientSettings, ..._profiles[0].settings };
+                const newActive = _profiles[0];
+                clientSettings = { ...clientSettings, ...newActive.settings };
+                // Restore the board from the newly-active profile so stale data
+                // from the deleted profile cannot overwrite it via renderMap auto-save
+                if (newActive.nodesData) {
+                    nodesData = JSON.parse(JSON.stringify(newActive.nodesData));
+                    gridCols = newActive.gridCols || 4;
+                    gridRows = newActive.gridRows || 3;
+                    updateNodeDimensions();
+                    localStorage.setItem('aacMapData', JSON.stringify(nodesData));
+                    localStorage.setItem('aacMapConfig', JSON.stringify({cols: gridCols, rows: gridRows}));
+                    document.getElementById('grid-size-select').value = `${gridCols}x${gridRows}`;
+                }
                 if (clientCurrentNode) renderClientNode(clientCurrentNode);
                 applyClientTheme();
+                renderMap();
+                fitAllNodes();
+                setTimeout(updateAllWires, 100);
             }
             saveProfiles();
             updateProfileLabel();
             openProfileManager();
+        }
+
+        function confirmDeleteProfile(id) {
+            const p = _profiles.find(pr => pr.id === id);
+            const name = p ? p.name : 'this profile';
+            promptConfirm(`Delete "${escHtml(name)}"?`, 'All boards and settings in this profile will be permanently removed. This cannot be undone.', 'Delete', 'red', () => deleteProfile(id));
         }
 
         function renameProfile(id, newName) {
@@ -1889,7 +3335,7 @@
                       _profiles.map(p => [
                         '<div class="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-red-50 group transition">',
                           `<span class="text-sm truncate flex-1 ${p.id === _activeProfileId ? 'font-bold text-blue-700' : 'text-slate-600'} group-hover:text-red-700 transition">${esc(p.name)}${p.id === _activeProfileId ? ' <span class="text-[10px] bg-blue-100 text-blue-600 rounded px-1">active</span>' : ''}</span>`,
-                          `<button onclick="if(confirm('Delete profile?'))deleteProfile('${p.id}')" class="ml-3 flex-shrink-0 p-1.5 rounded-lg text-slate-300 hover:text-red-600 hover:bg-red-100 transition"><i data-lucide="trash-2" class="w-3.5 h-3.5 pointer-events-none"></i></button>`,
+                          `<button onclick="confirmDeleteProfile('${p.id}')" class="ml-3 flex-shrink-0 p-1.5 rounded-lg text-slate-300 hover:text-red-600 hover:bg-red-100 transition"><i data-lucide="trash-2" class="w-3.5 h-3.5 pointer-events-none"></i></button>`,
                         '</div>'
                       ].join('')).join(''),
                     '</div>'
@@ -2262,13 +3708,446 @@
         }
 
         function renderClientNode(nodeId) {
-            clientCurrentNode = nodeId;
             const node = nodesData[nodeId];
             if (!node) return;
+            clientCurrentNode = nodeId;
 
             const wrapper = document.getElementById('client-grid-wrapper');
+            if (!wrapper) return;
             wrapper.innerHTML = '';
-            
+
+            // ── Whiteboard node in client view ──
+            if (node.type === 'whiteboard') {
+                wrapper.style.position = 'relative';
+                const clientWB = document.createElement('div');
+                clientWB.style.cssText = 'width:100%;height:100%;display:flex;flex-direction:column;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.10);';
+
+                const CWB_COLORS = ['#1e293b','#ef4444','#3b82f6','#10b981','#f59e0b','#8b5cf6','#ec4899','#ffffff'];
+                clientWB.innerHTML = `
+                    <div id="cwbt-${nodeId}" style="display:flex;align-items:center;gap:6px;padding:8px 12px;background:#f8fafc;border-bottom:1px solid #e2e8f0;flex-wrap:wrap;flex-shrink:0;">
+                        <button data-tool="pen"    class="cwb-tool active" title="Pen"    style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:10px;border:1.5px solid #93c5fd;background:#dbeafe;cursor:pointer;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>
+                        <button data-tool="eraser" class="cwb-tool"        title="Eraser" style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:10px;border:1.5px solid #e2e8f0;background:transparent;cursor:pointer;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20H7L3 16l11-11 6 6-3.5 3.5"/><path d="M6.5 17.5l4-4"/></svg></button>
+                        <div style="width:1px;height:24px;background:#e2e8f0;margin:0 4px;flex-shrink:0;"></div>
+                        ${CWB_COLORS.map((c,i) => `<div class="cwb-swatch${i===0?' cwb-swatch-active':''}" data-color="${c}" title="${c}" style="width:26px;height:26px;border-radius:50%;background:${c};border:2px solid white;box-shadow:0 0 0 ${i===0?'2.5px #3b82f6':'1.5px #cbd5e1'};cursor:pointer;flex-shrink:0;transition:transform 0.12s;"></div>`).join('')}
+                        <div style="width:1px;height:24px;background:#e2e8f0;margin:0 4px;flex-shrink:0;"></div>
+                        <select id="cwbsize-${nodeId}" style="font-size:12px;font-family:Outfit,sans-serif;font-weight:600;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:4px 8px;cursor:pointer;outline:none;">
+                            <option value="3">Fine</option><option value="6" selected>Medium</option><option value="12">Thick</option><option value="22">Bold</option>
+                        </select>
+                        <button data-action="clear" class="cwb-tool" title="Clear" style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:10px;border:1.5px solid #e2e8f0;background:transparent;cursor:pointer;margin-left:auto;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg></button>
+                    </div>
+                    <canvas id="cwbc-${nodeId}" style="flex:1;display:block;touch-action:none;cursor:crosshair;background:#fff;width:100%;"></canvas>
+                `;
+                wrapper.appendChild(clientWB);
+
+                // Size canvas to actual pixel dimensions
+                const canvas = document.getElementById(`cwbc-${nodeId}`);
+                requestAnimationFrame(() => {
+                    canvas.width  = canvas.offsetWidth  || 600;
+                    canvas.height = canvas.offsetHeight || 400;
+                    const ctx = canvas.getContext('2d');
+                    if (node.drawingData) { const img = new Image(); img.onload = () => ctx.drawImage(img, 0, 0, canvas.width, canvas.height); img.src = node.drawingData; }
+                });
+
+                const ctx = canvas.getContext('2d');
+                let cwbTool = 'pen', cwbColor = CWB_COLORS[0], cwbSize = 6;
+                let cwbDrawing = false;
+
+                const save = () => { node.drawingData = canvas.toDataURL('image/png'); localStorage.setItem('aacMapData', JSON.stringify(nodesData)); };
+                const getP = (e) => { const r = canvas.getBoundingClientRect(); return { x: (e.clientX - r.left) * (canvas.width / r.width), y: (e.clientY - r.top) * (canvas.height / r.height) }; };
+
+                const toolbar = document.getElementById(`cwbt-${nodeId}`);
+                toolbar.addEventListener('pointerdown', (e) => {
+                    e.stopPropagation();
+                    const btn = e.target.closest('[data-tool],[data-action]');
+                    const swatch = e.target.closest('.cwb-swatch');
+                    if (btn && btn.dataset.action === 'clear') {
+                        ctx.clearRect(0, 0, canvas.width, canvas.height); node.drawingData = null; save(); return;
+                    }
+                    if (btn && btn.dataset.tool) {
+                        cwbTool = btn.dataset.tool;
+                        toolbar.querySelectorAll('.cwb-tool').forEach(b => { b.style.background = 'transparent'; b.style.borderColor = '#e2e8f0'; if(b.querySelector('svg')) b.querySelector('svg').setAttribute('stroke','#475569'); });
+                        btn.style.background = '#dbeafe'; btn.style.borderColor = '#93c5fd'; if(btn.querySelector('svg')) btn.querySelector('svg').setAttribute('stroke','#1d4ed8');
+                    }
+                    if (swatch) {
+                        cwbColor = swatch.dataset.color;
+                        toolbar.querySelectorAll('.cwb-swatch').forEach(s => s.style.boxShadow = '0 0 0 1.5px #cbd5e1');
+                        swatch.style.boxShadow = '0 0 0 2.5px #3b82f6';
+                        cwbTool = 'pen';
+                    }
+                });
+                document.getElementById(`cwbsize-${nodeId}`).addEventListener('change', e => { cwbSize = parseInt(e.target.value); });
+
+                canvas.addEventListener('pointerdown', (e) => {
+                    e.stopPropagation(); e.preventDefault();
+                    canvas.setPointerCapture(e.pointerId);
+                    cwbDrawing = true;
+                    const p = getP(e);
+                    ctx.beginPath(); ctx.moveTo(p.x, p.y);
+                });
+                canvas.addEventListener('pointermove', (e) => {
+                    if (!cwbDrawing) return;
+                    e.stopPropagation();
+                    const p = getP(e);
+                    ctx.globalCompositeOperation = cwbTool === 'eraser' ? 'destination-out' : 'source-over';
+                    ctx.strokeStyle = cwbColor; ctx.lineWidth = cwbSize;
+                    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+                    ctx.lineTo(p.x, p.y); ctx.stroke();
+                    ctx.beginPath(); ctx.moveTo(p.x, p.y);
+                });
+                canvas.addEventListener('pointerup',     (e) => { if (!cwbDrawing) return; cwbDrawing = false; save(); });
+                canvas.addEventListener('pointercancel', ()  => { cwbDrawing = false; });
+                return;
+            }
+
+            // ── Routine Board node in client view ─────────────────────────────────
+            if (node.type === 'routine') {
+                wrapper.style.position = 'relative';
+                const steps = (node.steps || []).filter(s => s.dataUrl);
+                const container = document.createElement('div');
+                container.style.cssText = 'width:100%;height:100%;background:#0f172a;border-radius:16px;overflow:hidden;position:relative;display:flex;flex-direction:column;';
+
+                if (steps.length === 0) {
+                    container.innerHTML = `
+                        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                            <span style="font-size:15px;font-weight:600;font-family:Outfit,sans-serif;color:#64748b;">No steps set up yet</span>
+                        </div>
+                    `;
+                    wrapper.appendChild(container);
+                    return;
+                }
+
+                // ── Chime synthesizer ────────────────────────────────────────────
+                function playChime() {
+                    try {
+                        const actx = new (window.AudioContext || window.webkitAudioContext)();
+                        [523.25, 659.25, 783.99].forEach((freq, i) => {
+                            const osc = actx.createOscillator(), gain = actx.createGain();
+                            osc.connect(gain); gain.connect(actx.destination);
+                            osc.type = 'sine'; osc.frequency.value = freq;
+                            const t = actx.currentTime + i * 0.10;
+                            gain.gain.setValueAtTime(0, t);
+                            gain.gain.linearRampToValueAtTime(0.28, t + 0.02);
+                            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.55);
+                            osc.start(t); osc.stop(t + 0.6);
+                        });
+                    } catch(e) {}
+                }
+
+                const doneSet = new Set();
+                const N = steps.length;
+                const routineGridCols = `repeat(${N},1fr)`;
+
+                // ── Done row (top half) ──────────────────────────────────────────
+                const doneBlock = document.createElement('div');
+                doneBlock.style.cssText = 'flex:1;min-height:0;display:flex;flex-direction:column;padding:10px 12px 6px;';
+
+                const doneLabel = document.createElement('div');
+                doneLabel.style.cssText = 'flex-shrink:0;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.28);font-family:Outfit,sans-serif;margin-bottom:6px;';
+                doneLabel.textContent = 'Done';
+
+                const doneInner = document.createElement('div');
+                doneInner.style.cssText = `flex:1;min-height:0;display:grid;grid-template-columns:${routineGridCols};gap:8px;`;
+
+                // ── Step row (bottom half) ───────────────────────────────────────
+                const sep = document.createElement('div');
+                sep.style.cssText = 'flex-shrink:0;height:1px;margin:0 12px;background:rgba(255,255,255,0.08);';
+
+                const stepBlock = document.createElement('div');
+                stepBlock.style.cssText = 'flex:1;min-height:0;display:flex;flex-direction:column;padding:6px 12px 10px;';
+
+                const stepLabel = document.createElement('div');
+                stepLabel.style.cssText = 'flex-shrink:0;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.28);font-family:Outfit,sans-serif;margin-bottom:6px;';
+                stepLabel.textContent = 'To Do';
+
+                const stepInner = document.createElement('div');
+                stepInner.style.cssText = `flex:1;min-height:0;display:grid;grid-template-columns:${routineGridCols};gap:8px;`;
+
+                // ── Build placeholder slots (done row) ───────────────────────────
+                const placeholders = steps.map((s, i) => {
+                    const ph = document.createElement('div');
+                    ph.className = 'routine-client-slot';
+                    // ghost step number
+                    const ghost = document.createElement('span');
+                    ghost.style.cssText = 'font-size:9px;font-weight:600;color:rgba(255,255,255,0.18);font-family:Outfit,sans-serif;text-align:center;';
+                    ghost.textContent = escHtml(s.label || `${i + 1}`);
+                    ph.appendChild(ghost);
+                    doneInner.appendChild(ph);
+                    return ph;
+                });
+
+                // ── Build step tiles (step row) ──────────────────────────────────
+                const stepTiles = steps.map((s, i) => {
+                    const tile = document.createElement('div');
+                    tile.className = 'routine-client-step';
+                    tile.style.overflow = 'hidden';
+
+                    const img = document.createElement('img');
+                    img.src = s.dataUrl;
+                    img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;';
+                    img.draggable = false;
+
+                    const gradOverlay = document.createElement('div');
+                    gradOverlay.style.cssText = 'position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.62) 0%,transparent 55%);pointer-events:none;';
+
+                    const lbl = document.createElement('div');
+                    lbl.style.cssText = 'position:absolute;bottom:8px;left:0;right:0;text-align:center;font-size:12px;font-weight:700;color:white;font-family:Outfit,sans-serif;pointer-events:none;padding:0 4px;line-height:1.25;text-shadow:0 1px 4px rgba(0,0,0,0.7);';
+                    lbl.textContent = escHtml(s.label || '');
+
+                    const hint = document.createElement('div');
+                    hint.style.cssText = 'position:absolute;top:8px;left:0;right:0;text-align:center;pointer-events:none;opacity:0.45;';
+                    hint.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>`;
+
+                    tile.appendChild(img); tile.appendChild(gradOverlay); tile.appendChild(lbl); tile.appendChild(hint);
+                    stepInner.appendChild(tile);
+                    return tile;
+                });
+
+                // ── refreshView — only touches visibility + placeholder content ──
+                function refreshView() {
+                    stepTiles.forEach((tile, i) => {
+                        // visibility:hidden keeps the grid slot — no layout shift
+                        tile.style.visibility = doneSet.has(i) ? 'hidden' : 'visible';
+                    });
+                    placeholders.forEach((ph, i) => {
+                        if (doneSet.has(i)) {
+                            ph.classList.add('done');
+                            if (!ph.querySelector('img')) {
+                                ph.innerHTML = '';
+                                const mini = document.createElement('img');
+                                mini.src = steps[i].dataUrl;
+                                mini.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;border-radius:16px;';
+                                const tick = document.createElement('div');
+                                tick.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(20,83,45,0.50);border-radius:16px;';
+                                tick.innerHTML = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+                                ph.appendChild(mini); ph.appendChild(tick);
+                            }
+                        } else {
+                            ph.classList.remove('done');
+                            ph.innerHTML = '';
+                            const g = document.createElement('span');
+                            g.style.cssText = 'font-size:9px;font-weight:600;color:rgba(255,255,255,0.18);font-family:Outfit,sans-serif;text-align:center;';
+                            g.textContent = escHtml(steps[i].label || `${i + 1}`);
+                            ph.appendChild(g);
+                        }
+                    });
+                    const remaining = steps.length - doneSet.size;
+                    stepLabel.textContent = remaining === 0 ? '✓ All Done!' : 'To Do';
+                    stepLabel.style.color  = remaining === 0 ? '#4ade80' : 'rgba(255,255,255,0.28)';
+                }
+
+                // ── completeStep — flying clone from tile → placeholder ───────────
+                function completeStep(tileIdx) {
+                    if (doneSet.has(tileIdx)) return;
+                    const tile = stepTiles[tileIdx];
+                    const ph   = placeholders[tileIdx];
+
+                    const tRect = tile.getBoundingClientRect();
+                    const pRect = ph.getBoundingClientRect();
+
+                    // Clone the tile visuals into a fixed-position ghost
+                    const clone = document.createElement('div');
+                    clone.style.cssText = `position:fixed;left:${tRect.left}px;top:${tRect.top}px;width:${tRect.width}px;height:${tRect.height}px;border-radius:14px;overflow:hidden;z-index:9999;pointer-events:none;will-change:transform,opacity;transition:transform 0.36s cubic-bezier(0.22,1,0.36,1),opacity 0.30s ease;`;
+                    clone.innerHTML = tile.innerHTML; // copy photo + overlay + label
+                    document.body.appendChild(clone);
+
+                    // Hide the original immediately — slot space is preserved
+                    tile.style.visibility = 'hidden';
+
+                    // Pulse the target placeholder
+                    ph.classList.add('routine-chime-anim');
+                    ph.addEventListener('animationend', () => ph.classList.remove('routine-chime-anim'), { once: true });
+
+                    // Kick off the flight on next two frames (allows clone paint first)
+                    const dx = pRect.left - tRect.left;
+                    const dy = pRect.top  - tRect.top;
+                    requestAnimationFrame(() => { requestAnimationFrame(() => {
+                        clone.style.transform = `translate(${dx}px,${dy}px) scale(0.88)`;
+                        clone.style.opacity   = '0.7';
+                    }); });
+
+                    playChime();
+
+                    setTimeout(() => {
+                        clone.remove();
+                        doneSet.add(tileIdx);
+                        refreshView();
+                    }, 370);
+                }
+
+                // ── Swipe up OR tap to complete ──────────────────────────────────
+                stepTiles.forEach((tile, tileIdx) => {
+                    let tsY = null, tMoved = false;
+                    tile.addEventListener('pointerdown', (e) => {
+                        tsY = e.clientY; tMoved = false;
+                        tile.setPointerCapture(e.pointerId);
+                    });
+                    tile.addEventListener('pointermove', (e) => {
+                        if (tsY === null) return;
+                        if (Math.abs(e.clientY - tsY) > 8) tMoved = true;
+                    });
+                    tile.addEventListener('pointerup', (e) => {
+                        if (tsY === null) return;
+                        const dy = e.clientY - tsY;
+                        tsY = null;
+                        if (dy < -32 || !tMoved) completeStep(tileIdx);
+                        tMoved = false;
+                    });
+                    tile.addEventListener('pointercancel', () => { tsY = null; });
+                });
+
+                // ── Reset button ─────────────────────────────────────────────────
+                const resetBtn = document.createElement('button');
+                resetBtn.style.cssText = 'position:absolute;bottom:12px;right:12px;z-index:10;display:flex;align-items:center;gap:5px;padding:5px 11px;background:rgba(255,255,255,0.10);border:1.5px solid rgba(255,255,255,0.18);border-radius:20px;color:rgba(255,255,255,0.55);font-size:11px;font-weight:600;font-family:Outfit,sans-serif;cursor:pointer;-webkit-tap-highlight-color:transparent;';
+                resetBtn.innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg> Reset`;
+                resetBtn.addEventListener('pointerdown', (e) => {
+                    e.stopPropagation();
+                    doneSet.clear();
+                    stepTiles.forEach(t => { t.style.visibility = 'visible'; });
+                    refreshView();
+                });
+
+                // ── Assemble ─────────────────────────────────────────────────────
+                doneBlock.appendChild(doneLabel); doneBlock.appendChild(doneInner);
+                stepBlock.appendChild(stepLabel); stepBlock.appendChild(stepInner);
+                container.appendChild(doneBlock);
+                container.appendChild(sep);
+                container.appendChild(stepBlock);
+                container.appendChild(resetBtn);
+                refreshView();
+                wrapper.appendChild(container);
+                return;
+            }
+
+            // ── Gallery node in client view ──────────────────────────────────────
+            if (node.type === 'gallery') {
+                wrapper.style.position = 'relative';
+                const photos = node.photos || [];
+                const navMode = node.nav || 'buttons'; // per-node setting: 'buttons' | 'swipe' | 'tap' | 'all'
+                const container = document.createElement('div');
+                container.style.cssText = 'width:100%;height:100%;background:#0f172a;border-radius:16px;overflow:hidden;position:relative;outline:none;';
+
+                if (photos.length === 0) {
+                    container.innerHTML = `
+                        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;">
+                            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                            <span style="font-size:16px;font-weight:600;font-family:Outfit,sans-serif;color:#64748b;">No photos in this gallery</span>
+                        </div>
+                    `;
+                    wrapper.appendChild(container);
+                    return;
+                }
+
+                let galIdx = 0;
+
+                // Photo element (pointer-events:none — nav layers handle all input)
+                const photoEl = document.createElement('img');
+                photoEl.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block;background:#0f172a;user-select:none;-webkit-user-drag:none;pointer-events:none;';
+                photoEl.draggable = false;
+
+                // Counter badge (top-right)
+                const counterEl = document.createElement('div');
+                counterEl.style.cssText = 'position:absolute;top:14px;right:16px;font-size:13px;font-weight:700;color:white;background:rgba(0,0,0,0.50);border-radius:20px;padding:5px 14px;pointer-events:none;z-index:4;font-family:Outfit,sans-serif;letter-spacing:0.02em;';
+
+                // Bottom info: gradient overlay containing caption + dot indicators
+                const showDots = photos.length > 1 && photos.length <= 10;
+                const infoEl = document.createElement('div');
+                infoEl.style.cssText = 'position:absolute;bottom:0;left:0;right:0;padding:20px 90px 14px;background:linear-gradient(to top,rgba(0,0,0,0.72) 0%,transparent 100%);z-index:3;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:8px;';
+
+                const captionEl = document.createElement('div');
+                captionEl.style.cssText = 'color:#e2e8f0;font-size:15px;font-weight:500;font-family:Outfit,sans-serif;text-align:center;line-height:1.35;';
+                infoEl.appendChild(captionEl);
+
+                const dotsRowEl = document.createElement('div');
+                dotsRowEl.style.cssText = 'display:flex;align-items:center;gap:7px;';
+                if (showDots) {
+                    photos.forEach((_, i) => {
+                        const dot = document.createElement('div');
+                        dot.className = 'gal-dot' + (i === 0 ? ' active' : '');
+                        dotsRowEl.appendChild(dot);
+                    });
+                    infoEl.appendChild(dotsRowEl);
+                }
+
+                const show = (idx) => {
+                    galIdx = ((idx % photos.length) + photos.length) % photos.length;
+                    // Fade-in animation
+                    photoEl.classList.remove('gal-photo-anim');
+                    requestAnimationFrame(() => photoEl.classList.add('gal-photo-anim'));
+                    photoEl.src = photos[galIdx].dataUrl;
+                    counterEl.textContent = `${galIdx + 1} / ${photos.length}`;
+                    const cap = photos[galIdx].caption || '';
+                    captionEl.textContent = cap;
+                    captionEl.style.display = cap ? 'block' : 'none';
+                    infoEl.style.display = (cap || showDots) ? 'flex' : 'none';
+                    if (showDots) dotsRowEl.querySelectorAll('.gal-dot').forEach((d, i) => d.classList.toggle('active', i === galIdx));
+                };
+
+                // ── Arrow buttons (large, visible for 'buttons' and 'all') ──
+                const showButtons = (navMode === 'buttons' || navMode === 'all') && photos.length > 1;
+                const btnBase = 'position:absolute;top:50%;transform:translateY(-50%);display:flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(0,0,0,0.50);border:2.5px solid rgba(255,255,255,0.30);cursor:pointer;color:white;z-index:5;transition:background 0.15s,transform 0.12s;-webkit-tap-highlight-color:transparent;';
+                const prevBtn = document.createElement('button');
+                prevBtn.style.cssText = btnBase + 'width:72px;height:72px;left:14px;';
+                prevBtn.innerHTML = `<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>`;
+                const nextBtn = document.createElement('button');
+                nextBtn.style.cssText = btnBase + 'width:72px;height:72px;right:14px;';
+                nextBtn.innerHTML = `<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>`;
+
+                const animBtn = (btn) => { btn.style.transform = 'translateY(-50%) scale(0.88)'; setTimeout(() => { btn.style.transform = 'translateY(-50%) scale(1)'; }, 130); };
+                prevBtn.addEventListener('pointerdown', (e) => { e.stopPropagation(); animBtn(prevBtn); show(galIdx - 1); });
+                nextBtn.addEventListener('pointerdown', (e) => { e.stopPropagation(); animBtn(nextBtn); show(galIdx + 1); });
+
+                // ── Swipe / tap gestures ──
+                const enableSwipe = navMode === 'swipe' || navMode === 'all';
+                let swipeStartX = null, swipeStartY = null, swipeMoved = false;
+                container.addEventListener('pointerdown', (e) => {
+                    if (e.target.closest('button')) return;
+                    swipeStartX = e.clientX; swipeStartY = e.clientY; swipeMoved = false;
+                    container.setPointerCapture(e.pointerId);
+                });
+                container.addEventListener('pointermove', (e) => {
+                    if (swipeStartX === null) return;
+                    if (Math.abs(e.clientX - swipeStartX) > 8) swipeMoved = true;
+                });
+                container.addEventListener('pointerup', (e) => {
+                    if (swipeStartX === null) return;
+                    const dx = e.clientX - swipeStartX;
+                    const dy = e.clientY - swipeStartY;
+                    const wasTap = !swipeMoved && Math.abs(dx) < 12 && Math.abs(dy) < 12;
+                    const wasSwipe = enableSwipe && Math.abs(dx) > 44 && Math.abs(dx) > Math.abs(dy) * 1.5;
+                    const wasTapNav = (navMode === 'tap' || navMode === 'all') && wasTap;
+                    swipeStartX = null; swipeStartY = null; swipeMoved = false;
+                    if (wasSwipe) { dx < 0 ? show(galIdx + 1) : show(galIdx - 1); return; }
+                    if (wasTapNav && photos.length > 1) show(galIdx + 1);
+                });
+                container.addEventListener('pointercancel', () => { swipeStartX = null; swipeStartY = null; });
+
+                // ── Keyboard navigation ──
+                container.setAttribute('tabindex', '0');
+                container.addEventListener('keydown', (e) => {
+                    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        if (showButtons) animBtn(prevBtn);
+                        show(galIdx - 1);
+                    } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        if (showButtons) animBtn(nextBtn);
+                        show(galIdx + 1);
+                    }
+                });
+
+                // Assemble
+                container.appendChild(photoEl);
+                container.appendChild(infoEl);
+                container.appendChild(counterEl);
+                if (showButtons) { container.appendChild(prevBtn); container.appendChild(nextBtn); }
+                show(0);
+                wrapper.appendChild(container);
+                requestAnimationFrame(() => container.focus());
+                return;
+            }
+            // ── End gallery ──────────────────────────────────────────────────────
+
             const grid = document.createElement('div');
             grid.style.display = 'grid';
             grid.style.gridTemplateColumns = `repeat(${gridCols}, minmax(0, 1fr))`;
@@ -2279,7 +4158,17 @@
             
             for(let i=0; i < gridCols * gridRows; i++) {
                 const cell = node.cells[i];
+                // Skip consumed cells – the spanning anchor fills their grid area
+                if (cell && cell._mergedInto !== undefined) continue;
+
+                const colPos = (i % gridCols) + 1;
+                const rowPos = Math.floor(i / gridCols) + 1;
+                const cs = (cell && cell.colspan) || 1;
+                const rs = (cell && cell.rowspan) || 1;
+
                 const btn = document.createElement('button');
+                btn.style.gridColumn = `${colPos} / span ${cs}`;
+                btn.style.gridRow    = `${rowPos} / span ${rs}`;
                 
                 // Set typography 
                 const fontMap = { Outfit: "'Outfit', sans-serif", Poppins: "'Poppins', sans-serif", 'sans-serif': "sans-serif" };
@@ -2406,6 +4295,9 @@
                 let activeDragBtn = null;
                 let isDragSel = false;
                 let _dragSpeakTimer = null;
+                let _rafPending = false;
+
+                grid.style.touchAction = 'none';
 
                 const clearHover = () => {
                     if (_dragSpeakTimer) { clearTimeout(_dragSpeakTimer); _dragSpeakTimer = null; }
@@ -2430,27 +4322,33 @@
                 });
 
                 grid.addEventListener('pointermove', (e) => {
-                    if (!isDragSel) return;
-                    const btn = getBtn(e.clientX, e.clientY);
-                    if (btn && btn !== activeDragBtn) {
-                        clearHover();
-                        activeDragBtn = btn;
-                        btn.classList.add('cell-drag-hover');
-                        // Speak label as preview while scanning
-                        if (clientSettings.dragSelectPreview !== false) {
-                            const idx = parseInt(btn.dataset.cellIdx);
-                            const c = nodesData[nodeId]?.cells[idx];
-                            if (c?.label) {
-                                if (_dragSpeakTimer) clearTimeout(_dragSpeakTimer);
-                                const delay = clientSettings.dragSelectDelay || 0;
-                                if (delay <= 0) {
-                                    speakWord(c.label);
-                                } else {
-                                    _dragSpeakTimer = setTimeout(() => { speakWord(c.label); _dragSpeakTimer = null; }, delay);
+                    if (!isDragSel || _rafPending) return;
+                    _rafPending = true;
+                    const cx = e.clientX, cy = e.clientY;
+                    requestAnimationFrame(() => {
+                        _rafPending = false;
+                        if (!isDragSel) return;
+                        const btn = getBtn(cx, cy);
+                        if (btn && btn !== activeDragBtn) {
+                            clearHover();
+                            activeDragBtn = btn;
+                            btn.classList.add('cell-drag-hover');
+                            // Speak label as preview while scanning
+                            if (clientSettings.dragSelectPreview !== false) {
+                                const idx = parseInt(btn.dataset.cellIdx);
+                                const c = nodesData[nodeId]?.cells[idx];
+                                if (c?.label) {
+                                    if (_dragSpeakTimer) clearTimeout(_dragSpeakTimer);
+                                    const delay = clientSettings.dragSelectDelay || 0;
+                                    if (delay <= 0) {
+                                        speakWord(c.label);
+                                    } else {
+                                        _dragSpeakTimer = setTimeout(() => { speakWord(c.label); _dragSpeakTimer = null; }, delay);
+                                    }
                                 }
                             }
                         }
-                    }
+                    });
                 });
 
                 grid.addEventListener('pointerup', (e) => {

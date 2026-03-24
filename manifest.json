@@ -4,7 +4,7 @@
   "description": "Design and run AAC symbol communication boards for augmentative and alternative communication.",
   "start_url": "./",
   "scope": "./",
-  "display": "standalone",
+  "display": "fullscreen",
   "orientation": "any",
   "background_color": "#1d4ed8",
   "theme_color": "#ffffff",

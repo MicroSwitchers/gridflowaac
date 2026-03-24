@@ -37,7 +37,7 @@
 
         body, html {
             margin: 0; padding: 0; width: 100%; height: 100%;
-            overflow: hidden; background-color: #f8fafc;
+            overflow: hidden; background-color: #111827;
             font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             touch-action: none; user-select: none; -webkit-user-select: none;
         }
@@ -150,6 +150,11 @@
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* ── Editor Toolbar: scroll horizontally on small/touch screens ── */
+        #editor-toolbar-controls { overflow-x: auto; -webkit-overflow-scrolling: touch; min-width: 0; flex-shrink: 1; }
+        #editor-toolbar-controls > * { flex-shrink: 0; }
+        #editor-toolbar-controls::-webkit-scrollbar { display: none; }
 
         /* ── Inputs inside Modals ── */
         .modal-input { user-select: auto; -webkit-user-select: auto; }
@@ -513,6 +518,9 @@
             </button>
             <button onpointerdown="startClientApp()" class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white p-1.5 sm:px-3 sm:py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 sm:gap-1.5 transition shadow-sm active:scale-95" title="Play App">
                 <i data-lucide="play" class="w-3.5 h-3.5 pointer-events-none fill-current"></i> <span class="hidden sm:inline">Play App</span>
+            </button>
+            <button id="fullscreen-btn" onpointerdown="toggleFullscreen()" class="bg-white hover:bg-slate-50 border border-slate-200/80 p-1.5 rounded-lg flex items-center transition text-slate-600 shadow-sm" title="Toggle Fullscreen">
+                <i data-lucide="maximize" class="w-3.5 h-3.5 pointer-events-none"></i>
             </button>
         </div>
     </div>
@@ -1777,6 +1785,33 @@
             });
         }
 
+        // Returns the nearest .port-in element within `radius` CSS pixels, or null.
+        function _nearestPortIn(cx, cy, radius) {
+            let best = null, bestDist = radius;
+            document.querySelectorAll('.port-in').forEach(p => {
+                const r = p.getBoundingClientRect();
+                const d = Math.hypot(cx - (r.left + r.width / 2), cy - (r.top + r.height / 2));
+                if (d < bestDist) { bestDist = d; best = p; }
+            });
+            return best;
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            } else {
+                document.exitFullscreen().catch(() => {});
+            }
+        }
+        document.addEventListener('fullscreenchange', () => {
+            const btn = document.getElementById('fullscreen-btn');
+            if (!btn) return;
+            const icon = btn.querySelector('i[data-lucide]');
+            if (!icon) return;
+            icon.setAttribute('data-lucide', document.fullscreenElement ? 'minimize' : 'maximize');
+            lucide.createIcons({ nodes: [icon] });
+        });
+
         function resetPanZoomAnchors() {
             if (activePointers.size === 1) {
                 isPanning = true; const pt = Array.from(activePointers.values())[0];
@@ -1856,7 +1891,8 @@
                     updateTempWire(e.clientX, e.clientY);
                     document.querySelectorAll('.port-in').forEach(p => p.classList.remove('highlight'));
                     if(tempWire) tempWire.style.display = 'none'; const t = document.elementFromPoint(e.clientX, e.clientY); if(tempWire) tempWire.style.display = '';
-                    if(t && t.classList.contains('port-in')) t.classList.add('highlight');
+                    const _snapPort = (t && t.classList.contains('port-in')) ? t : _nearestPortIn(e.clientX, e.clientY, 44);
+                    if(_snapPort) _snapPort.classList.add('highlight');
                     return;
                 }
 
@@ -1949,7 +1985,8 @@
 
                 if (isWiring) {
                     if(tempWire) tempWire.style.display = 'none'; const dropTarget = document.elementFromPoint(e.clientX, e.clientY); if(tempWire) tempWire.style.display = '';
-                    const targetNodeEl = dropTarget ? dropTarget.closest('.aac-node:not(.lf-node)') : null;
+                    const _snapPortUp = (!dropTarget || !dropTarget.closest('.aac-node:not(.lf-node)')) ? _nearestPortIn(e.clientX, e.clientY, 44) : null;
+                    const targetNodeEl = _snapPortUp ? _snapPortUp.closest('.aac-node:not(.lf-node)') : (dropTarget ? dropTarget.closest('.aac-node:not(.lf-node)') : null);
 
                     if (targetNodeEl) {
                         const targetId = targetNodeEl.id.replace('dom-node-', ''); const srcNode = nodesData[activeSourceNodeId];
@@ -2957,8 +2994,8 @@
             folderColorBorders: true,  // folder link cells use their folder's color for border
             borderWidth: 2,           // 1 to 8
             gap: 12,                  // 0 to 24
-            bgColor: '#f8fafc',       // background of the main area
-            cellBg: '#ffffff',        // filled cell background color
+            bgColor: '#111827',       // background of the main area
+            cellBg: '#f5f0e8',        // filled cell background color
             fontFamily: 'Outfit',     // 'Outfit', 'Poppins', 'sans-serif'
             fontSize: 'md',           // 'sm', 'md', 'lg', 'xl'
             labelPosition: 'bottom',  // 'bottom', 'top', 'hidden'
@@ -3218,7 +3255,7 @@
             const id = 'p' + Date.now();
             const defaultSettings = {
                 borderColor: 'black', folderColorBorders: true, borderWidth: 2, gap: 12,
-                bgColor: '#f8fafc', cellBg: '#ffffff', fontFamily: 'Outfit', fontSize: 'md',
+                bgColor: '#111827', cellBg: '#f5f0e8', fontFamily: 'Outfit', fontSize: 'md',
                 labelPosition: 'bottom', emptyCellStyle: 'dashed', speakOnTap: true,
                 showMasked: false, dragSelect: false, dragSelectPreview: true, dragSelectDelay: 0
             };

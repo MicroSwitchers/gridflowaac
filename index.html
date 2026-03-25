@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>GridFlowAAC</title>
 
     <!-- PWA -->
@@ -58,75 +58,83 @@
         #nodes-layer { position: absolute; top: 0; left: 0; width: 0; height: 0; z-index: 2; pointer-events: none; }
 
         /* ── Wires ── */
-        .wire-hit  { fill: none; stroke: transparent; stroke-width: 30; pointer-events: stroke; cursor: pointer; }
-        .wire-bg   { fill: none; stroke-width: 10; stroke-linecap: round; pointer-events: none; opacity: 0.13; }
-        .wire-visible { fill: none; stroke-width: 2.8; stroke-linecap: round; pointer-events: none; opacity: 0.92;
-                        transition: stroke 0.15s, stroke-width 0.15s, opacity 0.15s, filter 0.15s; }
-        .wire-temp { fill: none; stroke: #3b82f6; stroke-width: 2.5; stroke-dasharray: 8 5; stroke-linecap: round;
-                     pointer-events: none; animation: dash 0.6s linear infinite; filter: drop-shadow(0 0 4px rgba(59,130,246,0.40)); }
-        @keyframes dash { to { stroke-dashoffset: -13; } }
+        .wire-hit  { fill: none; stroke: transparent; stroke-width: 36; pointer-events: stroke; cursor: pointer; }
+        .wire-bg   { fill: none; stroke-width: 16; stroke-linecap: round; pointer-events: none; opacity: 0.13; }
+        .wire-visible { fill: none; stroke-width: 6.5; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; opacity: 0.94;
+                        transition: stroke 0.2s, stroke-width 0.2s, opacity 0.2s, filter 0.2s; }
+        .wire-flow  { fill: none; stroke: rgba(255,255,255,0.78); stroke-width: 2.5; stroke-linecap: round;
+                      stroke-dasharray: 10 16; pointer-events: none;
+                      animation: wireFlow 0.5s linear infinite; }
+        .wire-temp { fill: none; stroke: #3b82f6; stroke-width: 4.5; stroke-dasharray: 12 7; stroke-linecap: round;
+                     pointer-events: none; animation: dash 0.5s linear infinite;
+                     filter: drop-shadow(0 0 8px rgba(59,130,246,0.60)); }
+        @keyframes dash     { to { stroke-dashoffset: -16; } }
+        @keyframes wireFlow { to { stroke-dashoffset: -22; } }
 
         /* ── Nodes ── */
         .aac-node {
             position: absolute; pointer-events: auto;
-            background: white; border-radius: 20px;
+            background: white; border-radius: 22px;
             box-shadow:
-                0 0 0 1.5px rgba(0,0,0,0.07),
-                0 1px 4px rgba(0,0,0,0.05),
-                0 8px 24px -2px rgba(0,0,0,0.10),
-                0 24px 48px -4px rgba(0,0,0,0.09);
+                0 0 0 1px rgba(0,0,0,0.06),
+                0 2px 6px rgba(0,0,0,0.04),
+                0 10px 28px -4px rgba(0,0,0,0.12),
+                0 28px 56px -8px rgba(0,0,0,0.10);
             transform: translate(-50%, -50%);
-            transition: box-shadow 0.30s ease, transform 0.26s cubic-bezier(0.34,1.3,0.64,1), width 0.3s ease;
+            transition: box-shadow 0.32s ease, transform 0.28s cubic-bezier(0.34,1.3,0.64,1), width 0.3s ease;
             will-change: transform;
         }
         .aac-node:hover:not(.dragging) {
             box-shadow:
-                0 0 0 2.5px var(--node-ring-color, rgba(0,0,0,0.15)),
-                0 2px 8px rgba(0,0,0,0.07),
-                0 18px 40px -2px rgba(0,0,0,0.14),
-                0 40px 80px -4px rgba(0,0,0,0.10);
-            transform: translate(-50%, -50%) translateY(-5px);
+                0 0 0 2px var(--node-ring-color, rgba(0,0,0,0.15)),
+                0 0 0 5px var(--node-ring-glow, rgba(0,0,0,0.04)),
+                0 4px 12px rgba(0,0,0,0.07),
+                0 20px 44px -4px rgba(0,0,0,0.14),
+                0 40px 80px -8px rgba(0,0,0,0.10);
+            transform: translate(-50%, -50%) translateY(-6px);
         }
         .aac-node.dragging {
             box-shadow:
-                0 0 0 2.5px var(--node-ring-color, rgba(59,130,246,0.60)),
-                0 8px 20px rgba(0,0,0,0.12),
-                0 32px 60px rgba(0,0,0,0.18),
-                0 56px 96px rgba(0,0,0,0.10);
-            transform: translate(-50%, -50%) scale(1.05) translateY(-8px);
+                0 0 0 2px var(--node-ring-color, rgba(59,130,246,0.65)),
+                0 0 0 6px var(--node-ring-glow, rgba(59,130,246,0.10)),
+                0 10px 24px rgba(0,0,0,0.14),
+                0 36px 64px rgba(0,0,0,0.18),
+                0 60px 100px rgba(0,0,0,0.10);
+            transform: translate(-50%, -50%) scale(1.04) translateY(-10px);
             z-index: 100 !important;
         }
 
         /* Node Entrance Animation */
-        .node-enter { animation: popIn 0.44s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        .node-enter { animation: popIn 0.48s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         @keyframes popIn {
-            0%   { transform: translate(-50%, -50%) scale(0.60); opacity: 0; }
-            100% { transform: translate(-50%, -50%) scale(1);    opacity: 1; }
+            0%   { transform: translate(-50%, -50%) scale(0.55); opacity: 0; filter: blur(2px); }
+            60%  { filter: blur(0px); }
+            100% { transform: translate(-50%, -50%) scale(1);    opacity: 1; filter: blur(0px); }
         }
 
         /* ── Ports ── */
         .port {
-            position: absolute; width: 18px; height: 18px;
+            position: absolute; width: 16px; height: 16px;
             background: white; border: 2.5px solid #94a3b8; border-radius: 50%;
-            top: 24px; transform: translateY(-50%); z-index: 10; transition: all 0.2s;
-            box-shadow: 0 0 0 3px white, 0 1px 5px rgba(0,0,0,0.16);
+            top: 24px; transform: translateY(-50%); z-index: 10; transition: all 0.22s cubic-bezier(0.34,1.4,0.64,1);
+            box-shadow: 0 0 0 3px white, 0 2px 6px rgba(0,0,0,0.18);
         }
-        .port-in { left: -9px; cursor: crosshair; }
+        .port-in { left: -8px; cursor: crosshair; }
         .port-in.highlight {
-            transform: translateY(-50%) scale(1.6); border-color: #3b82f6;
-            background: #dbeafe; box-shadow: 0 0 0 3px white, 0 0 0 6px rgba(59,130,246,0.28);
+            transform: translateY(-50%) scale(1.7); border-color: #3b82f6;
+            background: #dbeafe; box-shadow: 0 0 0 3px white, 0 0 0 6px rgba(59,130,246,0.30), 0 0 12px rgba(59,130,246,0.25);
         }
 
         /* ── Grid Cells ── */
         .grid-cell {
-            transition: outline 0.12s, opacity 0.2s, transform 0.14s cubic-bezier(0.34,1.3,0.64,1), box-shadow 0.14s;
+            transition: outline 0.12s, opacity 0.2s, transform 0.16s cubic-bezier(0.34,1.4,0.64,1), box-shadow 0.16s;
             user-select: none; -webkit-user-select: none; cursor: grab;
         }
-        .grid-cell:hover:not(.drop-target) { transform: scale(1.07); box-shadow: 0 8px 22px rgba(0,0,0,0.16) !important; }
-        .grid-cell:active { cursor: grabbing; transform: scale(0.91) !important; }
+        .grid-cell:hover:not(.drop-target):not(.merge-resize-src) { transform: scale(1.06); box-shadow: 0 6px 18px rgba(0,0,0,0.14) !important; }
+        .grid-cell:active { cursor: grabbing; transform: scale(0.92) !important; }
         .grid-cell.drop-target {
-            outline: 2.5px solid #3b82f6; outline-offset: -2px;
-            box-shadow: 0 0 0 6px rgba(59,130,246,0.24) !important;
+            outline: 2px solid #3b82f6; outline-offset: -2px;
+            box-shadow: 0 0 0 5px rgba(59,130,246,0.20) !important;
         }
 
         .node-header { cursor: grab; overflow: hidden; }
@@ -162,10 +170,13 @@
         /* ── Symbol Picker ── */
         /* ── Symbol Picker ── */
         .symbol-picker-tabs { display:flex; gap:6px; padding:0; background:transparent; margin-bottom:0; }
-        .symbol-picker-tab { flex:1; padding:11px 14px; border:2px solid #e2e8f0; background:white; border-radius:14px; font-family:'Outfit',sans-serif; font-weight:700; font-size:0.80rem; color:#64748b; cursor:pointer; transition:all 0.22s cubic-bezier(0.34,1.2,0.64,1); display:flex; align-items:center; justify-content:center; gap:8px; }
+        .symbol-picker-tab { flex:1; padding:10px 8px; border:2px solid #e2e8f0; background:white; border-radius:14px; font-family:'Outfit',sans-serif; font-weight:700; font-size:0.78rem; color:#64748b; cursor:pointer; transition:all 0.22s cubic-bezier(0.34,1.2,0.64,1); display:flex; align-items:center; justify-content:center; gap:6px; }
         .symbol-picker-tab:hover:not(.active) { border-color:#bfdbfe; color:#334155; background:#f8fafc; transform:translateY(-1px); }
         #sp-tab-arasaac.active { background:linear-gradient(135deg, #3b82f6 0%, #6366f1 100%); border-color:transparent; color:white; box-shadow:0 4px 16px rgba(59,130,246,0.38); }
-        #sp-tab-picom.active   { background:linear-gradient(135deg, #10b981 0%, #059669 100%); border-color:transparent; color:white; box-shadow:0 4px 16px rgba(16,185,129,0.34); }
+        #sp-tab-picom.active    { background:linear-gradient(135deg, #10b981 0%, #059669 100%); border-color:transparent; color:white; box-shadow:0 4px 16px rgba(16,185,129,0.34); }
+        #sp-tab-mulberry.active { background:linear-gradient(135deg, #8b5cf6 0%, #d946ef 100%); border-color:transparent; color:white; box-shadow:0 4px 16px rgba(139,92,246,0.38); }
+        #sp-tab-jellow.active   { background:linear-gradient(135deg, #f97316 0%, #eab308 100%); border-color:transparent; color:white; box-shadow:0 4px 16px rgba(249,115,22,0.38); }
+        #sp-tab-openmoji.active { background:linear-gradient(135deg, #06b6d4 0%, #6366f1 100%); border-color:transparent; color:white; box-shadow:0 4px 16px rgba(6,182,212,0.38); }
         .symbol-tab-content { display:none; }
         .symbol-tab-content.active { display:flex; flex-direction:column; flex:1; min-height:0; overflow-y:auto; padding:16px 16px 8px; }
         /* Search */
@@ -174,11 +185,6 @@
         .sp-search-input { width:100%; padding:12px 16px 12px 46px; border:2px solid #e2e8f0; border-radius:16px; font-family:'Outfit',sans-serif; font-size:0.925rem; font-weight:500; color:#1e293b; outline:none; transition:all 0.2s; background:#f8fafc; box-sizing:border-box; user-select:auto; -webkit-user-select:auto; }
         .sp-search-input::placeholder { color:#94a3b8; font-weight:400; }
         .sp-search-input:focus { border-color:#3b82f6; background:white; box-shadow:0 0 0 4px rgba(59,130,246,0.10); }
-        /* Popular chips */
-        .sp-popular { display:flex; flex-wrap:wrap; gap:5px; margin-top:6px; }
-        .sp-popular-btn { padding:4px 10px; background:#f1f5f9; border:1.5px solid transparent; border-radius:20px; font-family:'Outfit',sans-serif; font-size:0.70rem; font-weight:700; color:#475569; cursor:pointer; transition:all 0.15s; white-space:nowrap; }
-        .sp-popular-btn:hover { background:#dbeafe; border-color:#93c5fd; color:#1d4ed8; transform:translateY(-1px); }
-        .sp-popular-btn:active { transform:scale(0.93); }
         /* Results grid */
         .sp-results-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; padding-top:10px; }
         @media (min-width:520px) { .sp-results-grid { grid-template-columns:repeat(5,1fr); } }
@@ -196,6 +202,10 @@
         @keyframes sp-spin { to { transform:rotate(360deg); } }
         .sp-empty svg { width:44px; height:44px; margin-bottom:10px; opacity:0.35; }
         .sp-empty p { font-family:'Outfit',sans-serif; }
+        /* Skin tone swatches */
+        .sp-skin-btn { width:24px; height:24px; border-radius:50%; border:3px solid transparent; cursor:pointer; transition:all 0.15s; outline-offset:2px; flex-shrink:0; }
+        .sp-skin-btn:hover { transform:scale(1.15); }
+        .sp-skin-btn.active { border-color:#3b82f6; box-shadow:0 0 0 2px white, 0 0 0 4px #3b82f6; transform:scale(1.15); }
 
         /* ── Client cell animations ── */
         @keyframes cellPress {
@@ -223,63 +233,82 @@
         /* ── Splash Screen ── */
         #splash-screen {
             position: fixed; inset: 0; z-index: 99999;
-            background: linear-gradient(145deg, #1a3a8f 0%, #3b30c4 45%, #7c3aed 100%);
+            background: #060d1b;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 24px;
+            overflow: hidden;
             transition: opacity 0.55s ease, visibility 0.55s ease;
         }
+        /* Decorative background orbs */
+        #splash-screen::before {
+            content: ''; position: absolute; pointer-events: none;
+            width: 700px; height: 700px; border-radius: 50%;
+            top: -260px; right: -200px;
+            background: radial-gradient(circle, rgba(99,102,241,0.22) 0%, transparent 65%);
+        }
+        #splash-screen::after {
+            content: ''; position: absolute; pointer-events: none;
+            width: 600px; height: 600px; border-radius: 50%;
+            bottom: -220px; left: -160px;
+            background: radial-gradient(circle, rgba(59,130,246,0.17) 0%, transparent 65%);
+        }
         #splash-screen.splash-hide { opacity: 0; visibility: hidden; pointer-events: none; }
+        .splash-card {
+            background: #0c1627;
+            border-radius: 32px;
+            width: 100%; max-width: 400px;
+            padding: 48px 40px 40px;
+            display: flex; flex-direction: column; align-items: center;
+            border: 1px solid rgba(255,255,255,0.08);
+            box-shadow:
+                0 0 0 1px rgba(99,102,241,0.12),
+                0 8px 32px rgba(0,0,0,0.55),
+                0 32px 80px rgba(0,0,0,0.40),
+                inset 0 1px 0 rgba(255,255,255,0.06);
+            position: relative; z-index: 1;
+            animation: splashPop 0.55s cubic-bezier(0.34,1.4,0.64,1) both;
+        }
         .splash-icon-ring {
-            width: 112px; height: 112px; border-radius: 30px;
-            background: rgba(255,255,255,0.18);
+            width: 92px; height: 92px; border-radius: 24px;
+            background: linear-gradient(145deg, #3b82f6 0%, #6366f1 55%, #8b5cf6 100%);
             display: flex; align-items: center; justify-content: center;
             position: relative;
-            box-shadow:
-                0 0 0 1px rgba(255,255,255,0.25),
-                0 8px 32px rgba(0,0,0,0.30),
-                0 24px 64px rgba(0,0,0,0.20);
-            animation: splashPop 0.60s cubic-bezier(0.34,1.5,0.64,1) both;
+            box-shadow: 0 0 0 1.5px rgba(255,255,255,0.18), 0 8px 36px rgba(99,102,241,0.52), 0 2px 10px rgba(0,0,0,0.30);
         }
-        /* Soft glow ring behind icon */
-        .splash-icon-ring::before {
-            content: '';
-            position: absolute; inset: -16px;
-            border-radius: 46px;
-            background: radial-gradient(ellipse at center, rgba(167,139,250,0.30) 0%, transparent 70%);
-            pointer-events: none;
-        }
-        .splash-icon-ring img { width: 72px; height: 72px; border-radius: 16px; }
+        .splash-icon-ring img { width: 58px; height: 58px; border-radius: 14px; filter: brightness(1.06) drop-shadow(0 2px 6px rgba(0,0,0,0.25)); }
         @keyframes splashPop {
-            0%   { transform: scale(0.55); opacity: 0; }
-            100% { transform: scale(1);   opacity: 1; }
+            0%   { transform: scale(0.88) translateY(14px); opacity: 0; filter: blur(2px); }
+            60%  { filter: blur(0); }
+            100% { transform: scale(1)    translateY(0);    opacity: 1; filter: blur(0); }
         }
         .splash-title {
-            margin-top: 28px;
-            font-family: 'Outfit', sans-serif; font-size: 2.1rem; font-weight: 800;
-            color: #ffffff; letter-spacing: -0.5px;
-            animation: splashFadeUp 0.5s 0.22s ease both;
+            margin-top: 22px;
+            font-family: 'Outfit', sans-serif; font-size: 1.9rem; font-weight: 800;
+            color: #f1f5f9; letter-spacing: -0.5px; text-align: center;
+            animation: splashFadeUp 0.45s 0.18s ease both;
         }
         .splash-tagline {
-            margin-top: 6px;
+            margin-top: 8px;
             font-family: 'Outfit', sans-serif; font-size: 0.875rem; font-weight: 400;
-            color: rgba(255,255,255,0.60); letter-spacing: 0.03em;
-            animation: splashFadeUp 0.5s 0.36s ease both;
+            color: #4e6080; letter-spacing: 0.01em; text-align: center; line-height: 1.55;
+            animation: splashFadeUp 0.45s 0.28s ease both;
         }
         .splash-enter-btn {
-            margin-top: 52px;
-            padding: 15px 52px;
-            font-family: 'Outfit', sans-serif; font-size: 1.05rem; font-weight: 700;
-            color: #1d4ed8;
-            background: #ffffff;
-            border: none; border-radius: 999px;
+            margin-top: 30px; width: 100%;
+            padding: 15px 0;
+            font-family: 'Outfit', sans-serif; font-size: 1rem; font-weight: 700;
+            color: #ffffff;
+            background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+            border: none; border-radius: 18px;
             cursor: pointer;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.28), 0 0 0 1px rgba(255,255,255,0.4) inset;
-            animation: splashFadeUp 0.5s 0.5s ease both;
-            transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+            box-shadow: 0 4px 20px rgba(99,102,241,0.44), 0 0 0 1px rgba(255,255,255,0.07);
+            animation: splashFadeUp 0.45s 0.48s ease both;
+            transition: opacity 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
             -webkit-tap-highlight-color: transparent;
-            letter-spacing: 0.01em;
+            letter-spacing: 0.03em;
         }
-        .splash-enter-btn:hover  { background: #eff6ff; transform: scale(1.05); box-shadow: 0 12px 40px rgba(0,0,0,0.32); }
-        .splash-enter-btn:active { transform: scale(0.96); box-shadow: 0 4px 16px rgba(0,0,0,0.22); }
+        .splash-enter-btn:hover  { opacity: 0.88; transform: translateY(-1px); box-shadow: 0 8px 28px rgba(99,102,241,0.60), 0 0 0 1px rgba(255,255,255,0.12); }
+        .splash-enter-btn:active { opacity: 1; transform: scale(0.98); box-shadow: 0 2px 10px rgba(99,102,241,0.30); }
 
         /* ── Landscape / Tablet Layout Optimizations ── */
         #client-grid-area { min-height: 0; }
@@ -351,17 +380,20 @@
         #palette-toggle {
             position: fixed; top: 50%; right: 0; z-index: 901;
             transform: translateY(-50%);
-            background: #1e2638; border: 1.5px solid rgba(255,255,255,0.10);
-            border-right: none; border-radius: 10px 0 0 10px;
-            width: 28px; height: 80px; cursor: pointer;
+            background: #161e2e; border: 1.5px solid rgba(255,255,255,0.08);
+            border-right: none; border-left: 3px solid rgba(99,102,241,0.55);
+            border-radius: 12px 0 0 12px;
+            width: 36px; height: 96px; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
-            box-shadow: -4px 0 16px rgba(0,0,0,0.22);
-            transition: background 0.15s, right 0.28s cubic-bezier(0.34,1.1,0.64,1);
+            box-shadow: -4px 0 20px rgba(0,0,0,0.28);
+            transition: background 0.15s, right 0.28s cubic-bezier(0.34,1.1,0.64,1), border-left-color 0.15s;
         }
         #palette-toggle.open { right: 220px; }
-        #palette-toggle:hover { background: #2a3347; }
-        #palette-toggle svg { transition: transform 0.28s; }
-        #palette-toggle.open svg { transform: rotate(180deg); }
+        #palette-toggle:hover { background: #1a2540; border-left-color: #6366f1; }
+        .palette-plus-icon { transition: transform 0.28s cubic-bezier(0.34,1.1,0.64,1); }
+        #palette-toggle.open .palette-plus-icon { transform: rotate(45deg); }
+        @keyframes palettePulse { 0%,100% { box-shadow:0 2px 8px rgba(59,130,246,0.40); } 50% { box-shadow:0 2px 18px rgba(99,102,241,0.80); } }
+        #palette-toggle:not(.open) .palette-icon-box { animation: palettePulse 2.8s ease-in-out infinite; }
         .palette-board-card {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             gap: 8px; padding: 14px 10px; border-radius: 14px;
@@ -377,9 +409,18 @@
         }
         .palette-board-card:active { transform: scale(0.96); }
         .palette-board-card .pbc-icon {
-            width: 44px; height: 44px; border-radius: 12px;
+            position: relative; width: 44px; height: 44px; border-radius: 12px;
             display: flex; align-items: center; justify-content: center;
         }
+        .palette-board-card .pbc-icon::after {
+            content: '+'; position: absolute; bottom: -5px; right: -5px;
+            width: 16px; height: 16px; background: white; border-radius: 50%;
+            font-size: 12px; font-weight: 800; color: #374151; line-height: 16px; text-align: center;
+            opacity: 0; transform: scale(0.5);
+            transition: opacity 0.18s, transform 0.18s cubic-bezier(0.34,1.2,0.64,1);
+            pointer-events: none;
+        }
+        .palette-board-card:hover .pbc-icon::after { opacity: 1; transform: scale(1); }
 
         /* ── Whiteboard Node ── */
         .wb-node {
@@ -452,19 +493,62 @@
             box-shadow: 0 0 0 2.5px rgba(245,158,11,0.7), 0 32px 60px rgba(0,0,0,0.18) !important;
             transform: translate(-50%, -50%) scale(1.03) translateY(-6px) !important;
         }
+
+        /* ── Screen-reader only utility ── */
+        .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border-width:0; }
+
+        /* ── Safe-Area Insets (iPhone notch / Android display cutout) ── */
+        @supports (padding: env(safe-area-inset-top)) {
+            #editor-header {
+                padding-top: max(8px, env(safe-area-inset-top)) !important;
+            }
+            #board-palette {
+                top: calc(56px + env(safe-area-inset-top, 0px));
+            }
+            /* In the AAC client app, push content away from notch and home bar */
+            #client-top-bar {
+                height: env(safe-area-inset-top, 0px) !important;
+                overflow: visible !important;
+            }
+            #client-grid-area {
+                padding-bottom: max(8px, env(safe-area-inset-bottom, 0px));
+            }
+            #aac-client-app {
+                padding-left:  env(safe-area-inset-left,  0px);
+                padding-right: env(safe-area-inset-right, 0px);
+            }
+        }
+
+        /* ── Modals: always have side clearance, never bleed to screen edges ── */
+        #custom-modal-overlay { padding: 16px; }
+
+        /* ── Tiny phones (≤ 360 px) ── */
+        @media (max-width: 360px) {
+            /* Narrow palette so a sliver of canvas remains visible when open */
+            #board-palette { width: calc(100vw - 48px); }
+            #palette-toggle.open { right: calc(100vw - 48px); }
+        }
+
+        /* ── Large screens: widen the board palette slightly ── */
+        @media (min-width: 1280px) {
+            #board-palette { width: 260px; }
+            #palette-toggle.open { right: 260px; }
+        }
     </style>
 </head>
 <body>
 
     <!-- Splash Screen -->
     <div id="splash-screen">
-        <div class="splash-icon-ring">
-            <img src="./icon.svg" alt="GridFlowAAC icon">
+        <div class="splash-card">
+            <div class="splash-icon-ring">
+                <img src="./icon.svg" alt="GridFlowAAC icon">
+            </div>
+            <div class="splash-title">GridFlowAAC</div>
+            <div class="splash-tagline">Design functional AAC grids, fast</div>
+            <button class="splash-enter-btn" autofocus onclick="(function(){var s=document.getElementById('splash-screen');s.classList.add('splash-hide');setTimeout(function(){s.remove();},600);})()">Get Started</button>
+            <div style="margin-top:18px;font-family:'Outfit',sans-serif;font-size:0.70rem;font-weight:500;color:#2d4060;letter-spacing:0.08em;text-transform:uppercase;animation:splashFadeUp 0.45s 0.58s ease both;">by Niall Brown</div>
         </div>
-        <div class="splash-title">GridFlowAAC</div>
-        <div class="splash-tagline">Design functional AAC grids, fast</div>
-        <button class="splash-enter-btn" onclick="(function(){var s=document.getElementById('splash-screen');s.classList.add('splash-hide');setTimeout(function(){s.remove();},600);})()">Get Started</button>
-        <div style="margin-top:28px;font-family:'Outfit',sans-serif;font-size:0.72rem;color:rgba(255,255,255,0.38);letter-spacing:0.05em;animation:splashFadeUp 0.5s 0.65s ease both;">by Niall Brown</div>
     </div>
 
     <!-- UI Header -->
@@ -491,36 +575,36 @@
             </div>
 
             <div id="zoom-btn-group" class="flex bg-slate-50 rounded-lg border border-slate-200/80 p-0.5 mr-1 sm:mr-2 shadow-sm">
-                <button onpointerdown="applyZoomBtn(-0.2)" class="p-1.5 hover:bg-white rounded-md transition text-slate-500 hover:text-slate-700" title="Zoom Out"><i data-lucide="zoom-out" class="w-3.5 h-3.5 pointer-events-none"></i></button>
-                <button onpointerdown="applyZoomBtn(0.2)" class="p-1.5 hover:bg-white rounded-md transition text-slate-500 hover:text-slate-700" title="Zoom In"><i data-lucide="zoom-in" class="w-3.5 h-3.5 pointer-events-none"></i></button>
+                <button onpointerdown="applyZoomBtn(-0.2)" class="p-1.5 hover:bg-white rounded-md transition text-slate-500 hover:text-slate-700" title="Zoom Out" aria-label="Zoom out"><i data-lucide="zoom-out" class="w-3.5 h-3.5 pointer-events-none" aria-hidden="true"></i></button>
+                <button onpointerdown="applyZoomBtn(0.2)" class="p-1.5 hover:bg-white rounded-md transition text-slate-500 hover:text-slate-700" title="Zoom In" aria-label="Zoom in"><i data-lucide="zoom-in" class="w-3.5 h-3.5 pointer-events-none" aria-hidden="true"></i></button>
             </div>
             
-            <button id="undo-btn" onpointerdown="undo()" disabled class="bg-white hover:bg-slate-50 border border-slate-200/80 p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 sm:gap-1.5 transition text-slate-600 shadow-sm" title="Undo (Ctrl+Z)">
-                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5 pointer-events-none"></i> <span class="hidden sm:inline">Undo</span>
+            <button id="undo-btn" onpointerdown="undo()" disabled class="bg-white hover:bg-slate-50 border border-slate-200/80 p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 sm:gap-1.5 transition text-slate-600 shadow-sm" title="Undo (Ctrl+Z)" aria-label="Undo">
+                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5 pointer-events-none" aria-hidden="true"></i> <span class="hidden sm:inline" aria-hidden="true">Undo</span>
             </button>
-            <button id="redo-btn" onpointerdown="redo()" disabled class="bg-white hover:bg-slate-50 border border-slate-200/80 p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 sm:gap-1.5 transition text-slate-600 shadow-sm" title="Redo (Ctrl+Y)">
-                <i data-lucide="rotate-cw" class="w-3.5 h-3.5 pointer-events-none"></i> <span class="hidden sm:inline">Redo</span>
+            <button id="redo-btn" onpointerdown="redo()" disabled class="bg-white hover:bg-slate-50 border border-slate-200/80 p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 sm:gap-1.5 transition text-slate-600 shadow-sm" title="Redo (Ctrl+Y)" aria-label="Redo">
+                <i data-lucide="rotate-cw" class="w-3.5 h-3.5 pointer-events-none" aria-hidden="true"></i> <span class="hidden sm:inline" aria-hidden="true">Redo</span>
             </button>
-            <button onpointerdown="promptClearAll()" class="bg-white hover:bg-red-50 border border-slate-200/80 p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 sm:gap-1.5 transition text-red-500 shadow-sm" title="Clear Map">
-                <i data-lucide="trash-2" class="w-3.5 h-3.5 pointer-events-none"></i> <span class="hidden sm:inline">Clear</span>
+            <button onpointerdown="promptClearAll()" class="bg-white hover:bg-red-50 border border-slate-200/80 p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 sm:gap-1.5 transition text-red-500 shadow-sm" title="Clear Map" aria-label="Clear map">
+                <i data-lucide="trash-2" class="w-3.5 h-3.5 pointer-events-none" aria-hidden="true"></i> <span class="hidden sm:inline" aria-hidden="true">Clear</span>
             </button>
-            <button onpointerdown="fitAllNodes()" class="bg-white hover:bg-slate-50 border border-slate-200/80 p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 sm:gap-1.5 transition text-slate-600 shadow-sm">
-                <i data-lucide="scan" class="w-3.5 h-3.5 pointer-events-none"></i> <span class="hidden sm:inline">Show All</span>
+            <button onpointerdown="fitAllNodes()" class="bg-white hover:bg-slate-50 border border-slate-200/80 p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 sm:gap-1.5 transition text-slate-600 shadow-sm" title="Show all nodes" aria-label="Show all nodes">
+                <i data-lucide="scan" class="w-3.5 h-3.5 pointer-events-none" aria-hidden="true"></i> <span class="hidden sm:inline" aria-hidden="true">Show All</span>
             </button>
-            <button onpointerdown="pushHistory(); spawnRootNode()" class="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 sm:gap-1.5 transition shadow-sm">
-                <i data-lucide="plus-circle" class="w-3.5 h-3.5 pointer-events-none"></i> <span class="hidden sm:inline">New Page</span>
+            <button onpointerdown="spawnRootNode()" class="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 sm:gap-1.5 transition shadow-sm" title="New symbol grid page" aria-label="New page">
+                <i data-lucide="plus-circle" class="w-3.5 h-3.5 pointer-events-none" aria-hidden="true"></i> <span class="hidden sm:inline" aria-hidden="true">New Page</span>
             </button>
             <div id="toolbar-divider" class="w-px h-5 bg-slate-200 mx-0.5 sm:mx-1 flex-shrink-0"></div>
-            <button id="profile-toolbar-btn" onpointerdown="openProfileManager()" class="bg-white hover:bg-slate-50 border border-slate-200/80 p-1.5 sm:px-2 sm:py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 sm:gap-1.5 transition text-slate-600 shadow-sm" title="Profiles">
+            <button id="profile-toolbar-btn" onpointerdown="openProfileManager()" class="bg-white hover:bg-slate-50 border border-slate-200/80 p-1.5 sm:px-2 sm:py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 sm:gap-1.5 transition text-slate-600 shadow-sm" title="Profiles" aria-label="Manage profiles">
                 <i data-lucide="user-circle" class="w-3.5 h-3.5 pointer-events-none flex-shrink-0"></i>
                 <span id="active-profile-label" class="hidden sm:inline max-w-[90px] truncate font-bold">Default</span>
                 <i data-lucide="chevron-down" class="w-3 h-3 pointer-events-none text-slate-400 hidden sm:block flex-shrink-0"></i>
             </button>
-            <button onpointerdown="startClientApp()" class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white p-1.5 sm:px-3 sm:py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 sm:gap-1.5 transition shadow-sm active:scale-95" title="Play App">
-                <i data-lucide="play" class="w-3.5 h-3.5 pointer-events-none fill-current"></i> <span class="hidden sm:inline">Play App</span>
+            <button onpointerdown="startClientApp()" class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white p-1.5 sm:px-3 sm:py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 sm:gap-1.5 transition shadow-sm active:scale-95" title="Play App" aria-label="Preview app in play mode">
+                <i data-lucide="play" class="w-3.5 h-3.5 pointer-events-none fill-current" aria-hidden="true"></i> <span class="hidden sm:inline" aria-hidden="true">Play App</span>
             </button>
-            <button id="fullscreen-btn" onpointerdown="toggleFullscreen()" class="bg-white hover:bg-slate-50 border border-slate-200/80 p-1.5 rounded-lg flex items-center transition text-slate-600 shadow-sm" title="Toggle Fullscreen">
-                <i data-lucide="maximize" class="w-3.5 h-3.5 pointer-events-none"></i>
+            <button id="fullscreen-btn" onpointerdown="toggleFullscreen()" class="bg-white hover:bg-slate-50 border border-slate-200/80 p-1.5 rounded-lg flex items-center transition text-slate-600 shadow-sm" title="Toggle Fullscreen" aria-label="Toggle fullscreen">
+                <i data-lucide="maximize" class="w-3.5 h-3.5 pointer-events-none" aria-hidden="true"></i>
             </button>
         </div>
     </div>
@@ -535,11 +619,13 @@
     </div>
 
     <!-- Board Palette Sidebar -->
-    <button id="palette-toggle" title="Modules" onpointerdown="toggleBoardPalette()" style="flex-direction:column;gap:6px;">
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M8 2L4 6L8 10" stroke="#94a3b8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span style="writing-mode:vertical-rl;text-orientation:mixed;transform:rotate(180deg);font-family:Outfit,sans-serif;font-size:9px;font-weight:700;color:#64748b;letter-spacing:0.08em;text-transform:uppercase;line-height:1;">Modules</span>
+    <button id="palette-toggle" title="Add a module to the canvas" aria-label="Toggle module palette" aria-expanded="false" aria-controls="board-palette" onpointerdown="toggleBoardPalette()" style="flex-direction:column;gap:6px;">
+        <div class="palette-icon-box" style="width:22px;height:22px;border-radius:7px;background:linear-gradient(135deg,#3b82f6,#6366f1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg class="palette-plus-icon" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <path d="M6 2v8M2 6h8" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+            </svg>
+        </div>
+        <span style="writing-mode:vertical-rl;text-orientation:mixed;transform:rotate(180deg);font-family:Outfit,sans-serif;font-size:9px;font-weight:700;color:#a5b4fc;letter-spacing:0.08em;text-transform:uppercase;line-height:1;">Modules</span>
     </button>
     <div id="board-palette">
         <div class="px-4 pt-4 pb-3 flex-shrink-0" style="border-bottom:1px solid rgba(255,255,255,0.07);">
@@ -551,12 +637,12 @@
         </div>
         <div class="flex-1 overflow-y-auto p-3 flex flex-col gap-3">
             <!-- Symbol Grid -->
-            <div class="palette-board-card" onpointerdown="pushHistory(); spawnRootNode(); if(window._paletteShouldClose) toggleBoardPalette();">
+            <div class="palette-board-card" onpointerdown="spawnRootNode();">
                 <div class="pbc-icon" style="background:linear-gradient(135deg,#3b82f6,#6366f1);">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
                 </div>
                 <span>Symbol Grid</span>
-                <span style="font-weight:400;color:#64748b;font-size:0.65rem;">Standard AAC board</span>
+                <span style="font-weight:400;color:#94a3b8;font-size:0.65rem;">Standard AAC board</span>
             </div>
             <!-- Whiteboard -->
             <div class="palette-board-card" onpointerdown="pushHistory(); spawnWhiteboardNode();">
@@ -564,7 +650,7 @@
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
                 </div>
                 <span>Whiteboard</span>
-                <span style="font-weight:400;color:#64748b;font-size:0.65rem;">Freehand drawing board</span>
+                <span style="font-weight:400;color:#94a3b8;font-size:0.65rem;">Freehand drawing board</span>
             </div>
             <!-- Photo Gallery -->
             <div class="palette-board-card" onpointerdown="pushHistory(); spawnGalleryNode();">
@@ -572,28 +658,28 @@
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                 </div>
                 <span>Photo Gallery</span>
-                <span style="font-weight:400;color:#64748b;font-size:0.65rem;">Swipeable photo board</span>
+                <span style="font-weight:400;color:#94a3b8;font-size:0.65rem;">Swipeable photo board</span>
             </div>
             <!-- Routine Board -->
             <div class="palette-board-card" onpointerdown="pushHistory(); spawnRoutineNode();">
-                <div class="pbc-icon" style="background:linear-gradient(135deg,#f59e0b,#ef4444);">
+                <div class="pbc-icon" style="background:linear-gradient(135deg,#8b5cf6,#db2777);">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
                 </div>
                 <span>Routine Board</span>
-                <span style="font-weight:400;color:#64748b;font-size:0.65rem;">Step-by-step activity strip</span>
+                <span style="font-weight:400;color:#94a3b8;font-size:0.65rem;">Step-by-step activity strip</span>
             </div>
         </div>
     </div>
 
     <!-- Photo Manager Modal -->
-    <div id="photo-mgr-overlay" style="display:none;position:fixed;inset:0;z-index:9998;background:rgba(15,23,42,0.72);backdrop-filter:blur(4px);overflow-y:auto;">
+    <div id="photo-mgr-overlay" role="dialog" aria-modal="true" aria-labelledby="photo-mgr-title" style="display:none;position:fixed;inset:0;z-index:9998;background:rgba(15,23,42,0.72);backdrop-filter:blur(4px);overflow-y:auto;">
         <div style="max-width:820px;margin:32px auto;padding:0 16px 48px;">
             <div style="background:#fff;border-radius:24px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.32);">
                 <!-- Header -->
                 <div style="display:flex;align-items:center;gap:10px;padding:16px 20px;background:linear-gradient(135deg,#10b981,#0ea5e9);flex-shrink:0;">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                     <span id="photo-mgr-title" style="font-weight:700;font-size:15px;color:white;flex:1;font-family:Outfit,sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
-                    <button onclick="closePhotoManager()" style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,0.20);border:none;cursor:pointer;color:white;flex-shrink:0;" title="Close">
+                    <button onclick="closePhotoManager()" style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,0.20);border:none;cursor:pointer;color:white;flex-shrink:0;" title="Close" aria-label="Close photo manager">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                     </button>
                 </div>
@@ -624,14 +710,14 @@
     </div>
 
     <!-- Routine Board Manager Modal -->
-    <div id="routine-mgr-overlay" style="display:none;position:fixed;inset:0;z-index:9998;background:rgba(15,23,42,0.72);backdrop-filter:blur(4px);overflow-y:auto;">
+    <div id="routine-mgr-overlay" role="dialog" aria-modal="true" aria-labelledby="routine-mgr-title" style="display:none;position:fixed;inset:0;z-index:9998;background:rgba(15,23,42,0.72);backdrop-filter:blur(4px);overflow-y:auto;">
         <div style="max-width:680px;margin:32px auto;padding:0 16px 48px;">
             <div style="background:#fff;border-radius:24px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.32);">
                 <!-- Header -->
                 <div style="display:flex;align-items:center;gap:10px;padding:16px 20px;background:linear-gradient(135deg,#f59e0b,#ef4444);flex-shrink:0;">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
                     <span id="routine-mgr-title" style="font-weight:700;font-size:15px;color:white;flex:1;font-family:Outfit,sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
-                    <button onclick="closeRoutineManager()" style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,0.20);border:none;cursor:pointer;color:white;flex-shrink:0;" title="Close">
+                    <button onclick="closeRoutineManager()" style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,0.20);border:none;cursor:pointer;color:white;flex-shrink:0;" title="Close" aria-label="Close routine board manager">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                     </button>
                 </div>
@@ -653,22 +739,25 @@
         </div>
     </div>
 
+    <!-- Screen-reader live region for dynamic announcements -->
+    <div id="a11y-status" role="status" aria-live="polite" aria-atomic="true" class="sr-only"></div>
+
     <!-- Merge Resize Preview Overlay -->
     <div id="merge-preview-overlay" style="position:fixed;pointer-events:none;z-index:9997;border:2px dashed #7c3aed;border-radius:8px;background:rgba(124,58,237,0.10);display:none;"></div>
 
     <!-- Drop Action Context Menu -->
     <div id="drop-dialog-overlay"></div>
-    <div id="drop-dialog" class="hidden fixed z-[9999] bg-white rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.16),0_2px_8px_rgba(0,0,0,0.08)] border border-slate-100/80 p-1.5 flex flex-col gap-0.5 w-48 origin-top-left transition-all">
-        <div class="px-2 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">Cross-Grid Action</div>
-        <button id="btn-move-cell" class="flex items-center gap-2 w-full text-left px-3 py-2.5 text-sm font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-700 rounded-xl transition">
-            <i data-lucide="arrow-right-left" class="w-4 h-4 text-blue-500 pointer-events-none"></i> Swap / Move
+    <div id="drop-dialog" role="menu" aria-label="Cross-grid action" class="hidden fixed z-[9999] bg-white rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.16),0_2px_8px_rgba(0,0,0,0.08)] border border-slate-100/80 p-1.5 flex flex-col gap-0.5 w-48 origin-top-left transition-all">
+        <div class="px-2 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center" aria-hidden="true">Cross-Grid Action</div>
+        <button id="btn-move-cell" role="menuitem" class="flex items-center gap-2 w-full text-left px-3 py-2.5 text-sm font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-700 rounded-xl transition">
+            <i data-lucide="arrow-right-left" class="w-4 h-4 text-blue-500 pointer-events-none" aria-hidden="true"></i> Swap / Move
         </button>
-        <button id="btn-copy-cell" class="flex items-center gap-2 w-full text-left px-3 py-2.5 text-sm font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 rounded-xl transition">
-            <i data-lucide="copy" class="w-4 h-4 text-emerald-500 pointer-events-none"></i> Copy Symbol
+        <button id="btn-copy-cell" role="menuitem" class="flex items-center gap-2 w-full text-left px-3 py-2.5 text-sm font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 rounded-xl transition">
+            <i data-lucide="copy" class="w-4 h-4 text-emerald-500 pointer-events-none" aria-hidden="true"></i> Copy Symbol
         </button>
-        <div class="mx-2 border-t border-slate-100 my-0.5"></div>
-        <button id="btn-cancel-drop" class="flex items-center gap-2 w-full text-left px-3 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 rounded-xl transition">
-            <i data-lucide="x" class="w-4 h-4 text-red-500 pointer-events-none"></i> Cancel
+        <div class="mx-2 border-t border-slate-100 my-0.5" role="separator"></div>
+        <button id="btn-cancel-drop" role="menuitem" class="flex items-center gap-2 w-full text-left px-3 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 rounded-xl transition">
+            <i data-lucide="x" class="w-4 h-4 text-red-500 pointer-events-none" aria-hidden="true"></i> Cancel
         </button>
     </div>
 
@@ -680,11 +769,18 @@
     </div>
 
     <script>
-        // --- 0. Security Utility ---
+        // --- 0. Security Utility + Accessibility announce helper ---
         function escHtml(s) {
             return String(s == null ? '' : s)
                 .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
                 .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
+        function announce(msg) {
+            const el = document.getElementById('a11y-status');
+            if (!el) return;
+            el.textContent = '';
+            requestAnimationFrame(() => { el.textContent = msg; });
         }
 
         // --- 1. Global Config & Data State ---
@@ -702,7 +798,7 @@
         function updateNodeDimensions() { NODE_WIDTH = Math.max(240, gridCols * 75); }
         updateNodeDimensions();
 
-        const defaultCells = () => Array(gridCols * gridRows).fill(null).map(() => ({ label: '', linkId: null, src: null }));
+        const defaultCells = (cols, rows) => { const c = cols||gridCols, r = rows||gridRows; return Array(c*r).fill(null).map(() => ({ label: '', linkId: null, src: null })); };
 
         let savedData = localStorage.getItem('aacMapData');
         let _parsedData = null;
@@ -738,14 +834,21 @@
                 node.color = _legacyColorMap[node.color] || '#1d4ed8';
         });
 
+        // Migrate: add per-node cols/rows if missing (uses current global defaults)
+        Object.values(nodesData).forEach(node => {
+            if (node.id === '__lost_found__' || node.type === 'whiteboard' || node.type === 'gallery' || node.type === 'routine') return;
+            if (!node.cols) node.cols = gridCols;
+            if (!node.rows) node.rows = gridRows;
+        });
+
         // Enforce array sizes; strip any legacy emoji fields; route surplus cells to Lost & Found
         {
             const _startupDisplaced = [];
             Object.values(nodesData).forEach(node => {
                 if (!node.cells) node.cells = [];
                 node.cells.forEach(c => { delete c.emoji; });
-                if (node.id === '__lost_found__') return; // holds variable-length displaced cells
-                const targetLen = gridCols * gridRows;
+                if (node.id === '__lost_found__' || node.type === 'whiteboard' || node.type === 'gallery' || node.type === 'routine') return;
+                const targetLen = (node.cols || gridCols) * (node.rows || gridRows);
                 while (node.cells.length < targetLen) node.cells.push({ label: '', linkId: null, src: null });
                 if (node.cells.length > targetLen) {
                     const overflow = node.cells.splice(targetLen);
@@ -792,6 +895,16 @@
             return `rgba(${r},${g},${b},${alpha})`;
         }
 
+        // Returns '#1e293b' or '#f8fafc' depending on perceived luminance of a hex colour
+        function contrastTextColor(hex) {
+            const r = parseInt((hex||'#ffffff').slice(1,3),16);
+            const g = parseInt((hex||'#ffffff').slice(3,5),16);
+            const b = parseInt((hex||'#ffffff').slice(5,7),16);
+            // Perceived luminance (sRGB coefficients)
+            const lum = (0.299*r + 0.587*g + 0.114*b) / 255;
+            return lum > 0.55 ? '#1e293b' : '#f8fafc';
+        }
+
         // Pick next unused colour — cycles through all before repeating
         function nextNodeColor() {
             const used = new Set(Object.values(nodesData).map(n => n.color));
@@ -820,25 +933,54 @@
         let tempWire = null;
 
         // --- 2. Custom Modal System ---
+        let _modalTriggerEl = null;
+
         function openModal(htmlContent) {
             isModalOpen = true;
+            _modalTriggerEl = document.activeElement;
             activePointers.clear(); // Safety: cancel any lingering touch states
             modalContainer.innerHTML = htmlContent;
+            modalContainer.setAttribute('role', 'dialog');
+            modalContainer.setAttribute('aria-modal', 'true');
+            // Point aria-labelledby at the first heading inside the modal
+            const heading = modalContainer.querySelector('h2, h3, h4');
+            if (heading) {
+                if (!heading.id) heading.id = 'modal-heading';
+                modalContainer.setAttribute('aria-labelledby', heading.id);
+            }
             modalOverlay.classList.add('active');
+            lucide.createIcons();
             setTimeout(() => {
                 modalContainer.classList.remove('scale-95', 'opacity-0');
                 modalContainer.classList.add('scale-100', 'opacity-100');
-                const firstInput = modalContainer.querySelector('input');
-                if(firstInput) firstInput.focus();
+                // Focus first focusable element (prefer input, then any tabbable)
+                const focusable = modalContainer.querySelectorAll('input, select, textarea, button, [tabindex]:not([tabindex="-1"])');
+                const firstFocusable = modalContainer.querySelector('input') || focusable[0];
+                if (firstFocusable) firstFocusable.focus();
             }, 10);
-            lucide.createIcons();
         }
+
+        // Focus trap helper — keeps Tab/Shift+Tab inside the modal
+        function _modalFocusTrap(e) {
+            if (!isModalOpen || e.key !== 'Tab') return;
+            const focusable = Array.from(modalContainer.querySelectorAll(
+                'input, select, textarea, button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+            )).filter(el => el.offsetParent !== null);
+            if (!focusable.length) { e.preventDefault(); return; }
+            const first = focusable[0], last = focusable[focusable.length - 1];
+            if (e.shiftKey) { if (document.activeElement === first) { e.preventDefault(); last.focus(); } }
+            else            { if (document.activeElement === last)  { e.preventDefault(); first.focus(); } }
+        }
+        document.addEventListener('keydown', _modalFocusTrap);
 
         function closeModal() {
             modalContainer.classList.remove('scale-100', 'opacity-100');
             modalContainer.classList.add('scale-95', 'opacity-0');
             setTimeout(() => {
                 modalOverlay.classList.remove('active');
+                modalContainer.removeAttribute('role');
+                modalContainer.removeAttribute('aria-modal');
+                modalContainer.removeAttribute('aria-labelledby');
                 modalContainer.innerHTML = '';
                 try {
                     const spOverlay = document.getElementById('symbol-picker-overlay');
@@ -848,6 +990,11 @@
                 } catch(e) {
                     isModalOpen = false; 
                 }
+                // Return focus to the element that opened the modal
+                if (_modalTriggerEl && typeof _modalTriggerEl.focus === 'function') {
+                    try { _modalTriggerEl.focus(); } catch(_) {}
+                }
+                _modalTriggerEl = null;
             }, 200);
         }
 
@@ -910,8 +1057,35 @@
             `);
         }
 
+        function resizeNode(nodeId, newCols, newRows) {
+            const node = nodesData[nodeId];
+            if (!node || node.type) return;
+            const oldCols = node.cols || gridCols, oldRows = node.rows || gridRows;
+            if (newCols === oldCols && newRows === oldRows) return;
+            const newTotal = newCols * newRows;
+            pushHistory();
+            _unmergeOverflowCells(nodeId, newCols, newRows);
+            node.cols = newCols; node.rows = newRows;
+            if (node.cells.length < newTotal) {
+                while (node.cells.length < newTotal) node.cells.push({ label: '', linkId: null, src: null });
+            } else if (node.cells.length > newTotal) {
+                const overflow = node.cells.splice(newTotal);
+                const displaced = overflow.filter(c => c && !c._mergedInto && (c.label || c.linkId || c.src));
+                if (displaced.length > 0) {
+                    if (!nodesData['__lost_found__']) {
+                        let maxY = 0;
+                        Object.values(nodesData).forEach(n => { if (n.id !== '__lost_found__') maxY = Math.max(maxY, n.y); });
+                        nodesData['__lost_found__'] = { id: '__lost_found__', title: 'Lost & Found', color: '#b45309', x: 0, y: maxY + 300, cells: [] };
+                    }
+                    displaced.forEach(c => nodesData['__lost_found__'].cells.push(c));
+                }
+            }
+            renderMap(); setTimeout(updateAllWires, 50);
+        }
+
         function promptEditNode(nodeId) {
             const node = nodesData[nodeId];
+            const isGridNode = !node.type; // only Symbol Grid nodes have a type of undefined
             window.tempSelectedColor = node.color;
 
             window.selectNodeColor = (hex) => {
@@ -924,13 +1098,22 @@
             };
 
             window.tempSaveNode = () => {
-                pushHistory();
                 const val = document.getElementById('modal-node-title').value.trim();
+                pushHistory();
                 if (val) {
                     nodesData[nodeId].title = val;
                     Object.values(nodesData).forEach(n => (n.cells || []).forEach(c => { if (c.linkId === nodeId) c.label = val; }));
                 }
                 nodesData[nodeId].color = window.tempSelectedColor;
+                if (isGridNode) {
+                    const sizeEl = document.getElementById('modal-node-size');
+                    if (sizeEl) {
+                        const [newC, newR] = sizeEl.value.split('x').map(Number);
+                        closeModal();
+                        resizeNode(nodeId, newC, newR);
+                        return;
+                    }
+                }
                 closeModal(); renderMap(); setTimeout(updateAllWires, 50);
             };
 
@@ -941,18 +1124,38 @@
                 return `<button class="color-swatch-btn w-8 h-8 rounded-full transition-all duration-150" style="background:${def.hex}; box-shadow:${shadow}; transform:${transform};" data-hex="${def.hex}" onclick="selectNodeColor('${def.hex}')" title="${def.label}"></button>`;
             }).join('');
 
+            const typeLabels = { whiteboard: 'Whiteboard', gallery: 'Photo Gallery', routine: 'Routine Board' };
+            const title = isGridNode ? 'Edit Grid' : `Edit ${typeLabels[node.type] || 'Module'}`;
+            const icon  = isGridNode ? 'layout-grid' : (node.type === 'whiteboard' ? 'pen-line' : node.type === 'gallery' ? 'image' : 'check-square');
+
+            let gridSizeHtml = '';
+            if (isGridNode) {
+                const curSizeVal = `${node.cols||gridCols}x${node.rows||gridRows}`;
+                const sizes = ['2x1','3x2','4x2','4x3','5x3','5x4','6x4','6x5','7x4','7x5','7x6'];
+                const sizeOptions = sizes.map(s => `<option value="${s}"${s===curSizeVal?' selected':''}>${s}</option>`).join('');
+                gridSizeHtml = `
+                    <div class="mb-4">
+                        <label class="block text-xs font-bold text-slate-400 mb-1.5 uppercase tracking-wide">Grid Size</label>
+                        <div class="flex items-center gap-2 bg-slate-50 border-2 border-slate-200 rounded-xl px-3.5 py-2.5 focus-within:border-blue-500 transition">
+                            <i data-lucide="grid-3x3" class="w-4 h-4 text-slate-400 flex-shrink-0"></i>
+                            <select id="modal-node-size" class="bg-transparent flex-1 text-slate-800 font-bold text-sm outline-none cursor-pointer modal-input">${sizeOptions}</select>
+                        </div>
+                    </div>`;
+            }
+
             openModal(`
                 <div class="p-6">
                     <div class="flex items-center gap-2.5 mb-4">
                         <div class="w-8 h-8 rounded-xl bg-indigo-100 flex items-center justify-center flex-shrink-0">
-                            <i data-lucide="folder" class="w-4 h-4 text-indigo-600"></i>
+                            <i data-lucide="${icon}" class="w-4 h-4 text-indigo-600"></i>
                         </div>
-                        <h3 class="text-base font-bold text-slate-800">Edit Folder</h3>
+                        <h3 class="text-base font-bold text-slate-800">${title}</h3>
                     </div>
-                    <div class="mb-5">
-                        <label class="block text-xs font-bold text-slate-400 mb-1.5 uppercase tracking-wide">Folder Name</label>
+                    <div class="mb-4">
+                        <label class="block text-xs font-bold text-slate-400 mb-1.5 uppercase tracking-wide">Name</label>
                         <input id="modal-node-title" type="text" value="${escHtml(node.title)}" class="modal-input w-full border-2 border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-800 font-medium focus:outline-none focus:ring-3 focus:ring-blue-100 focus:border-blue-500 transition" onkeydown="if(event.key==='Enter') tempSaveNode()">
                     </div>
+                    ${gridSizeHtml}
                     <div class="mb-6">
                         <label class="block text-xs font-bold text-slate-400 mb-2.5 uppercase tracking-wide">Colour</label>
                         <div class="flex flex-wrap gap-3 py-1">
@@ -1064,7 +1267,7 @@
                             <label class="block text-xs font-bold text-slate-400 mb-1.5 uppercase tracking-wide">Label</label>
                             <div class="flex gap-2 items-stretch">
                                 <input id="modal-label-val" type="text" value="${escHtml(cell.label)}" maxlength="40" class="modal-input flex-1 border-2 border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 font-medium focus:outline-none focus:ring-3 focus:ring-blue-100 focus:border-blue-500 transition" onkeydown="if(event.key === 'Enter') tempSaveCell()">
-                                <button type="button" title="Preview voice" onclick="(function(btn){const txt=document.getElementById('modal-label-val').value.trim();if(!txt||!window.speechSynthesis)return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(txt);u.rate=0.95;u.pitch=1.0;btn.classList.add('scale-90','opacity-60');u.onend=()=>{btn.classList.remove('scale-90','opacity-60');};window.speechSynthesis.speak(u);})(this)" class="flex-shrink-0 flex items-center justify-center w-11 rounded-xl border-2 border-slate-200 bg-slate-50 text-slate-500 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600 transition active:scale-90">
+                                <button type="button" title="Preview voice" onclick="(function(btn){const txt=document.getElementById('modal-label-val').value.trim();if(!txt||!window.speechSynthesis)return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(txt);u.rate=0.95;u.pitch=1.0;const v=typeof _getVoiceForGender==='function'?_getVoiceForGender((typeof clientSettings!=='undefined'&&clientSettings.voiceGender)||'female'):null;if(v)u.voice=v;btn.classList.add('scale-90','opacity-60');u.onend=()=>{btn.classList.remove('scale-90','opacity-60');};window.speechSynthesis.speak(u);})(this)" class="flex-shrink-0 flex items-center justify-center w-11 rounded-xl border-2 border-slate-200 bg-slate-50 text-slate-500 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600 transition active:scale-90">
                                     <i data-lucide="play" class="w-4 h-4 pointer-events-none"></i>
                                 </button>
                             </div>
@@ -1093,8 +1296,20 @@
             pushHistory();
             updateTransform(); renderMap(); setupGlobalPointers();
             setTimeout(updateAllWires, 100); setTimeout(updateAllWires, 500);
-            window.addEventListener('resize', () => { fitAllNodes(); updateAllWires(); });
+            let _resizeTid;
+            window.addEventListener('resize', () => { clearTimeout(_resizeTid); _resizeTid = setTimeout(() => { fitAllNodes(); updateAllWires(); }, 120); });
             window.addEventListener('keydown', (e) => {
+                // Escape closes any open modal or overlay
+                if (e.key === 'Escape') {
+                    if (isModalOpen) { closeModal(); return; }
+                    const photoOverlay = document.getElementById('photo-mgr-overlay');
+                    if (photoOverlay && photoOverlay.style.display !== 'none') { closePhotoManager(); return; }
+                    const routineOverlay = document.getElementById('routine-mgr-overlay');
+                    if (routineOverlay && routineOverlay.style.display !== 'none') { closeRoutineManager(); return; }
+                    const dropDialog = document.getElementById('drop-dialog');
+                    if (dropDialog && !dropDialog.classList.contains('hidden')) { dropDialog.classList.add('hidden'); document.getElementById('drop-dialog-overlay').classList.remove('active'); return; }
+                    return;
+                }
                 if (isModalOpen) return;
                 const undoKey = e.ctrlKey && !e.shiftKey && e.key.toLowerCase() === 'z';
                 const redoKey = (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'z') || (e.ctrlKey && e.key.toLowerCase() === 'y');
@@ -1177,7 +1392,7 @@
                 maxX = Math.max(maxX, n.x + NODE_WIDTH / 2);
                 maxY = Math.max(maxY, n.y + nodeH / 2);
             });
-            const HEADER_H = 52;
+            const HEADER_H = document.getElementById('editor-header')?.offsetHeight || 52;
             const pad = 48;
             const vw = window.innerWidth;
             const vh = window.innerHeight - HEADER_H;
@@ -1201,41 +1416,42 @@
         // --- 4. Rendering Engine ---
 
         // ── Cell Merge Helpers ─────────────────────────────────────────────────
-        function _cellPos(idx) { return { col: idx % gridCols, row: Math.floor(idx / gridCols) }; }
-        function _cellIdxAt(row, col) { return row * gridCols + col; }
-        function _mergeBox(idx1, idx2) {
-            const p1 = _cellPos(idx1), p2 = _cellPos(idx2);
+        function _cellPos(idx, cols) { const c = cols||gridCols; return { col: idx % c, row: Math.floor(idx / c) }; }
+        function _cellIdxAt(row, col, cols) { return row * (cols||gridCols) + col; }
+        function _mergeBox(idx1, idx2, cols) {
+            const p1 = _cellPos(idx1, cols), p2 = _cellPos(idx2, cols);
             return { minRow: Math.min(p1.row, p2.row), maxRow: Math.max(p1.row, p2.row),
                      minCol: Math.min(p1.col, p2.col), maxCol: Math.max(p1.col, p2.col) };
         }
 
         // Resize-handle merge: top-left anchor is always fixed; only bottom-right extends to tgtIdx
-        function _anchorMergeBox(anchorIdx, tgtIdx) {
-            const ap = _cellPos(anchorIdx), tp = _cellPos(tgtIdx);
+        function _anchorMergeBox(anchorIdx, tgtIdx, cols) {
+            const ap = _cellPos(anchorIdx, cols), tp = _cellPos(tgtIdx, cols);
             return { minRow: ap.row, minCol: ap.col,
                      maxRow: Math.max(ap.row, tp.row), maxCol: Math.max(ap.col, tp.col) };
         }
 
         function mergeCells(nodeId, srcIdx, tgtIdx) {
             const cells = nodesData[nodeId].cells;
+            const nCols = nodesData[nodeId].cols || gridCols;
             // Resolve any consumed cells to anchors
             const resolve = i => (cells[i] && cells[i]._mergedInto !== undefined) ? cells[i]._mergedInto : i;
             const a = resolve(srcIdx), b = resolve(tgtIdx);
             if (a === b) return;
-            const { minRow, maxRow, minCol, maxCol } = _mergeBox(a, b);
-            const anchorIdx = _cellIdxAt(minRow, minCol);
+            const { minRow, maxRow, minCol, maxCol } = _mergeBox(a, b, nCols);
+            const anchorIdx = _cellIdxAt(minRow, minCol, nCols);
             const cs = maxCol - minCol + 1;
             const rs = maxRow - minRow + 1;
             // Pre-split any existing merges that overlap the bounding box
             for (let r = minRow; r <= maxRow; r++) {
                 for (let c = minCol; c <= maxCol; c++) {
-                    const idx = _cellIdxAt(r, c);
+                    const idx = _cellIdxAt(r, c, nCols);
                     const cell = cells[idx];
                     if (!cell) continue;
                     if (cell._mergedInto !== undefined) {
                         // consumed by a different anchor outside our box — split that anchor
                         const otherAnchor = cell._mergedInto;
-                        if (otherAnchor < minRow * gridCols + minCol || otherAnchor > maxRow * gridCols + maxCol) {
+                        if (otherAnchor < minRow * nCols + minCol || otherAnchor > maxRow * nCols + maxCol) {
                             splitCell(nodeId, otherAnchor);
                         }
                     } else if ((cell.colspan > 1 || cell.rowspan > 1) && idx !== a && idx !== b) {
@@ -1250,7 +1466,7 @@
             const displaced = [];
             for (let r = minRow; r <= maxRow; r++) {
                 for (let c = minCol; c <= maxCol; c++) {
-                    const idx = _cellIdxAt(r, c);
+                    const idx = _cellIdxAt(r, c, nCols);
                     if (idx === a || idx === b || idx === anchorIdx) continue;
                     const cell = cells[idx];
                     if (cell && !cell._mergedInto && (cell.label || cell.src || cell.linkId)) displaced.push({ ...cell });
@@ -1262,7 +1478,7 @@
             // Mark all other bounding-box cells as consumed
             for (let r = minRow; r <= maxRow; r++) {
                 for (let c = minCol; c <= maxCol; c++) {
-                    const idx = _cellIdxAt(r, c);
+                    const idx = _cellIdxAt(r, c, nCols);
                     if (idx === anchorIdx) continue;
                     cells[idx] = { _mergedInto: anchorIdx };
                 }
@@ -1284,10 +1500,12 @@
             if (!cell || cell._mergedInto !== undefined) return;
             const cs = cell.colspan || 1, rs = cell.rowspan || 1;
             if (cs === 1 && rs === 1) return;
-            const { col: anchorCol, row: anchorRow } = _cellPos(cellIdx);
-            for (let r = anchorRow; r < anchorRow + rs && r < gridRows; r++) {
-                for (let c = anchorCol; c < anchorCol + cs && c < gridCols; c++) {
-                    const idx = _cellIdxAt(r, c);
+            const nCols = nodesData[nodeId].cols || gridCols;
+            const nRows = nodesData[nodeId].rows || gridRows;
+            const { col: anchorCol, row: anchorRow } = _cellPos(cellIdx, nCols);
+            for (let r = anchorRow; r < anchorRow + rs && r < nRows; r++) {
+                for (let c = anchorCol; c < anchorCol + cs && c < nCols; c++) {
+                    const idx = _cellIdxAt(r, c, nCols);
                     if (idx === cellIdx || idx >= cells.length) continue;
                     cells[idx] = { label: '', linkId: null, src: null };
                 }
@@ -1297,13 +1515,13 @@
         }
 
         function _unmergeOverflowCells(nodeId, newCols, newRows) {
-            // Must be called BEFORE gridCols/gridRows are updated; _cellPos uses current globals
             const cells = nodesData[nodeId].cells;
+            const curCols = nodesData[nodeId].cols || gridCols;
             cells.forEach((cell, idx) => {
                 if (!cell || cell._mergedInto !== undefined) return;
                 const cs = cell.colspan || 1, rs = cell.rowspan || 1;
                 if (cs === 1 && rs === 1) return;
-                const { col, row } = _cellPos(idx);
+                const { col, row } = _cellPos(idx, curCols);
                 if (col + cs > newCols || row + rs > newRows) splitCell(nodeId, idx);
             });
         }
@@ -1313,24 +1531,27 @@
             if (!gridEl) return -1;
             const rect = gridEl.getBoundingClientRect();
             if (clientX < rect.left || clientX > rect.right || clientY < rect.top || clientY > rect.bottom) return -1;
-            // Account for p-3 (12px) padding and gap-2 (8px) gap
+            const nCols = nodesData[nodeId].cols || gridCols;
+            const nRows = nodesData[nodeId].rows || gridRows;
             const pad = 12, gap = 8;
-            const cellW = (rect.width  - 2 * pad - (gridCols - 1) * gap) / gridCols;
-            const cellH = (rect.height - 2 * pad - (gridRows - 1) * gap) / gridRows;
+            const cellW = (rect.width  - 2 * pad - (nCols - 1) * gap) / nCols;
+            const cellH = (rect.height - 2 * pad - (nRows - 1) * gap) / nRows;
             const relX = clientX - rect.left - pad;
             const relY = clientY - rect.top  - pad;
-            const col = Math.min(gridCols - 1, Math.max(0, Math.floor(relX / (cellW + gap))));
-            const row = Math.min(gridRows - 1, Math.max(0, Math.floor(relY / (cellH + gap))));
-            return _cellIdxAt(row, col);
+            const col = Math.min(nCols - 1, Math.max(0, Math.floor(relX / (cellW + gap))));
+            const row = Math.min(nRows - 1, Math.max(0, Math.floor(relY / (cellH + gap))));
+            return _cellIdxAt(row, col, nCols);
         }
 
         function _gridCellRect(nodeId, col, row) {
             const gridEl = document.querySelector(`[data-grid-container][data-node-id="${nodeId}"]`);
             if (!gridEl) return null;
             const rect = gridEl.getBoundingClientRect();
+            const nCols = nodesData[nodeId].cols || gridCols;
+            const nRows = nodesData[nodeId].rows || gridRows;
             const pad = 12, gap = 8;
-            const cellW = (rect.width  - 2 * pad - (gridCols - 1) * gap) / gridCols;
-            const cellH = (rect.height - 2 * pad - (gridRows - 1) * gap) / gridRows;
+            const cellW = (rect.width  - 2 * pad - (nCols - 1) * gap) / nCols;
+            const cellH = (rect.height - 2 * pad - (nRows - 1) * gap) / nRows;
             return {
                 left:   rect.left + pad + col * (cellW + gap),
                 top:    rect.top  + pad + row * (cellH + gap),
@@ -1354,14 +1575,14 @@
 
             const displaced = [];
             Object.values(nodesData).forEach(node => {
-                if (node.id === '__lost_found__') return; // never resize the holding node itself
-                // Unmerge any cells whose span would overflow the new dimensions (uses current gridCols/gridRows)
+                if (node.id === '__lost_found__' || node.type === 'whiteboard' || node.type === 'gallery' || node.type === 'routine') return;
                 _unmergeOverflowCells(node.id, c, r);
+                node.cols = c; node.rows = r; // update per-node size to match global change
                 if (node.cells.length < newTotal) {
                     while (node.cells.length < newTotal) node.cells.push({ label: '', linkId: null, src: null });
                 } else if (node.cells.length > newTotal) {
                     const overflow = node.cells.splice(newTotal);
-                    overflow.forEach(c => { if (c && !c._mergedInto && (c.label || c.linkId || c.src)) displaced.push(c); });
+                    overflow.forEach(oc => { if (oc && !oc._mergedInto && (oc.label || oc.linkId || oc.src)) displaced.push(oc); });
                 }
             });
 
@@ -1371,7 +1592,7 @@
                     Object.values(nodesData).forEach(n => { if (n.id !== '__lost_found__') maxY = Math.max(maxY, n.y); });
                     nodesData['__lost_found__'] = { id: '__lost_found__', title: 'Lost & Found', color: '#b45309', x: 0, y: maxY + 300, cells: [] };
                 }
-                displaced.forEach(c => nodesData['__lost_found__'].cells.push(c));
+                displaced.forEach(oc => nodesData['__lost_found__'].cells.push(oc));
             }
 
             localStorage.setItem('aacMapConfig', JSON.stringify({cols: gridCols, rows: gridRows}));
@@ -1387,10 +1608,10 @@
 
         function renderMap() {
             cleanupLostFound();
-            // Sanitize: trim cells to exact grid size and fix any corrupt _mergedInto refs
-            const targetLen = gridCols * gridRows;
+            // Sanitize: trim cells to per-node size and fix any corrupt _mergedInto refs
             Object.values(nodesData).forEach(node => {
                 if (node.id === '__lost_found__' || !node.cells || node.type === 'whiteboard' || node.type === 'gallery' || node.type === 'routine' ) return;
+                const targetLen = (node.cols || gridCols) * (node.rows || gridRows);
                 if (node.cells.length > targetLen) node.cells.length = targetLen;
                 node.cells.forEach((c, i) => {
                     if (!c) { node.cells[i] = { label: '', linkId: null, src: null }; return; }
@@ -1403,6 +1624,14 @@
             });
             nodesLayer.innerHTML = ''; svgLayer.innerHTML = '';
             const svgDefs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+            // Shared blur filter — gives wire halos a real soft glow
+            const wgf = document.createElementNS('http://www.w3.org/2000/svg', 'filter');
+            wgf.setAttribute('id', 'wire-glow-filter');
+            wgf.setAttribute('x', '-80%'); wgf.setAttribute('y', '-80%');
+            wgf.setAttribute('width', '260%'); wgf.setAttribute('height', '260%');
+            const fBlur = document.createElementNS('http://www.w3.org/2000/svg', 'feGaussianBlur');
+            fBlur.setAttribute('in', 'SourceGraphic'); fBlur.setAttribute('stdDeviation', '3');
+            wgf.appendChild(fBlur); svgDefs.appendChild(wgf);
             svgLayer.appendChild(svgDefs);
             Object.values(nodesData).forEach(node => createNodeElement(node));
             nodesLayer.getBoundingClientRect(); // flush
@@ -1490,12 +1719,17 @@
             if (node.type === 'gallery')    { createGalleryElement(node);    return; }
             if (node.type === 'routine')    { createRoutineElement(node);    return; }
 
+            const nCols = node.cols || gridCols;
+            const nRows = node.rows || gridRows;
+            const nodeW = Math.max(240, nCols * 75);
+
             const el = document.createElement('div');
             el.className = 'aac-node'; el.id = `dom-node-${node.id}`;
             el.style.left = `${node.x}px`; el.style.top = `${node.y}px`;
-            el.style.width = `${NODE_WIDTH}px`;
+            el.style.width = `${nodeW}px`;
             el.style.borderColor = hexToRgba(node.color, 0.30);
-            el.style.setProperty('--node-ring-color', hexToRgba(node.color, 0.60));
+            el.style.setProperty('--node-ring-color', hexToRgba(node.color, 0.65));
+            el.style.setProperty('--node-ring-glow', hexToRgba(node.color, 0.10));
             el.style.boxShadow = [
                 `0 0 0 1.5px ${hexToRgba(node.color, 0.50)}`,
                 `0 0 0 4px ${hexToRgba(node.color, 0.10)}`,
@@ -1508,8 +1742,8 @@
                 // Skip consumed cells – the spanning anchor occupies their grid area
                 if (!cell || cell._mergedInto !== undefined) return '';
 
-                const colPos = (idx % gridCols) + 1;
-                const rowPos = Math.floor(idx / gridCols) + 1;
+                const colPos = (idx % nCols) + 1;
+                const rowPos = Math.floor(idx / nCols) + 1;
                 const cs = cell.colspan || 1;
                 const rs = cell.rowspan || 1;
                 const isMerged = cs > 1 || rs > 1;
@@ -1541,18 +1775,24 @@
                 const maskOverlay = cell.masked ? `<div class="absolute inset-0 rounded-lg bg-amber-900/30 flex flex-col items-center justify-center pointer-events-none gap-0.5"><i data-lucide="eye-off" class="w-4 h-4 text-amber-100"></i><span class="text-[8px] font-bold text-amber-100 uppercase tracking-wide">Masked</span></div>` : '';
                 const mergeBadge = getMergeBadge(cs, rs);
                 const resizeHandle = `<div class="cell-resize-handle" data-index="${idx}" title="Drag to merge cells"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="8.5" cy="8.5" r="1.3" fill="#94a3b8"/><circle cx="4.5" cy="8.5" r="1.3" fill="#94a3b8"/><circle cx="8.5" cy="4.5" r="1.3" fill="#94a3b8"/></svg></div>`;
-                return `<div class="grid-cell ${aspectClass} rounded-xl flex flex-col items-center justify-center relative ${bgClass} p-1 transition-all" style="${cellStyle}" data-index="${idx}">${mergeBadge}${resizeHandle}${icon} ${label} ${linkBadge} ${maskOverlay}</div>`;
+                const cellAriaLabel = cell.label ? escHtml(cell.label) : (isLink && nodesData[cell.linkId] ? `Open ${escHtml(nodesData[cell.linkId].title)}` : 'Empty cell');
+                return `<div role="button" tabindex="0" aria-label="${cellAriaLabel}" class="grid-cell ${aspectClass} rounded-xl flex flex-col items-center justify-center relative ${bgClass} p-1 transition-all" style="${cellStyle}" data-index="${idx}">${mergeBadge}${resizeHandle}${icon} ${label} ${linkBadge} ${maskOverlay}</div>`;
             }).join('');
 
             const routingTabsHtml = node.cells.map((c, i) => {
                 if(!c.linkId || !nodesData[c.linkId]) return '';
                 const titleStr = nodesData[c.linkId].title;
                 const tabColor = nodesData[c.linkId].color;
+                // Match the symbol-space (cell) background so the tab feels part of the node body
+                const tabBg    = getComputedStyle(document.documentElement).getPropertyValue('--map-cell-bg').trim() || '#ffffff';
+                const tabText  = contrastTextColor(tabBg);
+                const tabBorderOpacity = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--map-cell-bg').trim() ? '0.18' : '0.18');
+                const borderEdge = `rgba(${parseInt(tabText.slice(1,3)||'0',16)},${parseInt(tabText.slice(3,5)||'0',16)},${parseInt(tabText.slice(5,7)||'0',16)},0.14)`;
                 return `
                 <div class="routing-tab flex items-center cursor-crosshair group pointer-events-auto" data-cell-idx="${i}">
-                    <div class="border border-y border-r border-slate-200/80 rounded-r-xl pl-2.5 pr-2 py-1.5 shadow-[0_2px_8px_rgba(0,0,0,0.08)] flex items-center gap-2 transition-all group-hover:shadow-[0_4px_14px_rgba(0,0,0,0.12)] group-hover:-translate-y-0.5" style="border-left: 3.5px solid ${tabColor}; background:#ffffff; width:120px;">
-                        <span class="text-[10px] font-bold text-slate-700 truncate pointer-events-none leading-none flex-1 min-w-0">${escHtml(titleStr)}</span>
-                        <div class="w-3 h-3 flex-shrink-0 rounded-full border-2 bg-white port-anchor pointer-events-none group-hover:scale-125 transition-all shadow-sm" style="border-color:${tabColor};"></div>
+                    <div class="rounded-r-xl pl-2.5 pr-2 py-1.5 shadow-[0_2px_8px_rgba(0,0,0,0.10)] flex items-center gap-2 transition-all group-hover:shadow-[0_4px_14px_rgba(0,0,0,0.14)] group-hover:-translate-y-0.5" style="border-left: 3.5px solid ${tabColor}; border-top: 1px solid ${borderEdge}; border-right: 1px solid ${borderEdge}; border-bottom: 1px solid ${borderEdge}; background:${tabBg}; width:120px;">
+                        <span class="text-[10px] font-bold truncate pointer-events-none leading-none flex-1 min-w-0" style="color:${tabText};">${escHtml(titleStr)}</span>
+                        <div class="w-3 h-3 flex-shrink-0 rounded-full border-2 port-anchor pointer-events-none group-hover:scale-125 transition-all shadow-sm" style="border-color:${tabColor}; background:${tabBg};"></div>
                     </div>
                 </div>`;
             }).join('');
@@ -1568,17 +1808,17 @@
             `;
 
             el.innerHTML = `
-                <div class="h-12 rounded-t-[20px] flex items-center px-4 justify-between text-white node-header select-none relative overflow-hidden" style="background-color:${node.color}; background-image:linear-gradient(160deg, rgba(255,255,255,0.32) 0%, rgba(255,255,255,0.05) 55%, rgba(0,0,0,0.16) 100%);">
-                    <div class="absolute inset-x-0 top-0 h-px bg-white/35 pointer-events-none"></div>
-                    <div class="absolute inset-x-0 bottom-0 h-px pointer-events-none" style="background:rgba(0,0,0,0.18);"></div>
-                    <div class="w-2 h-2 rounded-full bg-white/50 flex-shrink-0 mr-2.5 pointer-events-none"></div>
+                <div class="h-12 rounded-t-[22px] flex items-center px-4 justify-between text-white node-header select-none relative overflow-hidden" style="background-color:${node.color}; background-image:linear-gradient(150deg, rgba(255,255,255,0.38) 0%, rgba(255,255,255,0.08) 45%, rgba(0,0,0,0.20) 100%);">
+                    <div class="absolute inset-x-0 top-0 h-px bg-white/40 pointer-events-none"></div>
+                    <div class="absolute inset-x-0 bottom-0 h-px pointer-events-none" style="background:rgba(0,0,0,0.22);"></div>
+                    <div class="w-2 h-2 rounded-full bg-white/60 flex-shrink-0 mr-2.5 pointer-events-none" style="box-shadow:0 0 0 2px rgba(255,255,255,0.25);"></div>
                     <span class="font-bold text-[14px] truncate pointer-events-none flex-1 drop-shadow-sm tracking-wide">${escHtml(node.title)}</span>
                     <div class="flex items-center gap-0.5 ml-2 pointer-events-auto">
-                        <button class="edit-btn opacity-75 hover:opacity-100 p-1.5 rounded-lg hover:bg-white/20 transition active:scale-95"><i data-lucide="pencil" class="w-3.5 h-3.5 pointer-events-none"></i></button>
-                        <button class="delete-btn opacity-75 hover:opacity-100 p-1.5 rounded-lg hover:bg-red-500/80 transition active:scale-95"><i data-lucide="trash-2" class="w-3.5 h-3.5 pointer-events-none"></i></button>
+                        <button class="edit-btn opacity-75 hover:opacity-100 p-1.5 rounded-lg hover:bg-white/20 transition active:scale-95" aria-label="Edit ${escHtml(node.title)}"><i data-lucide="pencil" class="w-3.5 h-3.5 pointer-events-none" aria-hidden="true"></i></button>
+                        <button class="delete-btn opacity-75 hover:opacity-100 p-1.5 rounded-lg hover:bg-red-500/80 transition active:scale-95" aria-label="Delete ${escHtml(node.title)}"><i data-lucide="trash-2" class="w-3.5 h-3.5 pointer-events-none" aria-hidden="true"></i></button>
                     </div>
                 </div>
-                <div class="grid gap-2 p-3 rounded-b-[20px] pointer-events-auto" data-grid-container data-node-id="${node.id}" style="background-color:var(--map-node-bg,#f8fafc); border-top: 1.5px solid ${hexToRgba(node.color, 0.22)}; box-shadow:inset 0 4px 10px rgba(0,0,0,0.04); grid-template-columns: repeat(${gridCols}, minmax(0, 1fr)); grid-template-rows: repeat(${gridRows}, minmax(0, 1fr)); height:${16 + gridRows * (NODE_WIDTH - 16) / gridCols}px;">
+                <div class="grid gap-2 p-3 rounded-b-[22px] pointer-events-auto" data-grid-container data-node-id="${node.id}" style="background-color:var(--map-node-bg,#f8fafc); border-top: 1.5px solid ${hexToRgba(node.color, 0.25)}; box-shadow:inset 0 3px 0 rgba(255,255,255,0.75), inset 0 6px 16px rgba(0,0,0,0.05); grid-template-columns: repeat(${nCols}, minmax(0, 1fr)); grid-template-rows: repeat(${nRows}, minmax(0, 1fr)); height:${16 + nRows * (nodeW - 16) / nCols}px;">
                     ${cellsHtml}
                 </div>
                 <div class="port port-in" data-node="${node.id}"></div>
@@ -1616,6 +1856,18 @@
                     }
                     e.stopPropagation(); activeCellTarget = cell; cellStartCoords = { x: e.clientX, y: e.clientY }; isCellPointerDown = true; 
                 });
+                // Keyboard activation for grid cells
+                cell.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        activeCellTarget = cell;
+                        cellStartCoords = { x: 0, y: 0 };
+                        isCellPointerDown = false;
+                        // Simulate a tap — open cell editor
+                        cell.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true, clientX: 0, clientY: 0 }));
+                        cell.dispatchEvent(new PointerEvent('pointerup',   { bubbles: true, cancelable: true, clientX: 0, clientY: 0 }));
+                    }
+                });
             });
 
             el.querySelector('.routing-tab-new').addEventListener('pointerdown', (e) => {
@@ -1639,7 +1891,9 @@
 
         // --- 5. High-Performance SVG Wiring ---
         function getBezierPath(x1, y1, x2, y2) {
-            const tension = Math.max(Math.abs(x2 - x1) * 0.55, 80);
+            const dx = Math.abs(x2 - x1), dy = Math.abs(y2 - y1);
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            const tension = Math.max(dx * 0.50, Math.min(dist * 0.40, 240), 90);
             return `M ${x1} ${y1} C ${x1 + tension} ${y1}, ${x2 - tension} ${y2}, ${x2} ${y2}`;
         }
 
@@ -1655,49 +1909,63 @@
             const pathData = getBezierPath(p1.x, p1.y, p2.x, p2.y);
             const wireColor = nodesData[targetId].color || '#94a3b8';
 
-            // Arrowhead marker — strokeWidth-relative so it scales naturally with zoom
             const defs = svgLayer.querySelector('defs');
+
+            // Arrowhead marker — concave chevron, target colour
             const markerId = `arrowhead-${sourceId}-${cellIdx}`;
             if (defs && !defs.querySelector(`[id="${markerId}"]`)) {
                 const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
                 marker.setAttribute('id', markerId);
-                marker.setAttribute('markerWidth', '5'); marker.setAttribute('markerHeight', '4');
-                marker.setAttribute('refX', '4.8'); marker.setAttribute('refY', '2');
+                marker.setAttribute('markerWidth', '5'); marker.setAttribute('markerHeight', '4.4');
+                marker.setAttribute('refX', '4.6'); marker.setAttribute('refY', '2.2');
                 marker.setAttribute('orient', 'auto'); marker.setAttribute('markerUnits', 'strokeWidth');
                 const arrowPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                arrowPath.setAttribute('d', 'M 0 0 L 5 2 L 0 4 Z');
+                arrowPath.setAttribute('d', 'M 0 0 L 5 2.2 L 0 4.4 L 1.4 2.2 Z');
                 arrowPath.setAttribute('fill', wireColor); arrowPath.setAttribute('stroke', 'none');
                 marker.appendChild(arrowPath); defs.appendChild(marker);
             }
 
-            // Glow / halo — wide, very transparent, same color
+            // Glow halo — wide stroke blurred via shared SVG filter
             const glowPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
             glowPath.setAttribute('d', pathData); glowPath.setAttribute('class', 'wire-bg');
             glowPath.setAttribute('data-source', sourceId); glowPath.setAttribute('data-target', targetId); glowPath.setAttribute('data-cell-idx', cellIdx);
             glowPath.style.stroke = wireColor;
+            glowPath.style.filter = 'url(#wire-glow-filter)';
 
-            // Invisible wide hit zone
+            // Wide invisible hit zone
             const hitPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
             hitPath.setAttribute('d', pathData); hitPath.setAttribute('class', 'wire-hit');
             hitPath.setAttribute('data-source', sourceId); hitPath.setAttribute('data-target', targetId); hitPath.setAttribute('data-cell-idx', cellIdx);
 
-            // Visible stroke with arrowhead
+            // Visible stroke (destination colour) + arrowhead
             const visiblePath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
             visiblePath.setAttribute('d', pathData); visiblePath.setAttribute('class', 'wire-visible');
             visiblePath.setAttribute('data-source', sourceId); visiblePath.setAttribute('data-target', targetId); visiblePath.setAttribute('data-cell-idx', cellIdx);
             visiblePath.style.stroke = wireColor;
             if (defs && defs.querySelector(`[id="${markerId}"]`)) visiblePath.setAttribute('marker-end', `url(#${markerId})`);
 
+            // Hover — red highlight + animated directional flow dashes
+            let flowPath = null;
             hitPath.addEventListener('pointerenter', () => {
-                visiblePath.style.stroke = '#ef4444'; visiblePath.style.strokeWidth = '3.5';
-                visiblePath.style.filter = 'drop-shadow(0 0 5px rgba(239,68,68,0.55))';
+                visiblePath.style.stroke = '#ef4444'; visiblePath.style.strokeWidth = '6.5';
+                visiblePath.style.filter = 'drop-shadow(0 0 8px rgba(239,68,68,0.65))';
                 visiblePath.style.opacity = '1';
-                glowPath.style.stroke = '#ef4444'; glowPath.style.opacity = '0.22';
+                glowPath.style.stroke = '#ef4444'; glowPath.style.opacity = '0.55';
+                if (!flowPath) {
+                    flowPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                    flowPath.setAttribute('d', visiblePath.getAttribute('d'));
+                    flowPath.setAttribute('class', 'wire-flow');
+                    flowPath.setAttribute('data-source', sourceId);
+                    flowPath.setAttribute('data-target', targetId);
+                    flowPath.setAttribute('data-cell-idx', cellIdx);
+                    svgLayer.appendChild(flowPath);
+                }
             });
             hitPath.addEventListener('pointerleave', () => {
                 visiblePath.style.stroke = wireColor; visiblePath.style.strokeWidth = '';
                 visiblePath.style.filter = ''; visiblePath.style.opacity = '';
                 glowPath.style.stroke = wireColor; glowPath.style.opacity = '';
+                if (flowPath) { flowPath.remove(); flowPath = null; }
             });
             hitPath.addEventListener('pointerdown', (e) => {
                 e.stopPropagation(); e.preventDefault();
@@ -1707,7 +1975,28 @@
                     renderMap(); setTimeout(updateAllWires, 50);
                 });
             });
+
             svgLayer.appendChild(glowPath); svgLayer.appendChild(hitPath); svgLayer.appendChild(visiblePath);
+
+            // Draw-in animation — wire traces itself from source to target
+            requestAnimationFrame(() => {
+                const len = visiblePath.getTotalLength?.() ?? 500;
+                visiblePath.style.transition = 'none';
+                visiblePath.style.strokeDasharray = `${len}`;
+                visiblePath.style.strokeDashoffset = `${len}`;
+                requestAnimationFrame(() => {
+                    visiblePath.style.transition = `stroke 0.2s, stroke-width 0.2s, opacity 0.3s, filter 0.2s, stroke-dashoffset 0.55s cubic-bezier(0.4,0,0.2,1)`;
+                    visiblePath.style.strokeDashoffset = '0';
+                    const cleanup = (e) => {
+                        if (e.propertyName !== 'stroke-dashoffset') return;
+                        visiblePath.style.strokeDasharray = '';
+                        visiblePath.style.strokeDashoffset = '';
+                        visiblePath.style.transition = '';
+                        visiblePath.removeEventListener('transitionend', cleanup);
+                    };
+                    visiblePath.addEventListener('transitionend', cleanup);
+                });
+            });
         }
 
         function updateAllWires() {
@@ -1718,7 +2007,13 @@
                 const tPort = document.querySelector(`#dom-node-${tgtId} .port-in`);
                 if(sPort && tPort) {
                     const p1 = getElCoords(sPort); const p2 = getElCoords(tPort);
-                    if(p1 && p2) line.setAttribute('d', getBezierPath(p1.x, p1.y, p2.x, p2.y));
+                    if(p1 && p2) {
+                        line.setAttribute('d', getBezierPath(p1.x, p1.y, p2.x, p2.y));
+                        // Keep gradient endpoints tracking the live node positions
+                        if (line.classList.contains('wire-visible')) {
+                            // gradient removed — no defs coords to update
+                        }
+                    }
                 }
             });
         }
@@ -1781,7 +2076,7 @@
 
         function promptClearAll() {
             promptConfirm("Clear Entire Map?", "This will delete all folders and symbols. This cannot be undone.", "Clear Map", "red", () => {
-                pushHistory(); nodesData = {}; localStorage.removeItem('aacMapData'); spawnRootNode(); fitAllNodes();
+                pushHistory(); nodesData = {}; localStorage.removeItem('aacMapData'); _spawnRootNodeQuiet(); fitAllNodes();
             });
         }
 
@@ -1920,9 +2215,10 @@
                         pushHistory();
                         splitCell(mergeResizeNodeId, mergeResizeAnchorIdx);
                         // If tgtIdx is not the anchor, merge to the clamped box (anchor always top-left)
-                        const tp = _cellPos(tgtIdx);
-                        const ap = _cellPos(mergeResizeAnchorIdx);
-                        const clampedTgtIdx = _cellIdxAt(Math.max(ap.row, tp.row), Math.max(ap.col, tp.col));
+                        const _rnCols = nodesData[mergeResizeNodeId].cols || gridCols;
+                        const tp = _cellPos(tgtIdx, _rnCols);
+                        const ap = _cellPos(mergeResizeAnchorIdx, _rnCols);
+                        const clampedTgtIdx = _cellIdxAt(Math.max(ap.row, tp.row), Math.max(ap.col, tp.col), _rnCols);
                         if (clampedTgtIdx !== mergeResizeAnchorIdx) {
                             mergeCells(mergeResizeNodeId, mergeResizeAnchorIdx, clampedTgtIdx);
                         }
@@ -2009,7 +2305,7 @@
                         if(emptyIdx !== -1) {
                             pushHistory();
                             const newId = generateId(); const dropCoords = getWorkspaceCoords(e.clientX, e.clientY);
-                            nodesData[newId] = { id: newId, title: 'New Folder', color: nextNodeColor(), x: dropCoords.x, y: dropCoords.y, cells: defaultCells() };
+                            nodesData[newId] = { id: newId, title: 'New Folder', color: nextNodeColor(), cols: gridCols, rows: gridRows, x: dropCoords.x, y: dropCoords.y, cells: defaultCells() };
                             srcNode.cells[emptyIdx] = { label: 'New Folder', linkId: newId, src: null };
                             setTimeout(() => { document.getElementById(`dom-node-${newId}`).classList.add('node-enter'); }, 50); // Add pop animation
                         } else { promptAlert("Grid Full", "Please clear a cell before creating a new linked folder."); }
@@ -2025,11 +2321,79 @@
         }
 
         // --- 7. Generators ---
-        function spawnRootNode() {
+        function _spawnRootNodeQuiet(title, cols, rows, color) {
+            const c = cols || gridCols, r = rows || gridRows;
             const newId = generateId(); const center = getWorkspaceCoords(window.innerWidth/2, window.innerHeight/2);
-            nodesData[newId] = { id: newId, title: 'New Page', color: nextNodeColor(), x: center.x, y: center.y, cells: defaultCells() };
+            nodesData[newId] = { id: newId, title: title || 'New Page', color: color || nextNodeColor(), cols: c, rows: r, x: center.x, y: center.y, cells: defaultCells(c, r) };
             renderMap(); setTimeout(updateAllWires, 50);
-            setTimeout(() => { document.getElementById(`dom-node-${newId}`).classList.add('node-enter'); }, 10);
+            setTimeout(() => { const el = document.getElementById(`dom-node-${newId}`); if (el) el.classList.add('node-enter'); }, 10);
+        }
+
+        function spawnRootNode() {
+            const initialColor = nextNodeColor();
+            window._spawnColor = initialColor;
+
+            window.selectSpawnColor = (hex) => {
+                window._spawnColor = hex;
+                document.querySelectorAll('.spawn-color-btn').forEach(b => {
+                    const active = b.dataset.hex === hex;
+                    b.style.boxShadow = active ? `0 0 0 3px white, 0 0 0 5px ${b.dataset.hex}` : 'none';
+                    b.style.transform = active ? 'scale(1.25)' : 'scale(1)';
+                });
+            };
+
+            window.confirmSpawnNode = () => {
+                const title = (document.getElementById('spawn-title').value.trim() || 'New Page').substring(0, 40);
+                const sizeVal = document.getElementById('spawn-size').value;
+                const [c, r] = sizeVal.split('x').map(Number);
+                closeModal();
+                _spawnRootNodeQuiet(title, c, r, window._spawnColor);
+                // Close the palette drawer on mobile
+                const palette = document.getElementById('board-palette');
+                if (palette.classList.contains('open') && window.innerWidth < 768) toggleBoardPalette();
+            };
+
+            const swatchesHtml = nodeColorDefs.map(def => {
+                const isSelected = def.hex === initialColor;
+                const shadow = isSelected ? `0 0 0 3px white, 0 0 0 5px ${def.hex}` : 'none';
+                const transform = isSelected ? 'scale(1.25)' : 'scale(1)';
+                return `<button class="spawn-color-btn w-8 h-8 rounded-full transition-all duration-150" style="background:${def.hex}; box-shadow:${shadow}; transform:${transform};" data-hex="${def.hex}" onclick="selectSpawnColor('${def.hex}')" title="${def.label}"></button>`;
+            }).join('');
+
+            const curSizeVal = `${gridCols}x${gridRows}`;
+            const sizes = ['2x1','3x2','4x2','4x3','5x3','5x4','6x4','6x5','7x4','7x5','7x6'];
+            const sizeOptions = sizes.map(s => `<option value="${s}"${s===curSizeVal?' selected':''}>${s}</option>`).join('');
+
+            openModal(`
+                <div class="p-6">
+                    <div class="flex items-center gap-2.5 mb-5">
+                        <div class="w-8 h-8 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="layout-grid" class="w-4 h-4 text-blue-600"></i>
+                        </div>
+                        <h3 class="text-base font-bold text-slate-800">New Symbol Grid</h3>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-xs font-bold text-slate-400 mb-1.5 uppercase tracking-wide">Page Name</label>
+                        <input id="spawn-title" type="text" value="New Page" placeholder="e.g. Home, People, Food…" class="modal-input w-full border-2 border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-800 font-medium focus:outline-none focus:ring-3 focus:ring-blue-100 focus:border-blue-500 transition" onkeydown="if(event.key==='Enter') confirmSpawnNode()">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-xs font-bold text-slate-400 mb-1.5 uppercase tracking-wide">Grid Size</label>
+                        <div class="flex items-center gap-2 bg-slate-50 border-2 border-slate-200 rounded-xl px-3.5 py-2.5 focus-within:border-blue-500 transition">
+                            <i data-lucide="grid-3x3" class="w-4 h-4 text-slate-400 flex-shrink-0"></i>
+                            <select id="spawn-size" class="modal-input bg-transparent flex-1 text-slate-800 font-bold text-sm outline-none cursor-pointer">${sizeOptions}</select>
+                        </div>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-xs font-bold text-slate-400 mb-2.5 uppercase tracking-wide">Colour</label>
+                        <div class="flex flex-wrap gap-2.5 py-1">${swatchesHtml}</div>
+                    </div>
+                    <div class="flex gap-2.5">
+                        <button onclick="closeModal()" class="flex-1 bg-slate-100 text-slate-600 font-bold py-2.5 rounded-xl hover:bg-slate-200 transition">Cancel</button>
+                        <button onclick="confirmSpawnNode()" class="flex-1 bg-blue-600 text-white font-bold py-2.5 rounded-xl hover:bg-blue-700 active:bg-blue-800 transition shadow-sm">Create Grid</button>
+                    </div>
+                </div>
+            `);
+            setTimeout(() => { const inp = document.getElementById('spawn-title'); if (inp) { inp.select(); } }, 50);
         }
 
         // ── Board Palette ──────────────────────────────────────────────────────
@@ -2038,6 +2402,7 @@
             const toggle  = document.getElementById('palette-toggle');
             const isOpen  = palette.classList.toggle('open');
             toggle.classList.toggle('open', isOpen);
+            toggle.setAttribute('aria-expanded', String(isOpen));
         }
 
         // ── Whiteboard Node ────────────────────────────────────────────────────
@@ -2333,9 +2698,11 @@
             _galPointerDragState = null;
         }
 
+        let _photoMgrTriggerEl = null;
         function openPhotoManager(nodeId) {
             const node = nodesData[nodeId];
             if (!node) return;
+            _photoMgrTriggerEl = document.activeElement;
             _photoMgrNodeId = nodeId;
             isModalOpen = true;
             activePointers.clear();
@@ -2346,6 +2713,8 @@
             overlay.ondragover = (e) => { if (!e.dataTransfer.types.includes('Files')) return; e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; };
             overlay.ondrop    = (e) => { if (!e.dataTransfer.files.length) return; e.preventDefault(); const f = [...e.dataTransfer.files].filter(f => f.type.startsWith('image/')); if (f.length) _processGalleryFiles(f); };
             overlay.style.display = 'block';
+            // Move focus into the dialog
+            setTimeout(() => { const closeBtn = overlay.querySelector('button'); if (closeBtn) closeBtn.focus(); }, 50);
             window.addEventListener('resize', _onPhotoMgrResize);
         }
 
@@ -2357,6 +2726,7 @@
             document.getElementById('photo-mgr-overlay').style.display = 'none';
             isModalOpen = false;
             _photoMgrNodeId = null;
+            if (_photoMgrTriggerEl) { try { _photoMgrTriggerEl.focus(); } catch(_) {} _photoMgrTriggerEl = null; }
             renderMap(); setTimeout(updateAllWires, 50);
         }
 
@@ -2592,15 +2962,19 @@
         let _routineDragSrcIdx  = null;
         let _routineUploadSlot  = null;
 
+        let _routineMgrTriggerEl = null;
         function openRoutineManager(nodeId) {
             const node = nodesData[nodeId];
             if (!node) return;
+            _routineMgrTriggerEl = document.activeElement;
             _routineMgrNodeId = nodeId;
             isModalOpen = true; activePointers.clear();
             document.getElementById('routine-mgr-title').textContent = node.title;
             _renderRoutineMgrCounts();
             _renderRoutineMgrGrid();
-            document.getElementById('routine-mgr-overlay').style.display = 'block';
+            const rmOverlay = document.getElementById('routine-mgr-overlay');
+            rmOverlay.style.display = 'block';
+            setTimeout(() => { const closeBtn = rmOverlay.querySelector('button'); if (closeBtn) closeBtn.focus(); }, 50);
             window.addEventListener('resize', _onRoutineMgrResize);
         }
 
@@ -2610,6 +2984,7 @@
             window.removeEventListener('resize', _onRoutineMgrResize);
             document.getElementById('routine-mgr-overlay').style.display = 'none';
             isModalOpen = false; _routineMgrNodeId = null;
+            if (_routineMgrTriggerEl) { try { _routineMgrTriggerEl.focus(); } catch(_) {} _routineMgrTriggerEl = null; }
             renderMap(); setTimeout(updateAllWires, 50);
         }
 
@@ -2702,103 +3077,107 @@
                     _routineDragSrcIdx = idx; e.dataTransfer.effectAllowed = 'move';
                     requestAnimationFrame(() => { card.style.opacity = '0.42'; });
                 });
-                card.addEventListener('dragend', () => {
-                    card.style.opacity = '';
-                    _routineDragSrcIdx = null;
-                    grid.querySelectorAll('.routine-step-card').forEach(c => c.classList.remove('routine-drop-over'));
-                });
-                card.addEventListener('dragover', (e) => {
-                    e.preventDefault(); e.dataTransfer.dropEffect = 'move';
-                    if (_routineDragSrcIdx !== null && _routineDragSrcIdx !== idx) {
-                        grid.querySelectorAll('.routine-step-card').forEach(c => c.classList.remove('routine-drop-over'));
-                        card.classList.add('routine-drop-over');
-                    }
-                });
-                card.addEventListener('dragleave', (e) => {
-                    if (!card.contains(e.relatedTarget)) card.classList.remove('routine-drop-over');
-                });
+                card.addEventListener('dragover', (e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; });
+                card.addEventListener('dragenter', (e) => { e.preventDefault(); card.classList.add('routine-drop-over'); });
+                card.addEventListener('dragleave', () => card.classList.remove('routine-drop-over'));
                 card.addEventListener('drop', (e) => {
-                    e.preventDefault();
-                    if (_routineDragSrcIdx === null || _routineDragSrcIdx === idx) return;
-                    card.classList.remove('routine-drop-over');
-                    const [moved] = node.steps.splice(_routineDragSrcIdx, 1);
-                    node.steps.splice(idx, 0, moved);
+                    e.preventDefault(); card.classList.remove('routine-drop-over');
+                    const dest = parseInt(card.dataset.idx);
+                    if (_routineDragSrcIdx === dest || _routineDragSrcIdx == null) return;
+                    const steps = nodesData[_routineMgrNodeId].steps;
+                    const [moved] = steps.splice(_routineDragSrcIdx, 1);
+                    steps.splice(dest, 0, moved);
                     _routineDragSrcIdx = null;
-                    _saveAndSyncRoutine(); _renderRoutineMgrGrid();
+                    _saveAndSyncRoutine();
+                    _renderRoutineMgrGrid();
                 });
-
+                card.addEventListener('dragend', () => { card.style.opacity = ''; _routineDragSrcIdx = null; });
                 grid.appendChild(card);
             });
         }
 
-        function handleRoutineStepUpload(event) {
-            const file = event.target.files[0];
-            event.target.value = '';
-            if (!file || !file.type.startsWith('image/') || _routineUploadSlot === null) return;
-            const node = _routineMgrNodeId && nodesData[_routineMgrNodeId];
-            if (!node || !node.steps[_routineUploadSlot]) { _routineUploadSlot = null; return; }
-            const reader = new FileReader();
-            reader.onload = (ev) => {
-                const img = new Image();
-                img.onload = () => {
-                    if (_routineUploadSlot === null || !node.steps[_routineUploadSlot]) { _routineUploadSlot = null; return; }
-                    const MAX = 800;
-                    let w = img.width, h = img.height;
-                    if (w > MAX || h > MAX) { if (w >= h) { h = Math.round(h * MAX / w); w = MAX; } else { w = Math.round(w * MAX / h); h = MAX; } }
-                    const cvs = document.createElement('canvas');
-                    cvs.width = w; cvs.height = h;
-                    cvs.getContext('2d').drawImage(img, 0, 0, w, h);
-                    node.steps[_routineUploadSlot].dataUrl = cvs.toDataURL('image/jpeg', 0.82);
-                    _routineUploadSlot = null;
-                    _saveAndSyncRoutine(); _renderRoutineMgrGrid();
-                };
-                img.onerror = () => { _routineUploadSlot = null; };
-                img.src = ev.target.result;
+        function handleRoutineStepUpload(e) {
+            const file = e.target.files[0];
+            if (!file || !(file.type.startsWith('image/') || file.name.match(/\.(heic|heif)$/i))) { e.target.value = ''; return; }
+            const idx = _routineUploadSlot;
+            if (idx == null) { e.target.value = ''; return; }
+            const node = nodesData[_routineMgrNodeId];
+            if (!node || !node.steps[idx]) { e.target.value = ''; return; }
+            const objectUrl = URL.createObjectURL(file);
+            const img = new Image();
+            img.onload = () => {
+                const maxDim = 400, ratio = Math.min(maxDim / img.width, maxDim / img.height, 1);
+                const canvas = document.createElement('canvas');
+                canvas.width = Math.round(img.width * ratio) || 1;
+                canvas.height = Math.round(img.height * ratio) || 1;
+                canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                URL.revokeObjectURL(objectUrl);
+                node.steps[idx].dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+                _routineUploadSlot = null;
+                _saveAndSyncRoutine();
+                _renderRoutineMgrGrid();
             };
-            reader.onerror = () => { _routineUploadSlot = null; };
-            reader.readAsDataURL(file);
+            img.onerror = () => {
+                URL.revokeObjectURL(objectUrl);
+                const reader = new FileReader();
+                reader.onload = (ev) => { node.steps[idx].dataUrl = ev.target.result; _routineUploadSlot = null; _saveAndSyncRoutine(); _renderRoutineMgrGrid(); };
+                reader.onerror = () => { _routineUploadSlot = null; };
+                reader.readAsDataURL(file);
+            };
+            img.src = objectUrl;
+            e.target.value = '';
         }
 
         function clearRoutineStep(idx) {
-            const node = _routineMgrNodeId && nodesData[_routineMgrNodeId];
+            const node = nodesData[_routineMgrNodeId];
             if (!node || !node.steps[idx]) return;
             node.steps[idx].dataUrl = null;
-            _saveAndSyncRoutine(); _renderRoutineMgrGrid();
+            _saveAndSyncRoutine();
+            _renderRoutineMgrGrid();
         }
 
         function updateRoutineStepLabel(idx, value) {
-            const node = _routineMgrNodeId && nodesData[_routineMgrNodeId];
+            const node = nodesData[_routineMgrNodeId];
             if (!node || !node.steps[idx]) return;
             node.steps[idx].label = value;
             _saveAndSyncRoutine();
         }
 
         function _saveAndSyncRoutine() {
-            try { localStorage.setItem('aacMapData', JSON.stringify(nodesData)); } catch(e) { console.warn('Storage quota exceeded — routine data not saved:', e); }
+            try { localStorage.setItem('aacMapData', JSON.stringify(nodesData)); } catch(e) { console.warn('Storage quota exceeded:', e); }
             const _ap = _profiles && _profiles.find(p => p.id === _activeProfileId);
             if (_ap) { _ap.nodesData = JSON.parse(JSON.stringify(nodesData)); _ap.gridCols = gridCols; _ap.gridRows = gridRows; saveProfiles(); }
         }
-        // ── End Routine Board ─────────────────────────────────────────────────────
+
+        // ── Symbol Picker ────────────────────────────────────────────────────────
 
         let symbolPickerTarget = { nodeId: null, cellIdx: null };
-
+        let _lastSymbolTab = 'arasaac';
 
         function openSymbolPickerModal(nodeId, cellIdx) {
             symbolPickerTarget = { nodeId, cellIdx };
             isModalOpen = true;
             activePointers.clear();
-            // Reset search state so re-opening for a different cell always works
-            _lastArasaacQ = ''; _lastPicomQ = '';
+            _lastArasaacQ = ''; _lastPicomQ = ''; _lastMulberryQ = ''; _lastJellowQ = ''; _lastOpenmojiQ = '';
             const aInp = document.getElementById('sp-arasaac-input');
             if (aInp) aInp.value = '';
             const pInp = document.getElementById('sp-picom-input');
             if (pInp) pInp.value = '';
+            const mInp2 = document.getElementById('sp-mulberry-input');
+            if (mInp2) mInp2.value = '';
+            const jInp2 = document.getElementById('sp-jellow-input');
+            if (jInp2) jInp2.value = '';
+            const omInp2 = document.getElementById('sp-openmoji-input');
+            if (omInp2) omInp2.value = '';
             _spState('arasaac', 'empty', 'Search ARASAAC Line Drawings', 'Simple, clear pictogram symbols');
             _spState('picom', 'empty', 'Search PiCom AI Photographs', 'Realistic AI-generated photo symbols');
-            // Always open on ARASAAC tab
-            switchSymbolTab('arasaac');
+            _spState('mulberry', 'empty', 'Search Mulberry Symbols', 'Adult-friendly open pictograms for AAC');
+            _spState('jellow', 'empty', 'Search Jellow Symbols', 'Colorful pictograms by IDC School of Design');
+            _spState('openmoji', 'empty', 'Search OpenMoji Emoji', 'Open-source emoji by the OpenMoji Project');
+            switchSymbolTab(_lastSymbolTab);
+            document.querySelectorAll('.sp-skin-btn:not(.sp-openmoji-skin-btn)').forEach(b => b.classList.toggle('active', b.dataset.skin === _arasaacSkin));
+            setOpenmojiSkin(_openmojiSkin);
             document.getElementById('symbol-picker-overlay').style.display = 'flex';
-            setTimeout(() => { const inp = document.getElementById('sp-arasaac-input'); if (inp) inp.focus(); }, 100);
         }
 
         function closeSymbolPickerModal() {
@@ -2808,16 +3187,101 @@
         }
 
         function switchSymbolTab(tab) {
+            _lastSymbolTab = tab;
             document.getElementById('sp-tab-arasaac').classList.toggle('active', tab === 'arasaac');
             document.getElementById('sp-tab-picom').classList.toggle('active', tab === 'picom');
+            document.getElementById('sp-tab-mulberry').classList.toggle('active', tab === 'mulberry');
+            document.getElementById('sp-tab-jellow').classList.toggle('active', tab === 'jellow');
+            document.getElementById('sp-tab-openmoji').classList.toggle('active', tab === 'openmoji');
             document.getElementById('sp-arasaac-content').classList.toggle('active', tab === 'arasaac');
             document.getElementById('sp-picom-content').classList.toggle('active', tab === 'picom');
+            document.getElementById('sp-mulberry-content').classList.toggle('active', tab === 'mulberry');
+            document.getElementById('sp-jellow-content').classList.toggle('active', tab === 'jellow');
+            document.getElementById('sp-openmoji-content').classList.toggle('active', tab === 'openmoji');
             document.getElementById('sp-attr-arasaac').classList.toggle('hidden', tab !== 'arasaac');
             document.getElementById('sp-attr-picom').classList.toggle('hidden', tab !== 'picom');
+            document.getElementById('sp-attr-mulberry').classList.toggle('hidden', tab !== 'mulberry');
+            document.getElementById('sp-attr-jellow').classList.toggle('hidden', tab !== 'jellow');
+            document.getElementById('sp-attr-openmoji').classList.toggle('hidden', tab !== 'openmoji');
+            setTimeout(() => { const inp = document.getElementById(`sp-${tab}-input`); if (inp) inp.focus(); }, 60);
         }
 
         // ARASAAC search
-        let _arasaacTimeout = null, _lastArasaacQ = '';
+        const _VALID_SKINS = new Set(['none','white','black','assian','mulatto','aztec']);
+        const _ARASAAC_BASE_SKIN = [247, 231, 224];
+        const _SKIN_FUZZ = 15;
+        const _SKIN_TARGET = {
+            white:   [247, 222, 206],
+            assian:  [210, 158, 100],
+            mulatto: [183, 120,  65],
+            aztec:   [152,  95,  52],
+            black:   [ 90,  68,  62],
+        };
+        const _skinCache = new Map();
+        let _arasaacTimeout = null, _lastArasaacQ = '',
+            _arasaacSkin = _VALID_SKINS.has(localStorage.getItem('arasaacSkin')) ? localStorage.getItem('arasaacSkin') : 'none';
+        function setArasaacSkin(val) {
+            _arasaacSkin = val;
+            localStorage.setItem('arasaacSkin', val);
+            document.querySelectorAll('.sp-skin-btn:not(.sp-openmoji-skin-btn)').forEach(b => b.classList.toggle('active', b.dataset.skin === val));
+            // Re-apply ARASAAC skin by re-searching
+            _lastArasaacQ = '';
+            const inp = document.getElementById('sp-arasaac-input');
+            if (inp && inp.value.trim().length >= 2) searchArasaac(inp.value.trim());
+            // Re-apply Mulberry skin directly on existing buttons (fast — uses blob cache)
+            _reapplyMulberrySkin();
+        }
+        function _arasaacImgUrl(id) {
+            return `https://static.arasaac.org/pictograms/${id}/${id}_500.png`;
+        }
+        function _applyArasaacSkin(btn) {
+            const skinKey = _arasaacSkin;
+            if (skinKey === 'none' || !_SKIN_TARGET[skinKey]) return;
+            const id = btn.dataset.id;
+            if (!id) return;
+            const cacheKey = `${id}_${skinKey}`;
+            if (_skinCache.has(cacheKey)) {
+                const cached = _skinCache.get(cacheKey);
+                if (cached) { const img = btn.querySelector('img'); if (img) img.src = cached; btn.dataset.url = cached; }
+                return;
+            }
+            const proxyImg = new Image();
+            proxyImg.crossOrigin = 'anonymous';
+            proxyImg.onload = function() {
+                const canvas = document.createElement('canvas');
+                canvas.width = proxyImg.naturalWidth;
+                canvas.height = proxyImg.naturalHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(proxyImg, 0, 0);
+                let imageData;
+                try { imageData = ctx.getImageData(0, 0, canvas.width, canvas.height); }
+                catch(e) {
+                    _skinCache.set(cacheKey, null);
+                    const apiUrl = `https://api.arasaac.org/api/pictograms/${id}?skin=${skinKey}`;
+                    const lb = document.querySelector(`.sp-symbol-btn[data-id="${id}"]`);
+                    if (lb) { const img = lb.querySelector('img'); if (img) img.src = apiUrl; lb.dataset.url = apiUrl; }
+                    return;
+                }
+                const d = imageData.data, [br,bg,bb] = _ARASAAC_BASE_SKIN, [tr,tg,tb] = _SKIN_TARGET[skinKey], fuzz = _SKIN_FUZZ;
+                for (let i = 0; i < d.length; i += 4) {
+                    if (d[i+3] < 10) continue;
+                    if (Math.abs(d[i]-br) <= fuzz && Math.abs(d[i+1]-bg) <= fuzz && Math.abs(d[i+2]-bb) <= fuzz)
+                        { d[i] = tr; d[i+1] = tg; d[i+2] = tb; }
+                }
+                ctx.putImageData(imageData, 0, 0);
+                const dataUrl = canvas.toDataURL('image/png');
+                _skinCache.set(cacheKey, dataUrl);
+                const lb = document.querySelector(`.sp-symbol-btn[data-id="${id}"]`);
+                if (lb) { const img = lb.querySelector('img'); if (img) img.src = dataUrl; lb.dataset.url = dataUrl; }
+            };
+            proxyImg.onerror = function() {
+                _skinCache.set(cacheKey, null);
+                const apiUrl = `https://api.arasaac.org/api/pictograms/${id}?skin=${skinKey}`;
+                const lb = document.querySelector(`.sp-symbol-btn[data-id="${id}"]`);
+                if (lb) { const img = lb.querySelector('img'); if (img) img.src = apiUrl; lb.dataset.url = apiUrl; }
+            };
+            proxyImg.src = `https://static.arasaac.org/pictograms/${id}/${id}_500.png`;
+        }
         function searchArasaac(q) {
             if (!q || q.length < 2) { _spState('arasaac', 'empty', 'Search ARASAAC Line Drawings', 'Simple, clear pictogram symbols'); return; }
             if (q === _lastArasaacQ) return;
@@ -2825,7 +3289,7 @@
             const inp = document.getElementById('sp-arasaac-input');
             if (inp) inp.value = q;
             _spState('arasaac', 'loading');
-            fetch(`https://api.arasaac.org/v1/pictograms/en/search/${encodeURIComponent(q)}`)
+            fetch(`https://api.arasaac.org/api/pictograms/en/search/${encodeURIComponent(q)}`)
                 .then(r => { if (!r.ok) throw new Error(); return r.json(); })
                 .then(data => {
                     if (!data || data.length === 0) { _spState('arasaac', 'noresult', q); return; }
@@ -2834,9 +3298,10 @@
                     grid.innerHTML = data.slice(0, 24).map(item => {
                         const id = item._id;
                         const lbl = ((item.keywords||[]).find(k => k.keyword)||{}).keyword || `Symbol ${id}`;
-                        const url = `https://static.arasaac.org/pictograms/${id}/${id}_500.png`;
+                        const url = _arasaacImgUrl(id);
                         return `<button class="sp-symbol-btn" data-id="${escHtml(String(id))}" data-label="${escHtml(lbl)}" data-url="${escHtml(url)}"><img src="${escHtml(url)}" alt="${escHtml(lbl)}" loading="lazy"><span class="sp-lbl">${escHtml(lbl)}</span></button>`;
                     }).join('');
+                    if (_arasaacSkin !== 'none') grid.querySelectorAll('.sp-symbol-btn').forEach(btn => _applyArasaacSkin(btn));
                 })
                 .catch(() => _spState('arasaac', 'error'));
         }
@@ -2869,6 +3334,214 @@
                     if (err instanceof TypeError) _spState('picom', 'cors');
                     else _spState('picom', 'error');
                 });
+        }
+
+        // Mulberry Symbols search (Global Symbols API — CC BY-SA 2.0)
+        // SVG skin tone: Mulberry base skin fill confirmed from live SVGs
+        const _MULBERRY_SKIN_BASE = '#ffeec8';
+        const _MULBERRY_SKIN_TARGETS = {
+            white:   '#fde8d4',
+            assian:  '#daa56e',
+            mulatto: '#c07848',
+            aztec:   '#a06030',
+            black:   '#6b3828',
+        };
+        const _mulberrySkinCache = new Map();
+
+        function _applyMulberrySkin(btn) {
+            const skinKey = _arasaacSkin;
+            if (skinKey === 'none' || !_MULBERRY_SKIN_TARGETS[skinKey]) return;
+            if (btn.dataset.adaptable !== 'true') return;
+            // Always work from the original API URL, not a previously-blobbed URL
+            const origUrl = btn.dataset.origUrl || btn.dataset.url;
+            if (!origUrl || origUrl.startsWith('data:') || origUrl.startsWith('blob:')) return;
+            btn.dataset.origUrl = origUrl; // pin original URL on first call
+            const cacheKey = origUrl + '_' + skinKey;
+            if (_mulberrySkinCache.has(cacheKey)) {
+                const cached = _mulberrySkinCache.get(cacheKey);
+                if (cached) { const img = btn.querySelector('img'); if (img) img.src = cached; btn.dataset.url = cached; }
+                return;
+            }
+            fetch(origUrl)
+                .then(r => { if (!r.ok) throw new Error(); return r.text(); })
+                .then(svgText => {
+                    const tgt = _MULBERRY_SKIN_TARGETS[skinKey];
+                    const modified = svgText.replace(new RegExp(_MULBERRY_SKIN_BASE, 'gi'), tgt);
+                    const blob = new Blob([modified], { type: 'image/svg+xml' });
+                    const objUrl = URL.createObjectURL(blob);
+                    _mulberrySkinCache.set(cacheKey, objUrl);
+                    // Re-look up the button in case DOM changed
+                    const lb = document.querySelector(`.sp-symbol-btn[data-orig-url="${CSS.escape(origUrl)}"]`) ||
+                               document.querySelector(`.sp-symbol-btn[data-id="${btn.dataset.id}"]`);
+                    if (lb) { const img = lb.querySelector('img'); if (img) img.src = objUrl; lb.dataset.url = objUrl; }
+                })
+                .catch(() => { _mulberrySkinCache.set(cacheKey, null); });
+        }
+
+        function _reapplyMulberrySkin() {
+            const grid = document.getElementById('sp-mulberry-results');
+            if (!grid) return;
+            const skinKey = _arasaacSkin;
+            if (skinKey === 'none') {
+                // Reset to original URLs
+                grid.querySelectorAll('.sp-symbol-btn[data-orig-url]').forEach(btn => {
+                    const img = btn.querySelector('img');
+                    if (img) img.src = btn.dataset.origUrl;
+                    btn.dataset.url = btn.dataset.origUrl;
+                });
+                return;
+            }
+            grid.querySelectorAll('.sp-symbol-btn').forEach(btn => _applyMulberrySkin(btn));
+        }
+
+        let _mulberryTimeout = null, _lastMulberryQ = '';
+        function searchMulberry(q) {
+            if (!q || q.length < 2) { _spState('mulberry', 'empty', 'Search Mulberry Symbols', 'Adult-friendly open pictograms for AAC'); return; }
+            if (q === _lastMulberryQ) return;
+            _lastMulberryQ = q;
+            const inp = document.getElementById('sp-mulberry-input');
+            if (inp) inp.value = q;
+            _spState('mulberry', 'loading');
+            fetch(`https://globalsymbols.com/api/v1/labels/search?query=${encodeURIComponent(q)}&symbolset=mulberry&language=en&language_iso_format=639-1&limit=24`)
+                .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+                .then(data => {
+                    if (!data || data.length === 0) { _spState('mulberry', 'noresult', q); return; }
+                    const grid = document.getElementById('sp-mulberry-results');
+                    if (!grid) return;
+                    grid.innerHTML = data.map(item => {
+                        const lbl = item.text || 'Symbol';
+                        const url = item.picto?.image_url || '';
+                        const sid = String(item.picto?.id || item.id || '');
+                        const adaptable = String(item.picto?.adaptable || false);
+                        if (!url) return '';
+                        return `<button class="sp-symbol-btn" data-id="${escHtml(sid)}" data-label="${escHtml(lbl)}" data-url="${escHtml(url)}" data-adaptable="${escHtml(adaptable)}"><img src="${escHtml(url)}" alt="${escHtml(lbl)}" loading="lazy" onerror="this.parentElement.style.display='none'"><span class="sp-lbl">${escHtml(lbl)}</span></button>`;
+                    }).join('');
+                    if (_arasaacSkin !== 'none') grid.querySelectorAll('.sp-symbol-btn').forEach(btn => _applyMulberrySkin(btn));
+                })
+                .catch(() => _spState('mulberry', 'error'));
+        }
+
+        // OpenMoji search (CDN JSON index — CC BY-SA 4.0)
+        let _openmojiTimeout = null, _lastOpenmojiQ = '', _openmojiData = null, _openmojiLoading = false, _openmojiSkin = '';
+        const _OPENMOJI_CDN = 'https://cdn.jsdelivr.net/npm/openmoji@15.0.0';
+        const _OPENMOJI_SKIN_MAP = {
+            'light':    1,
+            'medlight': 2,
+            'medium':   3,
+            'meddark':  4,
+            'dark':     5
+        };
+        function _loadOpenmojiData(cb) {
+            if (_openmojiData) { cb(_openmojiData); return; }
+            if (_openmojiLoading) { const t = setInterval(() => { if (_openmojiData) { clearInterval(t); cb(_openmojiData); } }, 120); return; }
+            _openmojiLoading = true;
+            fetch(`${_OPENMOJI_CDN}/data/openmoji.json`)
+                .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+                .then(data => { _openmojiData = data; _openmojiLoading = false; cb(data); })
+                .catch(() => { _openmojiLoading = false; _spState('openmoji', 'error'); });
+        }
+        function setOpenmojiSkin(skin) {
+            _openmojiSkin = skin;
+            document.querySelectorAll('.sp-openmoji-skin-btn').forEach(b => {
+                const isActive = b.dataset.skin === skin;
+                b.classList.toggle('active', isActive);
+                // For the 'All' text pill, toggle bg/border colour instead of the swatch ring
+                if (!b.classList.contains('sp-skin-btn')) {
+                    b.style.borderColor = isActive ? '#3b82f6' : '';
+                    b.style.background  = isActive ? '#dbeafe' : '';
+                    b.style.color       = isActive ? '#1d4ed8' : '';
+                    b.style.transform   = isActive ? 'scale(1.1)' : '';
+                }
+            });
+            const inp = document.getElementById('sp-openmoji-input');
+            const q = inp ? inp.value.trim() : '';
+            _lastOpenmojiQ = '';
+            if (q.length >= 2) searchOpenmoji(q);
+        }
+        function searchOpenmoji(q) {
+            if (!q || q.length < 2) { _spState('openmoji', 'empty', 'Search OpenMoji Emoji', 'Open-source emoji by the OpenMoji Project'); return; }
+            if (q === _lastOpenmojiQ) return;
+            _lastOpenmojiQ = q;
+            _spState('openmoji', 'loading');
+            _loadOpenmojiData(data => {
+                const ql = q.toLowerCase();
+                // Always match against base (skintone === '') entries only
+                const baseMatches = data.filter(e => {
+                    if (e.group === 'extras-openmoji' || e.group === 'extras-unicode') return false;
+                    if (e.skintone !== '') return false;
+                    const ann = (e.annotation || '').toLowerCase();
+                    const tags = (e.tags || '').toLowerCase();
+                    const otags = (e.openmoji_tags || '').toLowerCase();
+                    return ann.includes(ql) || tags.split(',').some(t => t.trim().startsWith(ql)) || otags.split(',').some(t => t.trim().startsWith(ql));
+                }).slice(0, 24);
+                if (baseMatches.length === 0) { _spState('openmoji', 'noresult', q); return; }
+                let results;
+                if (!_openmojiSkin) {
+                    results = baseMatches;
+                } else {
+                    // Build map: base hexcode → skin tone variant
+                    const skinTarget = _OPENMOJI_SKIN_MAP[_openmojiSkin];
+                    const skinVariants = new Map();
+                    data.forEach(e => { if (e.skintone === skinTarget && e.skintone_base_hexcode) skinVariants.set(e.skintone_base_hexcode, e); });
+                    // Swap base for skin variant where available, keep base otherwise
+                    results = baseMatches.map(e => skinVariants.get(e.hexcode) || e);
+                }
+                const grid = document.getElementById('sp-openmoji-results');
+                if (!grid) return;
+                grid.innerHTML = results.map(e => {
+                    const lbl = e.annotation || e.hexcode;
+                    const url = `${_OPENMOJI_CDN}/color/svg/${e.hexcode}.svg`;
+                    return `<button class="sp-symbol-btn" data-id="${escHtml(e.hexcode)}" data-label="${escHtml(lbl)}" data-url="${escHtml(url)}"><img src="${escHtml(url)}" alt="${escHtml(lbl)}" loading="lazy" onerror="this.parentElement.style.display='none'"><span class="sp-lbl">${escHtml(lbl)}</span></button>`;
+                }).join('');
+            });
+        }
+
+        function selectOpenmojiSymbol(hexcode, label, imageUrl) {
+            const { nodeId, cellIdx } = symbolPickerTarget;
+            if (!nodeId || cellIdx == null) return;
+            pushHistory();
+            const existing = nodesData[nodeId]?.cells[cellIdx] || {};
+            const keepLabel = existing.linkId ? existing.label : label;
+            nodesData[nodeId].cells[cellIdx] = { label: keepLabel, linkId: existing.linkId || null, src: imageUrl, isOpenmoji: true, openmojiHex: hexcode };
+            closeSymbolPickerModal();
+            renderMap(); setTimeout(updateAllWires, 50);
+        }
+
+        // Jellow search (Global Symbols API — CC BY-NC-SA 4.0)
+        let _jellowTimeout = null, _lastJellowQ = '';
+        function searchJellow(q) {
+            if (!q || q.length < 2) { _spState('jellow', 'empty', 'Search Jellow Symbols', 'Colorful pictograms by IDC School of Design'); return; }
+            if (q === _lastJellowQ) return;
+            _lastJellowQ = q;
+            const inp = document.getElementById('sp-jellow-input');
+            if (inp) inp.value = q;
+            _spState('jellow', 'loading');
+            fetch(`https://globalsymbols.com/api/v1/labels/search?query=${encodeURIComponent(q)}&symbolset=jellow&language=en&language_iso_format=639-1&limit=24`)
+                .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+                .then(data => {
+                    if (!data || data.length === 0) { _spState('jellow', 'noresult', q); return; }
+                    const grid = document.getElementById('sp-jellow-results');
+                    if (!grid) return;
+                    grid.innerHTML = data.map(item => {
+                        const lbl = item.text || 'Symbol';
+                        const url = item.picto?.image_url || '';
+                        const sid = String(item.picto?.id || item.id || '');
+                        if (!url) return '';
+                        return `<button class="sp-symbol-btn" data-id="${escHtml(sid)}" data-label="${escHtml(lbl)}" data-url="${escHtml(url)}"><img src="${escHtml(url)}" alt="${escHtml(lbl)}" loading="lazy" onerror="this.parentElement.style.display='none'"><span class="sp-lbl">${escHtml(lbl)}</span></button>`;
+                    }).join('');
+                })
+                .catch(() => _spState('jellow', 'error'));
+        }
+
+        function selectJellowSymbol(id, label, imageUrl) {
+            const { nodeId, cellIdx } = symbolPickerTarget;
+            if (!nodeId || cellIdx == null) return;
+            pushHistory();
+            const existing = nodesData[nodeId]?.cells[cellIdx] || {};
+            const keepLabel = existing.linkId ? existing.label : label;
+            nodesData[nodeId].cells[cellIdx] = { label: keepLabel, linkId: existing.linkId || null, src: imageUrl, isJellow: true, jellowId: id };
+            closeSymbolPickerModal();
+            renderMap(); setTimeout(updateAllWires, 50);
         }
 
         function _spState(tab, state, arg1, arg2) {
@@ -2909,6 +3582,17 @@
             renderMap(); setTimeout(updateAllWires, 50);
         }
 
+        function selectMulberrySymbol(id, label, imageUrl) {
+            const { nodeId, cellIdx } = symbolPickerTarget;
+            if (!nodeId || cellIdx == null) return;
+            pushHistory();
+            const existing = nodesData[nodeId]?.cells[cellIdx] || {};
+            const keepLabel = existing.linkId ? existing.label : label;
+            nodesData[nodeId].cells[cellIdx] = { label: keepLabel, linkId: existing.linkId || null, src: imageUrl, isMulberry: true, mulberryId: id };
+            closeSymbolPickerModal();
+            renderMap(); setTimeout(updateAllWires, 50);
+        }
+
         function setupSymbolPickerInputs() {
             // ARASAAC input debounce
             const aInp = document.getElementById('sp-arasaac-input');
@@ -2937,6 +3621,45 @@
             if (aGrid) aGrid.addEventListener('click', (e) => { const btn = e.target.closest('.sp-symbol-btn'); if (btn) selectArasaacSymbol(btn.dataset.id, btn.dataset.label, btn.dataset.url); });
             const pGrid = document.getElementById('sp-picom-results');
             if (pGrid) pGrid.addEventListener('click', (e) => { const btn = e.target.closest('.sp-symbol-btn'); if (btn) selectPicomSymbol(btn.dataset.id, btn.dataset.label, btn.dataset.url); });
+            // Mulberry input debounce
+            const mInp = document.getElementById('sp-mulberry-input');
+            if (mInp) {
+                mInp.addEventListener('input', (e) => {
+                    clearTimeout(_mulberryTimeout); _lastMulberryQ = '';
+                    const q = e.target.value.trim();
+                    if (q.length < 2) { _spState('mulberry', 'empty', 'Search Mulberry Symbols', 'Adult-friendly open pictograms for AAC'); return; }
+                    _mulberryTimeout = setTimeout(() => searchMulberry(q), 400);
+                });
+                mInp.addEventListener('keydown', (e) => { if (e.key === 'Enter') { clearTimeout(_mulberryTimeout); _lastMulberryQ = ''; searchMulberry(mInp.value.trim()); } });
+            }
+            const mGrid = document.getElementById('sp-mulberry-results');
+            if (mGrid) mGrid.addEventListener('click', (e) => { const btn = e.target.closest('.sp-symbol-btn'); if (btn) selectMulberrySymbol(btn.dataset.id, btn.dataset.label, btn.dataset.url); });
+            // Jellow input debounce
+            const jInp = document.getElementById('sp-jellow-input');
+            if (jInp) {
+                jInp.addEventListener('input', (e) => {
+                    clearTimeout(_jellowTimeout); _lastJellowQ = '';
+                    const q = e.target.value.trim();
+                    if (q.length < 2) { _spState('jellow', 'empty', 'Search Jellow Symbols', 'Colorful pictograms by IDC School of Design'); return; }
+                    _jellowTimeout = setTimeout(() => searchJellow(q), 400);
+                });
+                jInp.addEventListener('keydown', (e) => { if (e.key === 'Enter') { clearTimeout(_jellowTimeout); _lastJellowQ = ''; searchJellow(jInp.value.trim()); } });
+            }
+            const jGrid = document.getElementById('sp-jellow-results');
+            if (jGrid) jGrid.addEventListener('click', (e) => { const btn = e.target.closest('.sp-symbol-btn'); if (btn) selectJellowSymbol(btn.dataset.id, btn.dataset.label, btn.dataset.url); });
+            // OpenMoji input debounce
+            const omInp = document.getElementById('sp-openmoji-input');
+            if (omInp) {
+                omInp.addEventListener('input', (e) => {
+                    clearTimeout(_openmojiTimeout); _lastOpenmojiQ = '';
+                    const q = e.target.value.trim();
+                    if (q.length < 2) { _spState('openmoji', 'empty', 'Search OpenMoji Emoji', 'Open-source emoji by the OpenMoji Project'); return; }
+                    _openmojiTimeout = setTimeout(() => searchOpenmoji(q), 350);
+                });
+                omInp.addEventListener('keydown', (e) => { if (e.key === 'Enter') { clearTimeout(_openmojiTimeout); _lastOpenmojiQ = ''; searchOpenmoji(omInp.value.trim()); } });
+            }
+            const omGrid = document.getElementById('sp-openmoji-results');
+            if (omGrid) omGrid.addEventListener('click', (e) => { const btn = e.target.closest('.sp-symbol-btn'); if (btn) selectOpenmojiSymbol(btn.dataset.id, btn.dataset.label, btn.dataset.url); });
             // Photo upload handler
             const fileInput = document.getElementById('sm-file-input');
             if (fileInput) {
@@ -3001,6 +3724,7 @@
             labelPosition: 'bottom',  // 'bottom', 'top', 'hidden'
             emptyCellStyle: 'dashed', // 'dashed', 'hidden', 'solid'
             speakOnTap: true,         // speak word immediately on cell tap
+            voiceGender: 'female',    // 'female' | 'male'
             showMasked: false,         // reveal masked (placeholder) cells in client mode
             dragSelect: false,         // enlarge symbols as finger slides over; release to select
             dragSelectPreview: true,   // speak each symbol name while hovering (false = only on release)
@@ -3439,6 +4163,18 @@
             btn.innerHTML = `<span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ${isOn ? 'translate-x-5' : 'translate-x-0'}"></span>`;
         }
 
+        function setVoiceGender(gender) {
+            clientSettings.voiceGender = gender;
+            saveClientSettings();
+            const fBtn = document.getElementById('vg-btn-female');
+            const mBtn = document.getElementById('vg-btn-male');
+            if (!fBtn || !mBtn) return;
+            const active   = 'px-3 py-1 rounded-md text-xs font-bold transition-all bg-white text-blue-700 shadow';
+            const inactive = 'px-3 py-1 rounded-md text-xs font-bold transition-all text-slate-500';
+            fBtn.className = gender !== 'male' ? active : inactive;
+            mBtn.className = gender === 'male' ? active : inactive;
+        }
+
         function toggleDragSelect(btn) {
             clientSettings.dragSelect = !clientSettings.dragSelect;
             saveClientSettings();
@@ -3639,6 +4375,9 @@
 
                         <!-- Audio -->
                         <div class="space-y-3 pt-4 border-t border-slate-100">
+                            <h4 class="text-xs font-bold uppercase tracking-widest flex items-center gap-2 text-slate-400">
+                                <i data-lucide="volume-2" class="w-3.5 h-3.5 text-blue-400"></i> Audio
+                            </h4>
                             <label class="flex items-center justify-between cursor-pointer group bg-slate-50 p-3 rounded-xl border border-slate-100 hover:bg-slate-100 transition-colors">
                                 <div class="flex items-center gap-3">
                                     <i data-lucide="volume-2" class="w-5 h-5 text-slate-500 group-hover:text-blue-600 transition-colors"></i>
@@ -3648,6 +4387,20 @@
                                     <span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ${clientSettings.speakOnTap!==false?'translate-x-5':'translate-x-0'}"></span>
                                 </button>
                             </label>
+                            <!-- Voice gender -->
+                            <div class="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                <div class="flex items-center gap-3">
+                                    <i data-lucide="mic-2" class="w-5 h-5 text-slate-500"></i>
+                                    <div>
+                                        <span class="text-sm font-semibold text-slate-700 block">Voice</span>
+                                        <span class="text-xs text-slate-400">Choose a male or female voice</span>
+                                    </div>
+                                </div>
+                                <div class="flex bg-slate-200 rounded-lg p-0.5 gap-0.5 flex-shrink-0">
+                                    <button id="vg-btn-female" onclick="setVoiceGender('female')" class="px-3 py-1 rounded-md text-xs font-bold transition-all ${(clientSettings.voiceGender||'female')!=='male'?'bg-white text-blue-700 shadow':'text-slate-500'}">&#9792; Female</button>
+                                    <button id="vg-btn-male"   onclick="setVoiceGender('male')"   class="px-3 py-1 rounded-md text-xs font-bold transition-all ${clientSettings.voiceGender==='male'?'bg-white text-blue-700 shadow':'text-slate-500'}">&#9794; Male</button>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Accessibility: Drag-select -->
@@ -4206,6 +4959,13 @@
                 const btn = document.createElement('button');
                 btn.style.gridColumn = `${colPos} / span ${cs}`;
                 btn.style.gridRow    = `${rowPos} / span ${rs}`;
+                // Accessible name — used whether label is visible or not
+                if (cell) {
+                    const linkTitle = cell.linkId && nodesData[cell.linkId] ? nodesData[cell.linkId].title : null;
+                    btn.setAttribute('aria-label', linkTitle ? `Open ${linkTitle}` : (cell.label || 'Symbol button'));
+                } else {
+                    btn.setAttribute('aria-label', 'Empty cell');
+                }
                 
                 // Set typography 
                 const fontMap = { Outfit: "'Outfit', sans-serif", Poppins: "'Poppins', sans-serif", 'sans-serif': "sans-serif" };
@@ -4419,6 +5179,27 @@
             appendToSentenceStrip(cell, sentenceStrip.length - 1);
         }
 
+        // ── Voice selection helpers ──────────────────────────────────────────
+        let _voiceList = [];
+        function _initVoices() { _voiceList = window.speechSynthesis ? window.speechSynthesis.getVoices() : []; }
+        if (window.speechSynthesis) { window.speechSynthesis.onvoiceschanged = _initVoices; _initVoices(); }
+
+        function _getVoiceForGender(gender) {
+            if (!window.speechSynthesis) return null;
+            const voices = _voiceList.length ? _voiceList : window.speechSynthesis.getVoices();
+            if (!voices.length) return null;
+            const lang = (navigator.language || 'en').toLowerCase().split('-')[0];
+            const langVoices = voices.filter(v => v.lang.toLowerCase().startsWith(lang));
+            const pool = langVoices.length ? langVoices : voices;
+            if (gender === 'male') {
+                const m = pool.find(v => /\bmale\b|\bman\b|daniel|\bfred\b|\bralph\b|\balex\b|\btom\b|\bdavid\b|\bmark\b|\brichard\b|\bravi\b|cosimo|andika|google uk english male/i.test(v.name));
+                return m || pool[pool.length - 1] || null;
+            } else {
+                const f = pool.find(v => /female|\bwoman\b|samantha|victoria|karen|\bzira\b|hazel|moira|tessa|fiona|\balice\b|\banna\b|kathy|vicki|nicky|\bsara\b|\bsusan\b|linda|paulina|google uk english female|google us english/i.test(v.name));
+                return f || pool[0] || null;
+            }
+        }
+
         function speakWord(text) {
             if(!text || !window.speechSynthesis) return;
             // Stop current speech before speaking new to prevent long queues
@@ -4426,11 +5207,15 @@
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.rate = 0.95;
             utterance.pitch = 1.0;
+            const voice = _getVoiceForGender(clientSettings.voiceGender || 'female');
+            if (voice) utterance.voice = voice;
             window.speechSynthesis.speak(utterance);
+            // Also announce to screen-reader live region
+            announce(text);
         }
 
         function makeSentenceStripItem(cell, idx, animate) {
-            const div = document.createElement('div');
+            const div = document.createElement('button');
             const siBg   = getComputedStyle(document.documentElement).getPropertyValue('--strip-item-bg').trim()   || '#ffffff';
             const siBdr  = getComputedStyle(document.documentElement).getPropertyValue('--strip-item-border').trim() || 'rgba(0,0,0,0.12)';
             const siText = getComputedStyle(document.documentElement).getPropertyValue('--strip-item-text').trim()  || '#1e293b';
@@ -4438,7 +5223,7 @@
             div.style.backgroundColor = siBg;
             div.style.border = `2px solid ${siBdr}`;
             div.style.color = siText;
-            div.title = 'Tap to speak | long-press to remove';
+            div.setAttribute('aria-label', cell.label ? `${cell.label} — tap to speak, hold to remove` : 'Symbol — tap to speak');
             div.onclick = () => {
                 div.classList.remove('strip-press');
                 void div.offsetWidth;
@@ -4528,6 +5313,27 @@
                             <span class="text-[9px] font-medium opacity-70">Line drawings</span>
                         </span>
                     </button>
+                    <button id="sp-tab-mulberry" class="symbol-picker-tab" onclick="switchSymbolTab('mulberry')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+                        <span class="flex flex-col items-start leading-tight gap-px">
+                            <span>Mulberry</span>
+                            <span class="text-[9px] font-medium opacity-70">Pictograms</span>
+                        </span>
+                    </button>
+                    <button id="sp-tab-jellow" class="symbol-picker-tab" onclick="switchSymbolTab('jellow')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+                        <span class="flex flex-col items-start leading-tight gap-px">
+                            <span>Jellow</span>
+                            <span class="text-[9px] font-medium opacity-70">Colorful</span>
+                        </span>
+                    </button>
+                    <button id="sp-tab-openmoji" class="symbol-picker-tab" onclick="switchSymbolTab('openmoji')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
+                        <span class="flex flex-col items-start leading-tight gap-px">
+                            <span>OpenMoji</span>
+                            <span class="text-[9px] font-medium opacity-70">Emoji</span>
+                        </span>
+                    </button>
                     <button id="sp-tab-picom" class="symbol-picker-tab" onclick="switchSymbolTab('picom')">
                         <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                         <span class="flex flex-col items-start leading-tight gap-px">
@@ -4543,6 +5349,18 @@
                 <div class="sp-search-wrapper">
                     <svg class="sp-search-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                     <input type="text" id="sp-arasaac-input" class="sp-search-input" placeholder="Search ARASAAC symbols…" autocomplete="off">
+                </div>
+                <!-- Skin tone picker -->
+                <div class="px-4 py-2 flex items-center gap-2.5 flex-shrink-0 border-b border-slate-100">
+                    <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide flex-shrink-0">Skin</span>
+                    <div class="flex gap-1.5 flex-wrap">
+                        <button class="sp-skin-btn" data-skin="none" onclick="setArasaacSkin('none')" title="Default" style="background:linear-gradient(135deg,#e2e8f0 50%,#cbd5e1 50%);"></button>
+                        <button class="sp-skin-btn" data-skin="white" onclick="setArasaacSkin('white')" title="Light" style="background:#F5E5DE;"></button>
+                        <button class="sp-skin-btn" data-skin="assian" onclick="setArasaacSkin('assian')" title="Medium Light" style="background:#EBBE8E;"></button>
+                        <button class="sp-skin-btn" data-skin="mulatto" onclick="setArasaacSkin('mulatto')" title="Medium" style="background:#E3AB72;"></button>
+                        <button class="sp-skin-btn" data-skin="aztec" onclick="setArasaacSkin('aztec')" title="Medium Dark" style="background:#CF9D7C;"></button>
+                        <button class="sp-skin-btn" data-skin="black" onclick="setArasaacSkin('black')" title="Dark" style="background:#5A443E;"></button>
+                    </div>
                 </div>
                 <div id="sp-arasaac-results" class="sp-results-grid">
                     <div class="sp-empty">
@@ -4568,6 +5386,75 @@
                 </div>
             </div>
 
+            <!-- Mulberry Symbols Tab Content -->
+            <div id="sp-mulberry-content" class="symbol-tab-content">
+                <div class="sp-search-wrapper">
+                    <svg class="sp-search-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="sp-mulberry-input" class="sp-search-input" placeholder="Search Mulberry symbols…" autocomplete="off">
+                </div>
+                <!-- Skin tone picker -->
+                <div class="px-4 py-2 flex items-center gap-2.5 flex-shrink-0 border-b border-slate-100">
+                    <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide flex-shrink-0">Skin</span>
+                    <div class="flex gap-1.5 flex-wrap">
+                        <button class="sp-skin-btn" data-skin="none" onclick="setArasaacSkin('none')" title="Default" style="background:linear-gradient(135deg,#e2e8f0 50%,#cbd5e1 50%);"></button>
+                        <button class="sp-skin-btn" data-skin="white" onclick="setArasaacSkin('white')" title="Light" style="background:#F5E5DE;"></button>
+                        <button class="sp-skin-btn" data-skin="assian" onclick="setArasaacSkin('assian')" title="Medium Light" style="background:#EBBE8E;"></button>
+                        <button class="sp-skin-btn" data-skin="mulatto" onclick="setArasaacSkin('mulatto')" title="Medium" style="background:#E3AB72;"></button>
+                        <button class="sp-skin-btn" data-skin="aztec" onclick="setArasaacSkin('aztec')" title="Medium Dark" style="background:#CF9D7C;"></button>
+                        <button class="sp-skin-btn" data-skin="black" onclick="setArasaacSkin('black')" title="Dark" style="background:#5A443E;"></button>
+                    </div>
+                </div>
+                <div id="sp-mulberry-results" class="sp-results-grid">
+                    <div class="sp-empty">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+                        <p class="font-bold text-sm text-slate-500 mt-1">Search Mulberry</p>
+                        <p class="text-xs text-slate-400 mt-1 max-w-[200px]">Open pictograms designed for adults, free to use</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- OpenMoji Tab Content -->
+            <div id="sp-openmoji-content" class="symbol-tab-content">
+                <div class="sp-search-wrapper">
+                    <svg class="sp-search-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="sp-openmoji-input" class="sp-search-input" placeholder="Search OpenMoji emoji…" autocomplete="off">
+                </div>
+                <!-- Skin tone picker -->
+                <div class="px-4 py-2 flex items-center gap-2.5 flex-shrink-0 border-b border-slate-100">
+                    <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide flex-shrink-0">Skin</span>
+                    <div class="flex gap-1.5 flex-wrap items-center">
+                        <button class="sp-openmoji-skin-btn active text-[10px] font-bold px-2.5 py-0.5 rounded-full border-2 border-slate-200 bg-slate-100 text-slate-500 transition-all" data-skin="" onclick="setOpenmojiSkin('')" title="All (no skin filter)">All</button>
+                        <button class="sp-skin-btn sp-openmoji-skin-btn" data-skin="light" onclick="setOpenmojiSkin('light')" title="Light" style="background:#FFDFC4;"></button>
+                        <button class="sp-skin-btn sp-openmoji-skin-btn" data-skin="medlight" onclick="setOpenmojiSkin('medlight')" title="Medium Light" style="background:#F3C19F;"></button>
+                        <button class="sp-skin-btn sp-openmoji-skin-btn" data-skin="medium" onclick="setOpenmojiSkin('medium')" title="Medium" style="background:#D4956A;"></button>
+                        <button class="sp-skin-btn sp-openmoji-skin-btn" data-skin="meddark" onclick="setOpenmojiSkin('meddark')" title="Medium Dark" style="background:#A56C3A;"></button>
+                        <button class="sp-skin-btn sp-openmoji-skin-btn" data-skin="dark" onclick="setOpenmojiSkin('dark')" title="Dark" style="background:#5C4033;"></button>
+                    </div>
+                </div>
+                <div id="sp-openmoji-results" class="sp-results-grid">
+                    <div class="sp-empty">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 13s1 1.5 4 1.5 4-1.5 4-1.5"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg>
+                        <p class="font-bold text-sm text-slate-500 mt-1">Search OpenMoji</p>
+                        <p class="text-xs text-slate-400 mt-1 max-w-[200px]">Open-source emoji by the OpenMoji Project</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Jellow Tab Content -->
+            <div id="sp-jellow-content" class="symbol-tab-content">
+                <div class="sp-search-wrapper">
+                    <svg class="sp-search-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="sp-jellow-input" class="sp-search-input" placeholder="Search Jellow symbols…" autocomplete="off">
+                </div>
+                <div id="sp-jellow-results" class="sp-results-grid">
+                    <div class="sp-empty">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+                        <p class="font-bold text-sm text-slate-500 mt-1">Search Jellow</p>
+                        <p class="text-xs text-slate-400 mt-1 max-w-[200px]">Colorful, cheerful pictograms by IDC School of Design</p>
+                    </div>
+                </div>
+            </div>
+
             <!-- Footer -->
             <div class="px-4 pb-4 pt-3 border-t border-slate-100 bg-slate-50/70 sm:rounded-b-2xl flex-shrink-0 space-y-3">
                 <!-- Attribution -->
@@ -4578,6 +5465,18 @@
                 <div id="sp-attr-picom" class="hidden flex items-center gap-2 text-[10px] text-slate-400 leading-relaxed">
                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="flex-shrink-0 opacity-60"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                     <span>Symbols by <a href="https://www.sensoryapphouse.com/" target="_blank" rel="noopener" class="text-emerald-600 hover:text-emerald-800 hover:underline font-semibold">PiCom AI</a> (Sensory App House / Global Symbols) · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener" class="text-emerald-600 hover:text-emerald-800 hover:underline">CC BY-SA 4.0</a></span>
+                </div>
+                <div id="sp-attr-mulberry" class="hidden flex items-center gap-2 text-[10px] text-slate-400 leading-relaxed">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="flex-shrink-0 opacity-60"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    <span>Symbols by <a href="https://mulberrysymbols.org" target="_blank" rel="noopener" class="text-violet-600 hover:text-violet-800 hover:underline font-semibold">Mulberry Symbols</a> (Steve Lee) · <a href="https://creativecommons.org/licenses/by-sa/2.0/uk/" target="_blank" rel="noopener" class="text-violet-600 hover:text-violet-800 hover:underline">CC BY-SA 2.0</a></span>
+                </div>
+                <div id="sp-attr-jellow" class="hidden flex items-center gap-2 text-[10px] text-slate-400 leading-relaxed">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="flex-shrink-0 opacity-60"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    <span>Symbols by <a href="https://jellow.app" target="_blank" rel="noopener" class="text-orange-500 hover:text-orange-700 hover:underline font-semibold">Jellow</a> (IDC School of Design) · <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener" class="text-orange-500 hover:text-orange-700 hover:underline">CC BY-NC-SA 4.0</a></span>
+                </div>
+                <div id="sp-attr-openmoji" class="hidden flex items-center gap-2 text-[10px] text-slate-400 leading-relaxed">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="flex-shrink-0 opacity-60"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    <span>Emoji by <a href="https://openmoji.org" target="_blank" rel="noopener" class="text-cyan-600 hover:text-cyan-800 hover:underline font-semibold">OpenMoji</a> (HfG Schwäbisch Gmünd) · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener" class="text-cyan-600 hover:text-cyan-800 hover:underline">CC BY-SA 4.0</a></span>
                 </div>
                 <!-- Cancel -->
                 <button onclick="closeSymbolPickerModal()" class="w-full py-2.5 bg-white hover:bg-slate-100 text-slate-600 font-bold rounded-xl transition active:scale-95 text-sm border-2 border-slate-200 hover:border-slate-300">

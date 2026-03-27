@@ -169,14 +169,15 @@
 
         /* ── Symbol Picker ── */
         /* ── Symbol Picker ── */
-        .symbol-picker-tabs { display:flex; gap:6px; padding:0; background:transparent; margin-bottom:0; }
-        .symbol-picker-tab { flex:1; padding:10px 8px; border:2px solid #e2e8f0; background:white; border-radius:14px; font-family:'Outfit',sans-serif; font-weight:700; font-size:0.78rem; color:#64748b; cursor:pointer; transition:all 0.22s cubic-bezier(0.34,1.2,0.64,1); display:flex; align-items:center; justify-content:center; gap:6px; }
+        .symbol-picker-tabs { display:flex; gap:4px; padding:0 2px; background:transparent; margin-bottom:0; }
+        .symbol-picker-tab { flex:1 1 0; min-width:0; padding:7px 2px 6px; border:2px solid #e2e8f0; background:white; border-radius:14px; font-family:'Outfit',sans-serif; font-weight:700; font-size:0.67rem; color:#64748b; cursor:pointer; transition:all 0.22s cubic-bezier(0.34,1.2,0.64,1); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; white-space:normal; text-align:center; line-height:1.2; overflow:hidden; }
         .symbol-picker-tab:hover:not(.active) { border-color:#bfdbfe; color:#334155; background:#f8fafc; transform:translateY(-1px); }
         #sp-tab-arasaac.active { background:linear-gradient(135deg, #3b82f6 0%, #6366f1 100%); border-color:transparent; color:white; box-shadow:0 4px 16px rgba(59,130,246,0.38); }
         #sp-tab-picom.active    { background:linear-gradient(135deg, #10b981 0%, #059669 100%); border-color:transparent; color:white; box-shadow:0 4px 16px rgba(16,185,129,0.34); }
         #sp-tab-mulberry.active { background:linear-gradient(135deg, #8b5cf6 0%, #d946ef 100%); border-color:transparent; color:white; box-shadow:0 4px 16px rgba(139,92,246,0.38); }
         #sp-tab-jellow.active   { background:linear-gradient(135deg, #f97316 0%, #eab308 100%); border-color:transparent; color:white; box-shadow:0 4px 16px rgba(249,115,22,0.38); }
         #sp-tab-openmoji.active { background:linear-gradient(135deg, #06b6d4 0%, #6366f1 100%); border-color:transparent; color:white; box-shadow:0 4px 16px rgba(6,182,212,0.38); }
+        #sp-tab-all.active      { background:linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%); border-color:transparent; color:white; box-shadow:0 4px 16px rgba(139,92,246,0.42); }
         .symbol-tab-content { display:none; }
         .symbol-tab-content.active { display:flex; flex-direction:column; flex:1; min-height:0; overflow-y:auto; padding:16px 16px 8px; }
         /* Search */
@@ -431,11 +432,11 @@
             border: 1.5px solid #e2e8f0;
         }
         .wb-node.dragging { box-shadow: 0 8px 48px rgba(0,0,0,0.24) !important; transform: translate(-50%,-50%) scale(1.01) !important; }
-        .wb-toolbar { display: flex; align-items: center; gap: 4px; padding: 6px 10px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; flex-wrap: wrap; }
-        .wb-tool-btn { display:flex;align-items:center;justify-content:center; width:30px;height:30px;border-radius:8px;border:1.5px solid transparent;cursor:pointer;background:transparent;transition:all 0.14s;color:#475569;flex-shrink:0; }
+        .wb-toolbar { display: flex; align-items: center; gap: 6px; padding: 8px 12px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; flex-wrap: wrap; }
+        .wb-tool-btn { display:flex;align-items:center;justify-content:center; width:46px;height:46px;border-radius:12px;border:1.5px solid transparent;cursor:pointer;background:transparent;transition:all 0.14s;color:#475569;flex-shrink:0; }
         .wb-tool-btn:hover { background:#e2e8f0; }
         .wb-tool-btn.active { background:#dbeafe; border-color:#93c5fd; color:#1d4ed8; }
-        .wb-color-swatch { width:22px;height:22px;border-radius:50%;border:2px solid white;box-shadow:0 0 0 1.5px #cbd5e1;cursor:pointer;flex-shrink:0;transition:transform 0.12s; }
+        .wb-color-swatch { width:36px;height:36px;border-radius:50%;border:2px solid white;box-shadow:0 0 0 1.5px #cbd5e1;cursor:pointer;flex-shrink:0;transition:transform 0.12s; }
         .wb-color-swatch:hover { transform: scale(1.2); }
         .wb-color-swatch.active { box-shadow:0 0 0 2.5px #3b82f6; }
 
@@ -453,6 +454,12 @@
 
         /* ── Routine Board Node ── */
         .routine-node { background:#ffffff; border-radius:20px; overflow:hidden; box-shadow:0 2px 6px rgba(0,0,0,0.08),0 12px 32px -4px rgba(0,0,0,0.14); border:1.5px solid #e2e8f0; }
+
+        /* ── Music Player Node ── */
+        .music-node { background:#ffffff; border-radius:20px; overflow:hidden; box-shadow:0 2px 6px rgba(0,0,0,0.08),0 12px 32px -4px rgba(0,0,0,0.14); border:1.5px solid #e2e8f0; }
+        .music-node.dragging { box-shadow:0 8px 48px rgba(0,0,0,0.24)!important; transform:translate(-50%,-50%) scale(1.01)!important; }
+        @keyframes musicPulse { 0%,100%{box-shadow:0 0 0 4px rgba(6,182,212,0.55),0 8px 32px rgba(0,0,0,0.28);} 50%{box-shadow:0 0 0 8px rgba(6,182,212,0.20),0 8px 32px rgba(0,0,0,0.28);} }
+        .music-playing { animation:musicPulse 1.4s ease-in-out infinite; }
         .routine-node.dragging { box-shadow:0 8px 48px rgba(0,0,0,0.24)!important; transform:translate(-50%,-50%) scale(1.01)!important; }
         .routine-step-card { background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:12px; overflow:hidden; transition:opacity 0.15s,box-shadow 0.15s; cursor:grab; }
         .routine-step-card.routine-drop-over { outline:2.5px dashed #f59e0b !important; background:#fffbeb !important; }
@@ -589,7 +596,7 @@
                 <i data-lucide="trash-2" class="w-3.5 h-3.5 pointer-events-none" aria-hidden="true"></i> <span class="hidden sm:inline" aria-hidden="true">Clear</span>
             </button>
             <button onpointerdown="fitAllNodes()" class="bg-white hover:bg-slate-50 border border-slate-200/80 p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 sm:gap-1.5 transition text-slate-600 shadow-sm" title="Show all nodes" aria-label="Show all nodes">
-                <i data-lucide="scan" class="w-3.5 h-3.5 pointer-events-none" aria-hidden="true"></i> <span class="hidden sm:inline" aria-hidden="true">Show All</span>
+                <i data-lucide="frame" class="w-3.5 h-3.5 pointer-events-none" aria-hidden="true"></i> <span class="hidden sm:inline" aria-hidden="true">Show All</span>
             </button>
             <button onpointerdown="spawnRootNode()" class="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 sm:gap-1.5 transition shadow-sm" title="New symbol grid page" aria-label="New page">
                 <i data-lucide="plus-circle" class="w-3.5 h-3.5 pointer-events-none" aria-hidden="true"></i> <span class="hidden sm:inline" aria-hidden="true">New Page</span>
@@ -600,11 +607,19 @@
                 <span id="active-profile-label" class="hidden sm:inline max-w-[90px] truncate font-bold">Default</span>
                 <i data-lucide="chevron-down" class="w-3 h-3 pointer-events-none text-slate-400 hidden sm:block flex-shrink-0"></i>
             </button>
+            <div class="w-px h-5 bg-slate-200 mx-0.5 sm:mx-1 flex-shrink-0"></div>
+            <button onpointerdown="exportBoard()" class="bg-white hover:bg-slate-50 border border-slate-200/80 p-1.5 rounded-lg flex items-center transition text-slate-600 shadow-sm" title="Save board to file" aria-label="Export board to file">
+                <i data-lucide="download" class="w-3.5 h-3.5 pointer-events-none" aria-hidden="true"></i>
+            </button>
+            <button onpointerdown="importBoardClick()" class="bg-white hover:bg-slate-50 border border-slate-200/80 p-1.5 rounded-lg flex items-center transition text-slate-600 shadow-sm" title="Load board from file" aria-label="Import board from file">
+                <i data-lucide="upload" class="w-3.5 h-3.5 pointer-events-none" aria-hidden="true"></i>
+            </button>
+            <input type="file" id="board-import-input" accept=".json" style="display:none" onchange="importBoardFile(this)">
             <button onpointerdown="startClientApp()" class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white p-1.5 sm:px-3 sm:py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 sm:gap-1.5 transition shadow-sm active:scale-95" title="Play App" aria-label="Preview app in play mode">
                 <i data-lucide="play" class="w-3.5 h-3.5 pointer-events-none fill-current" aria-hidden="true"></i> <span class="hidden sm:inline" aria-hidden="true">Play App</span>
             </button>
             <button id="fullscreen-btn" onpointerdown="toggleFullscreen()" class="bg-white hover:bg-slate-50 border border-slate-200/80 p-1.5 rounded-lg flex items-center transition text-slate-600 shadow-sm" title="Toggle Fullscreen" aria-label="Toggle fullscreen">
-                <i data-lucide="maximize" class="w-3.5 h-3.5 pointer-events-none" aria-hidden="true"></i>
+                <i data-lucide="expand" class="w-3.5 h-3.5 pointer-events-none" aria-hidden="true"></i>
             </button>
         </div>
     </div>
@@ -667,6 +682,14 @@
                 </div>
                 <span>Routine Board</span>
                 <span style="font-weight:400;color:#94a3b8;font-size:0.65rem;">Step-by-step activity strip</span>
+            </div>
+            <!-- Music Player -->
+            <div class="palette-board-card" onpointerdown="pushHistory(); spawnMusicNode();">
+                <div class="pbc-icon" style="background:linear-gradient(135deg,#0e7490,#0369a1);">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                </div>
+                <span>Music Player</span>
+                <span style="font-weight:400;color:#94a3b8;font-size:0.65rem;">AAC music selection board</span>
             </div>
         </div>
     </div>
@@ -791,9 +814,11 @@
             const savedConfig = localStorage.getItem('aacMapConfig');
             if (savedConfig) {
                 const parsed = JSON.parse(savedConfig);
-                gridCols = parsed.cols || 4; gridRows = parsed.rows || 3;
+                gridCols = parseInt(parsed.cols) || 4; gridRows = parseInt(parsed.rows) || 3;
             }
         } catch(e) { localStorage.removeItem('aacMapConfig'); }
+        gridCols = Math.min(Math.max(gridCols || 4, 1), 12);
+        gridRows = Math.min(Math.max(gridRows || 3, 1), 12);
 
         function updateNodeDimensions() { NODE_WIDTH = Math.max(240, gridCols * 75); }
         updateNodeDimensions();
@@ -836,7 +861,7 @@
 
         // Migrate: add per-node cols/rows if missing (uses current global defaults)
         Object.values(nodesData).forEach(node => {
-            if (node.id === '__lost_found__' || node.type === 'whiteboard' || node.type === 'gallery' || node.type === 'routine') return;
+            if (node.id === '__lost_found__' || node.type === 'whiteboard' || node.type === 'gallery' || node.type === 'routine' || node.type === 'music') return;
             if (!node.cols) node.cols = gridCols;
             if (!node.rows) node.rows = gridRows;
         });
@@ -847,7 +872,7 @@
             Object.values(nodesData).forEach(node => {
                 if (!node.cells) node.cells = [];
                 node.cells.forEach(c => { delete c.emoji; });
-                if (node.id === '__lost_found__' || node.type === 'whiteboard' || node.type === 'gallery' || node.type === 'routine') return;
+                if (node.id === '__lost_found__' || node.type === 'whiteboard' || node.type === 'gallery' || node.type === 'routine' || node.type === 'music') return;
                 const targetLen = (node.cols || gridCols) * (node.rows || gridRows);
                 while (node.cells.length < targetLen) node.cells.push({ label: '', linkId: null, src: null });
                 if (node.cells.length > targetLen) {
@@ -917,6 +942,7 @@
         let panX = window.innerWidth / 2; let panY = window.innerHeight / 2; let scale = 1;
         let isPanning = false, isDraggingNode = false, isWiring = false;
         let startPointerX = 0, startPointerY = 0;
+        let _panRafPending = false;
         let activeSourceNodeId = null, activeSourceCellIdx = null; 
         
         const activePointers = new Map(); let prevPinchDiff = -1;
@@ -949,7 +975,7 @@
                 modalContainer.setAttribute('aria-labelledby', heading.id);
             }
             modalOverlay.classList.add('active');
-            lucide.createIcons();
+            lucide.createIcons({ nodes: [modalContainer] });
             setTimeout(() => {
                 modalContainer.classList.remove('scale-95', 'opacity-0');
                 modalContainer.classList.add('scale-100', 'opacity-100');
@@ -1105,15 +1131,6 @@
                     Object.values(nodesData).forEach(n => (n.cells || []).forEach(c => { if (c.linkId === nodeId) c.label = val; }));
                 }
                 nodesData[nodeId].color = window.tempSelectedColor;
-                if (isGridNode) {
-                    const sizeEl = document.getElementById('modal-node-size');
-                    if (sizeEl) {
-                        const [newC, newR] = sizeEl.value.split('x').map(Number);
-                        closeModal();
-                        resizeNode(nodeId, newC, newR);
-                        return;
-                    }
-                }
                 closeModal(); renderMap(); setTimeout(updateAllWires, 50);
             };
 
@@ -1124,24 +1141,10 @@
                 return `<button class="color-swatch-btn w-8 h-8 rounded-full transition-all duration-150" style="background:${def.hex}; box-shadow:${shadow}; transform:${transform};" data-hex="${def.hex}" onclick="selectNodeColor('${def.hex}')" title="${def.label}"></button>`;
             }).join('');
 
-            const typeLabels = { whiteboard: 'Whiteboard', gallery: 'Photo Gallery', routine: 'Routine Board' };
+            const typeLabels = { whiteboard: 'Whiteboard', gallery: 'Photo Gallery', routine: 'Routine Board', music: 'Music Player' };
             const title = isGridNode ? 'Edit Grid' : `Edit ${typeLabels[node.type] || 'Module'}`;
-            const icon  = isGridNode ? 'layout-grid' : (node.type === 'whiteboard' ? 'pen-line' : node.type === 'gallery' ? 'image' : 'check-square');
+            const icon  = isGridNode ? 'layout-grid' : (node.type === 'whiteboard' ? 'pen-line' : node.type === 'gallery' ? 'image' : node.type === 'music' ? 'music' : 'check-square');
 
-            let gridSizeHtml = '';
-            if (isGridNode) {
-                const curSizeVal = `${node.cols||gridCols}x${node.rows||gridRows}`;
-                const sizes = ['2x1','3x2','4x2','4x3','5x3','5x4','6x4','6x5','7x4','7x5','7x6'];
-                const sizeOptions = sizes.map(s => `<option value="${s}"${s===curSizeVal?' selected':''}>${s}</option>`).join('');
-                gridSizeHtml = `
-                    <div class="mb-4">
-                        <label class="block text-xs font-bold text-slate-400 mb-1.5 uppercase tracking-wide">Grid Size</label>
-                        <div class="flex items-center gap-2 bg-slate-50 border-2 border-slate-200 rounded-xl px-3.5 py-2.5 focus-within:border-blue-500 transition">
-                            <i data-lucide="grid-3x3" class="w-4 h-4 text-slate-400 flex-shrink-0"></i>
-                            <select id="modal-node-size" class="bg-transparent flex-1 text-slate-800 font-bold text-sm outline-none cursor-pointer modal-input">${sizeOptions}</select>
-                        </div>
-                    </div>`;
-            }
 
             openModal(`
                 <div class="p-6">
@@ -1155,7 +1158,6 @@
                         <label class="block text-xs font-bold text-slate-400 mb-1.5 uppercase tracking-wide">Name</label>
                         <input id="modal-node-title" type="text" value="${escHtml(node.title)}" class="modal-input w-full border-2 border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-800 font-medium focus:outline-none focus:ring-3 focus:ring-blue-100 focus:border-blue-500 transition" onkeydown="if(event.key==='Enter') tempSaveNode()">
                     </div>
-                    ${gridSizeHtml}
                     <div class="mb-6">
                         <label class="block text-xs font-bold text-slate-400 mb-2.5 uppercase tracking-wide">Colour</label>
                         <div class="flex flex-wrap gap-3 py-1">
@@ -1405,6 +1407,7 @@
             updateTransform(); updateAllWires();
         }
         function applyZoomExact(newScale, cx, cy) {
+            if (isNaN(newScale) || !isFinite(newScale)) return;
             const oldScale = scale; scale = Math.min(Math.max(0.2, newScale), 3);
             panX = cx - (cx - panX) * (scale / oldScale); panY = cy - (cy - panY) * (scale / oldScale);
             updateTransform();
@@ -1575,7 +1578,7 @@
 
             const displaced = [];
             Object.values(nodesData).forEach(node => {
-                if (node.id === '__lost_found__' || node.type === 'whiteboard' || node.type === 'gallery' || node.type === 'routine') return;
+                if (node.id === '__lost_found__' || node.type === 'whiteboard' || node.type === 'gallery' || node.type === 'routine' || node.type === 'music') return;
                 _unmergeOverflowCells(node.id, c, r);
                 node.cols = c; node.rows = r; // update per-node size to match global change
                 if (node.cells.length < newTotal) {
@@ -1610,9 +1613,10 @@
             cleanupLostFound();
             // Sanitize: trim cells to per-node size and fix any corrupt _mergedInto refs
             Object.values(nodesData).forEach(node => {
-                if (node.id === '__lost_found__' || !node.cells || node.type === 'whiteboard' || node.type === 'gallery' || node.type === 'routine' ) return;
+                if (node.id === '__lost_found__' || !node.cells || node.type === 'whiteboard' || node.type === 'gallery' || node.type === 'routine' || node.type === 'music') return;
                 const targetLen = (node.cols || gridCols) * (node.rows || gridRows);
                 if (node.cells.length > targetLen) node.cells.length = targetLen;
+                while (node.cells.length < targetLen) node.cells.push({ label: '', linkId: null, src: null });
                 node.cells.forEach((c, i) => {
                     if (!c) { node.cells[i] = { label: '', linkId: null, src: null }; return; }
                     if (c._mergedInto !== undefined) {
@@ -1637,14 +1641,11 @@
             nodesLayer.getBoundingClientRect(); // flush
             Object.values(nodesData).forEach(node => {
                 if (node.id === '__lost_found__') return;
-                if (node.type === 'whiteboard' || node.type === 'gallery' || node.type === 'routine' ) return;
+                if (node.type === 'whiteboard' || node.type === 'gallery' || node.type === 'routine' || node.type === 'music') return;
                 node.cells.forEach((cell, idx) => { if(cell.linkId && nodesData[cell.linkId]) drawWire(node.id, idx, cell.linkId); });
             });
-            localStorage.setItem('aacMapData', JSON.stringify(nodesData));
-            // Keep active profile's board snapshot in sync and automatically persist
-            const _ap = _profiles && _profiles.find(p => p.id === _activeProfileId);
-            if (_ap) { _ap.nodesData = JSON.parse(JSON.stringify(nodesData)); _ap.gridCols = gridCols; _ap.gridRows = gridRows; saveProfiles(); }
-            lucide.createIcons();
+            _debouncedSave();
+            lucide.createIcons({ nodes: [nodesLayer] });
         }
 
         function createLostFoundElement(node) {
@@ -1718,6 +1719,7 @@
             if (node.type === 'whiteboard') { createWhiteboardElement(node); return; }
             if (node.type === 'gallery')    { createGalleryElement(node);    return; }
             if (node.type === 'routine')    { createRoutineElement(node);    return; }
+            if (node.type === 'music')      { createMusicElement(node);      return; }
 
             const nCols = node.cols || gridCols;
             const nRows = node.rows || gridRows;
@@ -1891,10 +1893,16 @@
 
         // --- 5. High-Performance SVG Wiring ---
         function getBezierPath(x1, y1, x2, y2) {
-            const dx = Math.abs(x2 - x1), dy = Math.abs(y2 - y1);
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            const tension = Math.max(dx * 0.50, Math.min(dist * 0.40, 240), 90);
-            return `M ${x1} ${y1} C ${x1 + tension} ${y1}, ${x2 - tension} ${y2}, ${x2} ${y2}`;
+            const signedDx = x2 - x1;
+            const absDy = Math.abs(y2 - y1);
+            const dist = Math.sqrt(signedDx * signedDx + absDy * absDy);
+            if (signedDx < -30) {
+                // Backward wire: use high tension so the cubic naturally arcs into a clean loop
+                const ten = Math.max(Math.abs(signedDx) * 0.8, dist * 0.55, 120);
+                return `M ${x1} ${y1} C ${x1 + ten} ${y1}, ${x2 - ten} ${y2}, ${x2} ${y2}`;
+            }
+            const hTen = Math.max(signedDx * 0.5, Math.min(dist * 0.4, 240), 80);
+            return `M ${x1} ${y1} C ${x1 + hTen} ${y1}, ${x2 - hTen} ${y2}, ${x2} ${y2}`;
         }
 
         function drawWire(sourceId, cellIdx, targetId) {
@@ -1909,21 +1917,7 @@
             const pathData = getBezierPath(p1.x, p1.y, p2.x, p2.y);
             const wireColor = nodesData[targetId].color || '#94a3b8';
 
-            const defs = svgLayer.querySelector('defs');
 
-            // Arrowhead marker — concave chevron, target colour
-            const markerId = `arrowhead-${sourceId}-${cellIdx}`;
-            if (defs && !defs.querySelector(`[id="${markerId}"]`)) {
-                const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
-                marker.setAttribute('id', markerId);
-                marker.setAttribute('markerWidth', '5'); marker.setAttribute('markerHeight', '4.4');
-                marker.setAttribute('refX', '4.6'); marker.setAttribute('refY', '2.2');
-                marker.setAttribute('orient', 'auto'); marker.setAttribute('markerUnits', 'strokeWidth');
-                const arrowPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                arrowPath.setAttribute('d', 'M 0 0 L 5 2.2 L 0 4.4 L 1.4 2.2 Z');
-                arrowPath.setAttribute('fill', wireColor); arrowPath.setAttribute('stroke', 'none');
-                marker.appendChild(arrowPath); defs.appendChild(marker);
-            }
 
             // Glow halo — wide stroke blurred via shared SVG filter
             const glowPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
@@ -1942,7 +1936,6 @@
             visiblePath.setAttribute('d', pathData); visiblePath.setAttribute('class', 'wire-visible');
             visiblePath.setAttribute('data-source', sourceId); visiblePath.setAttribute('data-target', targetId); visiblePath.setAttribute('data-cell-idx', cellIdx);
             visiblePath.style.stroke = wireColor;
-            if (defs && defs.querySelector(`[id="${markerId}"]`)) visiblePath.setAttribute('marker-end', `url(#${markerId})`);
 
             // Hover — red highlight + animated directional flow dashes
             let flowPath = null;
@@ -2066,12 +2059,12 @@
             document.getElementById('btn-copy-cell').innerHTML = `<i data-lucide="${copyIcon}" class="w-4 h-4 text-emerald-500 pointer-events-none"></i> ${copyLabel}`;
             dropDialog.classList.remove('hidden'); dropDialogOverlay.classList.add('active');
             dropDialog.style.left = Math.min(x, window.innerWidth - 200) + 'px'; dropDialog.style.top = Math.min(y, window.innerHeight - 160) + 'px';
-            const cleanup = () => { dropDialog.classList.add('hidden'); dropDialogOverlay.classList.remove('active'); lucide.createIcons(); };
+            const cleanup = () => { dropDialog.classList.add('hidden'); dropDialogOverlay.classList.remove('active'); };
             document.getElementById('btn-move-cell').onpointerdown = () => { cleanup(); onMove(); };
             document.getElementById('btn-copy-cell').onpointerdown = () => { cleanup(); onCopy(); };
             document.getElementById('btn-cancel-drop').onpointerdown = () => { cleanup(); onCancel(); };
             dropDialogOverlay.onpointerdown = () => { cleanup(); onCancel(); };
-            lucide.createIcons();
+            lucide.createIcons({ nodes: [dropDialog] });
         }
 
         function promptClearAll() {
@@ -2103,7 +2096,7 @@
             if (!btn) return;
             const icon = btn.querySelector('i[data-lucide]');
             if (!icon) return;
-            icon.setAttribute('data-lucide', document.fullscreenElement ? 'minimize' : 'maximize');
+            icon.setAttribute('data-lucide', document.fullscreenElement ? 'shrink' : 'expand');
             lucide.createIcons({ nodes: [icon] });
         });
 
@@ -2191,14 +2184,20 @@
                     return;
                 }
 
-                if (activePointers.size === 2) {
-                    const pts = Array.from(activePointers.values());
-                    const curDiff = Math.hypot(pts[0].clientX - pts[1].clientX, pts[0].clientY - pts[1].clientY);
-                    if (prevPinchDiff > 0) applyZoomExact(scale * (curDiff / prevPinchDiff), (pts[0].clientX + pts[1].clientX) / 2, (pts[0].clientY + pts[1].clientY) / 2);
-                    prevPinchDiff = curDiff;
-                } else if (isPanning && activePointers.size === 1) {
-                    const pt = Array.from(activePointers.values())[0];
-                    panX = pt.clientX - startPointerX; panY = pt.clientY - startPointerY; updateTransform();
+                if (!_panRafPending) {
+                    _panRafPending = true;
+                    requestAnimationFrame(() => {
+                        _panRafPending = false;
+                        if (activePointers.size === 2) {
+                            const pts = Array.from(activePointers.values());
+                            const curDiff = Math.hypot(pts[0].clientX - pts[1].clientX, pts[0].clientY - pts[1].clientY);
+                            if (prevPinchDiff > 0) applyZoomExact(scale * (curDiff / prevPinchDiff), (pts[0].clientX + pts[1].clientX) / 2, (pts[0].clientY + pts[1].clientY) / 2);
+                            prevPinchDiff = curDiff;
+                        } else if (isPanning && activePointers.size === 1) {
+                            const pt = Array.from(activePointers.values())[0];
+                            panX = pt.clientX - startPointerX; panY = pt.clientY - startPointerY; updateTransform();
+                        }
+                    });
                 }
             });
 
@@ -2276,7 +2275,7 @@
 
                 if (isDraggingNode) {
                     isDraggingNode = false; const domNode = document.getElementById(`dom-node-${activeSourceNodeId}`);
-                    if(domNode) domNode.classList.remove('dragging'); activeSourceNodeId = null; renderMap(); setTimeout(updateAllWires, 50);
+                    if(domNode) domNode.classList.remove('dragging'); activeSourceNodeId = null; _debouncedSave(); setTimeout(updateAllWires, 50);
                 }
 
                 if (isWiring) {
@@ -2344,10 +2343,8 @@
 
             window.confirmSpawnNode = () => {
                 const title = (document.getElementById('spawn-title').value.trim() || 'New Page').substring(0, 40);
-                const sizeVal = document.getElementById('spawn-size').value;
-                const [c, r] = sizeVal.split('x').map(Number);
                 closeModal();
-                _spawnRootNodeQuiet(title, c, r, window._spawnColor);
+                _spawnRootNodeQuiet(title, gridCols, gridRows, window._spawnColor);
                 // Close the palette drawer on mobile
                 const palette = document.getElementById('board-palette');
                 if (palette.classList.contains('open') && window.innerWidth < 768) toggleBoardPalette();
@@ -2360,10 +2357,6 @@
                 return `<button class="spawn-color-btn w-8 h-8 rounded-full transition-all duration-150" style="background:${def.hex}; box-shadow:${shadow}; transform:${transform};" data-hex="${def.hex}" onclick="selectSpawnColor('${def.hex}')" title="${def.label}"></button>`;
             }).join('');
 
-            const curSizeVal = `${gridCols}x${gridRows}`;
-            const sizes = ['2x1','3x2','4x2','4x3','5x3','5x4','6x4','6x5','7x4','7x5','7x6'];
-            const sizeOptions = sizes.map(s => `<option value="${s}"${s===curSizeVal?' selected':''}>${s}</option>`).join('');
-
             openModal(`
                 <div class="p-6">
                     <div class="flex items-center gap-2.5 mb-5">
@@ -2375,13 +2368,6 @@
                     <div class="mb-4">
                         <label class="block text-xs font-bold text-slate-400 mb-1.5 uppercase tracking-wide">Page Name</label>
                         <input id="spawn-title" type="text" value="New Page" placeholder="e.g. Home, People, Food…" class="modal-input w-full border-2 border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-800 font-medium focus:outline-none focus:ring-3 focus:ring-blue-100 focus:border-blue-500 transition" onkeydown="if(event.key==='Enter') confirmSpawnNode()">
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-xs font-bold text-slate-400 mb-1.5 uppercase tracking-wide">Grid Size</label>
-                        <div class="flex items-center gap-2 bg-slate-50 border-2 border-slate-200 rounded-xl px-3.5 py-2.5 focus-within:border-blue-500 transition">
-                            <i data-lucide="grid-3x3" class="w-4 h-4 text-slate-400 flex-shrink-0"></i>
-                            <select id="spawn-size" class="modal-input bg-transparent flex-1 text-slate-800 font-bold text-sm outline-none cursor-pointer">${sizeOptions}</select>
-                        </div>
                     </div>
                     <div class="mb-6">
                         <label class="block text-xs font-bold text-slate-400 mb-2.5 uppercase tracking-wide">Colour</label>
@@ -2434,15 +2420,16 @@
                     <button class="wb-delete-btn opacity-70 hover:opacity-100 p-1 rounded-lg hover:bg-red-500/80 transition pointer-events-auto active:scale-95"><i data-lucide="trash-2" class="w-3 h-3 pointer-events-none"></i></button>
                 </div>
                 <div class="wb-toolbar pointer-events-auto" id="wbt-${node.id}">
-                    <button class="wb-tool-btn active" data-tool="pen" title="Pen"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>
-                    <button class="wb-tool-btn" data-tool="eraser" title="Eraser"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20H7L3 16l11-11 6 6-3.5 3.5"/><path d="M6.5 17.5l4-4"/></svg></button>
-                    <div class="w-px h-5 bg-slate-200 mx-1 flex-shrink-0"></div>
+                    <button class="wb-tool-btn active" data-tool="pen" title="Pen"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>
+                    <button class="wb-tool-btn" data-tool="eraser" title="Eraser"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20H7L3 16l11-11 6 6-3.5 3.5"/><path d="M6.5 17.5l4-4"/></svg></button>
+                    <div class="w-px h-6 bg-slate-200 mx-1 flex-shrink-0"></div>
                     ${WB_COLORS.map((c,i) => `<div class="wb-color-swatch${i===0?' active':''}" data-color="${c}" style="background:${c};" title="${c}"></div>`).join('')}
-                    <div class="w-px h-5 bg-slate-200 mx-1 flex-shrink-0"></div>
-                    <select class="text-[11px] font-semibold bg-transparent outline-none border border-slate-200 rounded px-1 py-0.5 cursor-pointer" id="wbsize-${node.id}">
-                        <option value="2">Fine</option><option value="4" selected>Medium</option><option value="8">Thick</option><option value="16">Bold</option>
+                    <div class="wb-color-swatch" data-color="__rainbow__" title="Rainbow" style="background:conic-gradient(red,yellow,lime,cyan,blue,magenta,red);"></div>
+                    <div class="w-px h-6 bg-slate-200 mx-1 flex-shrink-0"></div>
+                    <select class="text-[12px] font-semibold bg-transparent outline-none border border-slate-200 rounded-lg px-2 py-1.5 cursor-pointer" id="wbsize-${node.id}">
+                        <option value="3">Fine</option><option value="7">Medium</option><option value="14" selected>Thick</option><option value="26">Bold</option>
                     </select>
-                    <button class="wb-tool-btn ml-auto" data-action="clear" title="Clear canvas"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>
+                    <button class="wb-tool-btn ml-auto flex-col gap-0.5" data-action="clear" title="Clear canvas" style="width:56px;background:#fee2e2;border-color:#fca5a5;color:#dc2626;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg><span style="font-size:9px;font-weight:800;font-family:Outfit,sans-serif;line-height:1;">CLEAR</span></button>
                 </div>
                 <canvas id="wbc-${node.id}" width="${WB_WIDTH}" height="${WB_HEIGHT - 40 - 44}" style="display:block;touch-action:none;cursor:crosshair;background:#fff;" class="pointer-events-auto"></canvas>
                 <div class="port port-in" data-node="${node.id}"></div>
@@ -2454,13 +2441,14 @@
             // ── Canvas drawing logic ──
             const canvas  = document.getElementById(`wbc-${node.id}`);
             const ctx     = canvas.getContext('2d');
-            let tool = 'pen', color = WB_COLORS[0], lineWidth = 4;
+            let tool = 'pen', color = WB_COLORS[0], lineWidth = 14;
             let drawing = false, lastX = 0, lastY = 0;
+            let _wbRainbowHue = 0;
 
             // Restore saved drawing
             if (node.drawingData) { const img = new Image(); img.onload = () => ctx.drawImage(img, 0, 0); img.src = node.drawingData; }
 
-            const save = () => { node.drawingData = canvas.toDataURL('image/png'); localStorage.setItem('aacMapData', JSON.stringify(nodesData)); };
+            const save = () => { node.drawingData = canvas.toDataURL('image/png'); try { localStorage.setItem('aacMapData', JSON.stringify(nodesData)); } catch(e){} };
 
             // Toolbar interactions
             const toolbar = document.getElementById(`wbt-${node.id}`);
@@ -2507,7 +2495,13 @@
                 e.stopPropagation();
                 const p = getCanvasPos(e);
                 ctx.globalCompositeOperation = tool === 'eraser' ? 'destination-out' : 'source-over';
-                ctx.strokeStyle = color; ctx.lineWidth = lineWidth / scale;
+                if (color === '__rainbow__') {
+                    ctx.strokeStyle = `hsl(${_wbRainbowHue}, 100%, 50%)`;
+                    _wbRainbowHue = (_wbRainbowHue + 5) % 360;
+                } else {
+                    ctx.strokeStyle = color;
+                }
+                ctx.lineWidth = lineWidth / scale;
                 ctx.lineCap = 'round'; ctx.lineJoin = 'round';
                 ctx.lineTo(p.x, p.y); ctx.stroke();
                 ctx.beginPath(); ctx.moveTo(p.x, p.y);
@@ -3158,7 +3152,7 @@
             symbolPickerTarget = { nodeId, cellIdx };
             isModalOpen = true;
             activePointers.clear();
-            _lastArasaacQ = ''; _lastPicomQ = ''; _lastMulberryQ = ''; _lastJellowQ = ''; _lastOpenmojiQ = '';
+            _lastArasaacQ = ''; _lastPicomQ = ''; _lastMulberryQ = ''; _lastJellowQ = ''; _lastOpenmojiQ = ''; _lastAllQ = '';
             const aInp = document.getElementById('sp-arasaac-input');
             if (aInp) aInp.value = '';
             const pInp = document.getElementById('sp-picom-input');
@@ -3169,11 +3163,14 @@
             if (jInp2) jInp2.value = '';
             const omInp2 = document.getElementById('sp-openmoji-input');
             if (omInp2) omInp2.value = '';
+            const allInp2 = document.getElementById('sp-all-input');
+            if (allInp2) allInp2.value = '';
             _spState('arasaac', 'empty', 'Search ARASAAC Line Drawings', 'Simple, clear pictogram symbols');
             _spState('picom', 'empty', 'Search PiCom AI Photographs', 'Realistic AI-generated photo symbols');
             _spState('mulberry', 'empty', 'Search Mulberry Symbols', 'Adult-friendly open pictograms for AAC');
             _spState('jellow', 'empty', 'Search Jellow Symbols', 'Colorful pictograms by IDC School of Design');
             _spState('openmoji', 'empty', 'Search OpenMoji Emoji', 'Open-source emoji by the OpenMoji Project');
+            _spState('all', 'empty', 'Search all symbol sets', 'Searches ARASAAC, Mulberry, Jellow, OpenMoji & PiCom simultaneously');
             switchSymbolTab(_lastSymbolTab);
             document.querySelectorAll('.sp-skin-btn:not(.sp-openmoji-skin-btn)').forEach(b => b.classList.toggle('active', b.dataset.skin === _arasaacSkin));
             setOpenmojiSkin(_openmojiSkin);
@@ -3184,6 +3181,7 @@
             document.getElementById('symbol-picker-overlay').style.display = 'none';
             isModalOpen = false;
             symbolPickerTarget = { nodeId: null, cellIdx: null };
+            _musicImgTarget = { nodeId: null, trackId: null };
         }
 
         function switchSymbolTab(tab) {
@@ -3193,17 +3191,22 @@
             document.getElementById('sp-tab-mulberry').classList.toggle('active', tab === 'mulberry');
             document.getElementById('sp-tab-jellow').classList.toggle('active', tab === 'jellow');
             document.getElementById('sp-tab-openmoji').classList.toggle('active', tab === 'openmoji');
+            document.getElementById('sp-tab-all').classList.toggle('active', tab === 'all');
             document.getElementById('sp-arasaac-content').classList.toggle('active', tab === 'arasaac');
             document.getElementById('sp-picom-content').classList.toggle('active', tab === 'picom');
             document.getElementById('sp-mulberry-content').classList.toggle('active', tab === 'mulberry');
             document.getElementById('sp-jellow-content').classList.toggle('active', tab === 'jellow');
             document.getElementById('sp-openmoji-content').classList.toggle('active', tab === 'openmoji');
+            document.getElementById('sp-all-content').classList.toggle('active', tab === 'all');
             document.getElementById('sp-attr-arasaac').classList.toggle('hidden', tab !== 'arasaac');
             document.getElementById('sp-attr-picom').classList.toggle('hidden', tab !== 'picom');
             document.getElementById('sp-attr-mulberry').classList.toggle('hidden', tab !== 'mulberry');
             document.getElementById('sp-attr-jellow').classList.toggle('hidden', tab !== 'jellow');
             document.getElementById('sp-attr-openmoji').classList.toggle('hidden', tab !== 'openmoji');
-            setTimeout(() => { const inp = document.getElementById(`sp-${tab}-input`); if (inp) inp.focus(); }, 60);
+            document.getElementById('sp-attr-all').classList.toggle('hidden', tab !== 'all');
+            setTimeout(() => {
+                const inp = document.getElementById(`sp-${tab}-input`); if (inp) inp.focus();
+            }, 60);
         }
 
         // ARASAAC search
@@ -3497,6 +3500,7 @@
         }
 
         function selectOpenmojiSymbol(hexcode, label, imageUrl) {
+            if (_musicImgTarget.nodeId) { _applyMusicTrackImg(imageUrl); closeSymbolPickerModal(); return; }
             const { nodeId, cellIdx } = symbolPickerTarget;
             if (!nodeId || cellIdx == null) return;
             pushHistory();
@@ -3505,6 +3509,59 @@
             nodesData[nodeId].cells[cellIdx] = { label: keepLabel, linkId: existing.linkId || null, src: imageUrl, isOpenmoji: true, openmojiHex: hexcode };
             closeSymbolPickerModal();
             renderMap(); setTimeout(updateAllWires, 50);
+        }
+
+        // All-sets search (searches all symbol sets in parallel)
+        let _allTimeout = null, _lastAllQ = '';
+        function searchAll(q) {
+            if (!q || q.length < 2) { _spState('all', 'empty', 'Search all symbol sets', 'Searches ARASAAC, Mulberry, Jellow, OpenMoji & PiCom simultaneously'); return; }
+            if (q === _lastAllQ) return;
+            _lastAllQ = q;
+            _spState('all', 'loading');
+            const LIM = 6;
+            const arasaacP = fetch(`https://api.arasaac.org/api/pictograms/en/search/${encodeURIComponent(q)}`)
+                .then(r => { if (!r.ok) throw 0; return r.json(); })
+                .then(data => (data||[]).slice(0, LIM).map(item => {
+                    const id = item._id;
+                    const lbl = ((item.keywords||[]).find(k => k.keyword)||{}).keyword || `Symbol ${id}`;
+                    return { id: String(id), label: lbl, url: _arasaacImgUrl(id), source: 'arasaac' };
+                })).catch(() => []);
+            const gsP = (symbolset, src) => fetch(`https://globalsymbols.com/api/v1/labels/search?query=${encodeURIComponent(q)}&symbolset=${symbolset}&language=en&language_iso_format=639-1&limit=${LIM}`)
+                .then(r => { if (!r.ok) throw 0; return r.json(); })
+                .then(data => (data||[]).filter(i => i.picto?.image_url).slice(0, LIM).map(item => ({ id: String(item.picto?.id || item.id || ''), label: item.text || q, url: item.picto.image_url, source: src })))
+                .catch(() => []);
+            const mulberryP = gsP('mulberry', 'mulberry');
+            const jellowP   = gsP('jellow', 'jellow');
+            const picomP    = gsP('ai-realistic-symbols-a-picom-collection', 'picom');
+            const openmojiP = new Promise(resolve => {
+                _loadOpenmojiData(data => {
+                    const ql = q.toLowerCase();
+                    const res = data.filter(e => {
+                        if (e.group === 'extras-openmoji' || e.group === 'extras-unicode') return false;
+                        if (e.skintone !== '') return false;
+                        const ann = (e.annotation || '').toLowerCase();
+                        const tags = (e.tags || '').toLowerCase();
+                        return ann.includes(ql) || tags.split(',').some(t => t.trim().startsWith(ql));
+                    }).slice(0, LIM).map(e => ({ id: e.hexcode, label: e.annotation || e.hexcode, url: `${_OPENMOJI_CDN}/color/svg/${e.hexcode}.svg`, source: 'openmoji' }));
+                    resolve(res);
+                });
+            });
+            const openmojiSafeP = Promise.race([openmojiP, new Promise(r => setTimeout(() => r([]), 8000))]);
+            Promise.all([arasaacP, mulberryP, jellowP, openmojiSafeP, picomP]).then(arrays => {
+                const combined = [];
+                const maxLen = Math.max(...arrays.map(a => a.length), 0);
+                for (let i = 0; i < maxLen && combined.length < 30; i++) {
+                    for (const arr of arrays) { if (i < arr.length && combined.length < 30) combined.push(arr[i]); }
+                }
+                const grid = document.getElementById('sp-all-results');
+                if (!grid) return;
+                if (combined.length === 0) { _spState('all', 'noresult', q); return; }
+                const SRC_META = { arasaac: ['ARASAAC','#3b82f6'], mulberry: ['Mulberry','#8b5cf6'], jellow: ['Jellow','#f97316'], openmoji: ['OpenMoji','#06b6d4'], picom: ['PiCom','#10b981'] };
+                grid.innerHTML = combined.map(item => {
+                    const [srcLabel, srcColor] = SRC_META[item.source] || ['','#64748b'];
+                    return `<button class="sp-symbol-btn" data-id="${escHtml(item.id)}" data-label="${escHtml(item.label)}" data-url="${escHtml(item.url)}" data-source="${escHtml(item.source)}"><img src="${escHtml(item.url)}" alt="${escHtml(item.label)}" loading="lazy" onerror="this.parentElement.style.display='none'"><span class="sp-lbl">${escHtml(item.label)}</span><span style="font-size:7.5px;font-weight:800;color:${srcColor};line-height:1;margin-top:1px;font-family:'Outfit',sans-serif;letter-spacing:0.02em;display:block;text-align:center;">${srcLabel}</span></button>`;
+                }).join('');
+            });
         }
 
         // Jellow search (Global Symbols API — CC BY-NC-SA 4.0)
@@ -3534,6 +3591,7 @@
         }
 
         function selectJellowSymbol(id, label, imageUrl) {
+            if (_musicImgTarget.nodeId) { _applyMusicTrackImg(imageUrl); closeSymbolPickerModal(); return; }
             const { nodeId, cellIdx } = symbolPickerTarget;
             if (!nodeId || cellIdx == null) return;
             pushHistory();
@@ -3561,6 +3619,7 @@
         }
 
         function selectArasaacSymbol(id, label, imageUrl) {
+            if (_musicImgTarget.nodeId) { _applyMusicTrackImg(imageUrl); closeSymbolPickerModal(); return; }
             const { nodeId, cellIdx } = symbolPickerTarget;
             if (!nodeId || cellIdx == null) return;
             pushHistory();
@@ -3572,6 +3631,7 @@
         }
 
         function selectPicomSymbol(id, label, imageUrl) {
+            if (_musicImgTarget.nodeId) { _applyMusicTrackImg(imageUrl); closeSymbolPickerModal(); return; }
             const { nodeId, cellIdx } = symbolPickerTarget;
             if (!nodeId || cellIdx == null) return;
             pushHistory();
@@ -3583,6 +3643,7 @@
         }
 
         function selectMulberrySymbol(id, label, imageUrl) {
+            if (_musicImgTarget.nodeId) { _applyMusicTrackImg(imageUrl); closeSymbolPickerModal(); return; }
             const { nodeId, cellIdx } = symbolPickerTarget;
             if (!nodeId || cellIdx == null) return;
             pushHistory();
@@ -3660,6 +3721,28 @@
             }
             const omGrid = document.getElementById('sp-openmoji-results');
             if (omGrid) omGrid.addEventListener('click', (e) => { const btn = e.target.closest('.sp-symbol-btn'); if (btn) selectOpenmojiSymbol(btn.dataset.id, btn.dataset.label, btn.dataset.url); });
+            // All-sets input debounce
+            const allInp = document.getElementById('sp-all-input');
+            if (allInp) {
+                allInp.addEventListener('input', (e) => {
+                    clearTimeout(_allTimeout); _lastAllQ = '';
+                    const q = e.target.value.trim();
+                    if (q.length < 2) { _spState('all', 'empty', 'Search all symbol sets', 'Searches ARASAAC, Mulberry, Jellow, OpenMoji & PiCom simultaneously'); return; }
+                    _allTimeout = setTimeout(() => searchAll(q), 400);
+                });
+                allInp.addEventListener('keydown', (e) => { if (e.key === 'Enter') { clearTimeout(_allTimeout); _lastAllQ = ''; searchAll(allInp.value.trim()); } });
+            }
+            const allGrid = document.getElementById('sp-all-results');
+            if (allGrid) allGrid.addEventListener('click', (e) => {
+                const btn = e.target.closest('.sp-symbol-btn');
+                if (!btn) return;
+                const { id, label, url, source } = btn.dataset;
+                if (source === 'arasaac') selectArasaacSymbol(id, label, url);
+                else if (source === 'picom') selectPicomSymbol(id, label, url);
+                else if (source === 'mulberry') selectMulberrySymbol(id, label, url);
+                else if (source === 'jellow') selectJellowSymbol(id, label, url);
+                else if (source === 'openmoji') selectOpenmojiSymbol(id, label, url);
+            });
             // Photo upload handler
             const fileInput = document.getElementById('sm-file-input');
             if (fileInput) {
@@ -3669,6 +3752,32 @@
                     if (!file || !(file.type.startsWith('image/') || file.name.match(/\.(heic|heif)$/i))) {
                         fileInput.value = ''; return;
                     }
+
+                    // Music track image upload takes priority over cell upload
+                    if (_musicImgTarget.nodeId && _musicImgTarget.trackId) {
+                        const objectUrlM = URL.createObjectURL(file);
+                        const imgM = new Image();
+                        imgM.onload = () => {
+                            const maxDim = 300, ratio = Math.min(maxDim / imgM.width, maxDim / imgM.height, 1);
+                            const canvasM = document.createElement('canvas');
+                            canvasM.width = Math.round(imgM.width * ratio) || 1;
+                            canvasM.height = Math.round(imgM.height * ratio) || 1;
+                            canvasM.getContext('2d').drawImage(imgM, 0, 0, canvasM.width, canvasM.height);
+                            URL.revokeObjectURL(objectUrlM);
+                            _applyMusicTrackImg(canvasM.toDataURL('image/jpeg', 0.82));
+                        };
+                        imgM.onerror = () => {
+                            URL.revokeObjectURL(objectUrlM);
+                            const rdrM = new FileReader();
+                            rdrM.onload = (ev) => _applyMusicTrackImg(ev.target.result);
+                            rdrM.onerror = () => { _musicImgTarget = { nodeId: null, trackId: null }; promptAlert('Upload Failed', 'Could not read this image file. Please try a JPEG or PNG.'); };
+                            rdrM.readAsDataURL(file);
+                        };
+                        imgM.src = objectUrlM;
+                        fileInput.value = '';
+                        return;
+                    }
+
                     const { nodeId, cellIdx } = symbolPickerTarget;
                     if (!nodeId || cellIdx == null) { fileInput.value = ''; return; }
 
@@ -3708,11 +3817,381 @@
             }
         }
 
+        // ════════════════════════════════════════════════════════════════════════════
+        // ── Music Player ──────────────────────────────────────────────────────────
+        // ════════════════════════════════════════════════════════════════════════════
+
+        // IndexedDB helper — stores audio as base64 data URLs (handles large files)
+        const _musicDB = (() => {
+            let _db = null;
+            const _q = [];
+            const _req = indexedDB.open('gridflow-music-v1', 1);
+            _req.onupgradeneeded = e => e.target.result.createObjectStore('audio');
+            _req.onsuccess = e => { _db = e.target.result; _q.forEach(fn => fn(_db)); _q.length = 0; };
+            _req.onerror = e => { console.error('Audio DB error:', e); };
+            const _ready = fn => _db ? fn(_db) : _q.push(fn);
+            return {
+                put(id, dataUrl)   { _ready(db => { try { const tx = db.transaction('audio','readwrite'); tx.objectStore('audio').put(dataUrl, id); } catch(err){} }); },
+                get(id, cb)        { _ready(db => { try { const tx = db.transaction('audio','readonly');  const r = tx.objectStore('audio').get(id); r.onsuccess = () => cb(r.result || null); r.onerror = () => cb(null); } catch(err){cb(null);} }); },
+                del(id)            { _ready(db => { try { const tx = db.transaction('audio','readwrite'); tx.objectStore('audio').delete(id); } catch(err){} }); }
+            };
+        })();
+
+        let _musicAudio = null;
+        let _musicPlayingNodeId = null;
+        let _musicPlayingTrackId = null;
+        let _musicTrackCache = {};
+        let _musicImgTarget = { nodeId: null, trackId: null };
+        let _musicPlayQueue = [];
+
+        function _getMusicAudio() {
+            if (!_musicAudio) {
+                _musicAudio = new Audio();
+                _musicAudio.addEventListener('ended', () => {
+                    if (_musicPlayQueue.length) {
+                        const next = _musicPlayQueue.shift();
+                        _playMusicTrack(next.nodeId, next.trackId);
+                    } else {
+                        _musicPlayingTrackId = null; _updateMusicClientUI();
+                    }
+                });
+            }
+            return _musicAudio;
+        }
+
+        function _applyMusicTrackImg(dataUrl) {
+            if (!_musicImgTarget.nodeId || !_musicImgTarget.trackId) return;
+            const nodeId = _musicImgTarget.nodeId;
+            const nd = nodesData[nodeId];
+            if (!nd) { _musicImgTarget = { nodeId: null, trackId: null }; return; }
+            const tr = (nd.tracks || []).find(t => t.id === _musicImgTarget.trackId);
+            if (tr) { tr.imgDataUrl = dataUrl; _saveMusicData(); renderMap(); }
+            _musicImgTarget = { nodeId: null, trackId: null };
+            openMusicManager(nodeId);
+        }
+
+        function _updateMusicClientUI() {
+            document.querySelectorAll('.music-track-btn').forEach(btn => {
+                const active = btn.dataset.trackId === _musicPlayingTrackId;
+                btn.classList.toggle('music-playing', active);
+                const dot = btn.querySelector('.music-playing-dot');
+                if (dot) dot.style.display = active ? 'block' : 'none';
+            });
+            // Skip button — highlight only when a queue is active
+            document.querySelectorAll('.music-skip-btn').forEach(btn => {
+                const hasQueue = _musicPlayQueue.length > 0;
+                btn.style.background = hasQueue ? '#4c1d95' : '#1e293b';
+                btn.style.border = `1.5px solid ${hasQueue ? 'rgba(167,139,250,0.45)' : 'rgba(255,255,255,0.08)'}`;
+                btn.style.opacity = hasQueue ? '1' : '0.35';
+                btn.style.cursor = hasQueue ? 'pointer' : 'default';
+            });
+            // Floating stop button — visible whenever music is playing, regardless of current page
+            const floatBtn = document.getElementById('music-float-stop');
+            if (floatBtn) {
+                if (_musicPlayingTrackId && _musicPlayingNodeId) {
+                    const nd = nodesData[_musicPlayingNodeId];
+                    const track = nd && nd.tracks && nd.tracks.find(t => t.id === _musicPlayingTrackId);
+                    const floatLbl = floatBtn.querySelector('#music-float-label');
+                    if (floatLbl) floatLbl.textContent = (track && track.label) || 'Now Playing';
+                    floatBtn.style.display = 'flex';
+                } else {
+                    floatBtn.style.display = 'none';
+                }
+            }
+        }
+
+        function _playMusicTrack(nodeId, trackId) {
+            const audio = _getMusicAudio();
+            if (_musicPlayingTrackId === trackId) {
+                if (audio.paused) { audio.play().catch(() => {}); } else { audio.pause(); _musicPlayingTrackId = null; }
+                _updateMusicClientUI(); return;
+            }
+            audio.pause(); audio.src = '';
+            _musicPlayingTrackId = null; _updateMusicClientUI();
+            _musicPlayingNodeId = nodeId;
+            const _doPlay = dataUrl => {
+                if (!dataUrl) { promptAlert('Track Not Available', 'This track has not been loaded yet. Open the editor and use Manage Tracks to add the audio file.'); return; }
+                _musicTrackCache[trackId] = dataUrl;
+                _musicPlayingTrackId = trackId;
+                audio.src = dataUrl; audio.currentTime = 0;
+                audio.play().catch(() => {});
+                _updateMusicClientUI();
+            };
+            if (_musicTrackCache[trackId]) {
+                _doPlay(_musicTrackCache[trackId]);
+            } else {
+                _musicDB.get(trackId, _doPlay);
+            }
+        }
+
+        function _stopMusic() {
+            _musicPlayQueue = [];
+            if (_musicAudio) { _musicAudio.pause(); _musicAudio.src = ''; }
+            _musicPlayingTrackId = null; _musicPlayingNodeId = null; _updateMusicClientUI();
+        }
+
+        function _playAllMusic(nodeId) {
+            const nd = nodesData[nodeId];
+            if (!nd || !nd.tracks || !nd.tracks.length) return;
+            const tracks = nd.tracks;
+            _musicPlayQueue = tracks.slice(1).map(t => ({ nodeId, trackId: t.id }));
+            _playMusicTrack(nodeId, tracks[0].id);
+        }
+
+        function _shuffleMusic(nodeId) {
+            const nd = nodesData[nodeId];
+            if (!nd || !nd.tracks || !nd.tracks.length) return;
+            const shuffled = [...nd.tracks].sort(() => Math.random() - 0.5);
+            _musicPlayQueue = shuffled.slice(1).map(t => ({ nodeId, trackId: t.id }));
+            _playMusicTrack(nodeId, shuffled[0].id);
+        }
+
+        function _saveMusicData() {
+            try { localStorage.setItem('aacMapData', JSON.stringify(nodesData)); } catch(e) {}
+            const ap = _profiles && _profiles.find(p => p.id === _activeProfileId);
+            if (ap) { ap.nodesData = JSON.parse(JSON.stringify(nodesData)); ap.gridCols = gridCols; ap.gridRows = gridRows; saveProfiles(); }
+        }
+
+        function spawnMusicNode() {
+            const newId = generateId();
+            const center = getWorkspaceCoords(window.innerWidth / 2, window.innerHeight / 2);
+            nodesData[newId] = { id: newId, type: 'music', title: 'Music Player', color: '#0e7490', x: center.x, y: center.y, tracks: [] };
+            renderMap(); setTimeout(updateAllWires, 50);
+            setTimeout(() => { const el = document.getElementById(`dom-node-${newId}`); if (el) el.classList.add('node-enter'); }, 10);
+            const pal = document.getElementById('board-palette');
+            if (pal && pal.classList.contains('open') && window.innerWidth < 768) toggleBoardPalette();
+        }
+
+        function createMusicElement(node) {
+            const el = document.createElement('div');
+            el.className = 'aac-node music-node';
+            el.id = `dom-node-${node.id}`;
+            el.style.left = `${node.x}px`; el.style.top = `${node.y}px`;
+            el.style.width = '280px';
+            const tracks = node.tracks || [];
+            const countText = tracks.length === 0 ? 'No tracks \u2014 tap Manage to add music' : `${tracks.length} track${tracks.length === 1 ? '' : 's'} loaded`;
+            el.innerHTML = `
+                <div class="node-header" style="display:flex;align-items:center;gap:8px;padding:10px 12px 8px;background:linear-gradient(135deg,#0e7490,#0369a1);border-radius:20px 20px 0 0;cursor:grab;">
+                    <div style="width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                    </div>
+                    <span style="flex:1;font-family:Outfit,sans-serif;font-size:13px;font-weight:700;color:white;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(node.title)}</span>
+                    <button class="music-rename-btn" style="background:rgba(255,255,255,0.18);border:none;border-radius:6px;width:26px;height:26px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:white;flex-shrink:0;" title="Rename">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    </button>
+                    <button class="music-delete-btn" style="background:rgba(255,255,255,0.18);border:none;border-radius:6px;width:26px;height:26px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:white;flex-shrink:0;" title="Delete">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                </div>
+                <div style="padding:14px 14px 14px;">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                        <span style="font-family:Outfit,sans-serif;font-size:12px;color:#64748b;">${escHtml(countText)}</span>
+                    </div>
+                    <button class="music-manage-btn" style="width:100%;padding:9px 0;background:linear-gradient(135deg,#0e7490,#0369a1);color:white;border:none;border-radius:10px;font-family:Outfit,sans-serif;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                        Manage Tracks
+                    </button>
+                </div>
+                <div class="port port-in" data-node="${node.id}"></div>
+            `;
+            nodesLayer.appendChild(el);
+            el.querySelector('.node-header').addEventListener('pointerdown', (e) => {
+                if (e.target.closest('button')) return;
+                e.stopPropagation(); pushHistory(); isDraggingNode = true; activeSourceNodeId = node.id;
+                const coords = getWorkspaceCoords(e.clientX, e.clientY);
+                startPointerX = coords.x - nodesData[node.id].x;
+                startPointerY = coords.y - nodesData[node.id].y;
+                el.classList.add('dragging');
+            });
+            el.querySelector('.music-rename-btn').addEventListener('pointerdown', e => { e.stopPropagation(); promptEditNode(node.id); });
+            el.querySelector('.music-delete-btn').addEventListener('pointerdown', e => {
+                e.stopPropagation();
+                promptConfirm('Delete Music Player?', `Delete "${escHtml(node.title)}"? All loaded tracks will also be removed.`, 'Delete', 'red', () => {
+                    (node.tracks || []).forEach(t => _musicDB.del(t.id));
+                    if (_musicPlayingNodeId === node.id) _stopMusic();
+                    pushHistory(); delete nodesData[node.id]; renderMap(); setTimeout(updateAllWires, 50);
+                });
+            });
+            el.querySelector('.music-manage-btn').addEventListener('pointerdown', e => { e.stopPropagation(); openMusicManager(node.id); });
+        }
+
+        function openMusicManager(nodeId) {
+            const node = nodesData[nodeId];
+            if (!node) return;
+            if (!node.tracks) node.tracks = [];
+
+            const tiles = node.tracks.map(t => {
+                const hasImg = !!t.imgDataUrl;
+                return `<div class="mc-tile" data-tid="${escHtml(t.id)}" style="position:relative;aspect-ratio:1/1;border-radius:14px;overflow:hidden;cursor:pointer;background:${hasImg ? '#e2e8f0' : 'linear-gradient(135deg,#0e7490,#0369a1)'};border:2.5px solid #e2e8f0;">
+                    ${hasImg
+                        ? `<img src="${escHtml(t.imgDataUrl)}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">`
+                        : `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;"><svg width="32" height="32" viewBox="0 0 24 24" fill="white" stroke="none" opacity="0.9"><path d="M12 3v9.28a4 4 0 1 0 1.5 3.1V7h3V3h-4.5z"/></svg></div>`}
+                    <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.65));padding:4px 5px 7px;">
+                        <span style="font-family:Outfit,sans-serif;font-size:11px;font-weight:700;color:white;display:block;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(t.label || '')}</span>
+                    </div>
+                </div>`;
+            }).join('');
+
+            openModal(`
+                <div style="padding:18px 16px 16px;">
+                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+                        <div style="width:34px;height:34px;border-radius:12px;background:linear-gradient(135deg,#0e7490,#0369a1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                        </div>
+                        <div style="flex:1;">
+                            <h3 style="font-family:Outfit,sans-serif;font-size:15px;font-weight:800;color:#0f172a;margin:0;">${escHtml(node.title)}</h3>
+                            <p style="font-family:Outfit,sans-serif;font-size:11px;color:#94a3b8;margin:2px 0 0;">Tap a track to edit · Tap + to add</p>
+                        </div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-height:calc(90vh - 160px);overflow-y:auto;padding-bottom:2px;" class="custom-scrollbar">
+                        ${tiles}
+                        <label style="position:relative;aspect-ratio:1/1;border-radius:14px;cursor:pointer;background:#f8fafc;border:2.5px dashed #cbd5e1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            <span style="font-family:Outfit,sans-serif;font-size:10px;font-weight:700;color:#94a3b8;">Add Track</span>
+                            <input id="mc-audio-add-input" type="file" accept="audio/*,.mp3,.wav,.aac,.m4a,.ogg,.flac,.opus" multiple style="display:none;">
+                        </label>
+                    </div>
+                    <button type="button" onclick="closeModal()" style="margin-top:12px;width:100%;padding:11px 0;background:linear-gradient(135deg,#0e7490,#0369a1);color:white;font-family:Outfit,sans-serif;font-size:14px;font-weight:700;border:none;border-radius:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        Done
+                    </button>
+                </div>
+            `);
+
+            document.querySelectorAll('.mc-tile').forEach(tile => {
+                tile.addEventListener('pointerdown', e => { e.stopPropagation(); openMusicTrackEditor(nodeId, tile.dataset.tid); });
+            });
+
+            const addInput = document.getElementById('mc-audio-add-input');
+            if (addInput) {
+                addInput.addEventListener('change', function() {
+                    const files = Array.from(this.files).filter(f => f.type.startsWith('audio/') || /\.(mp3|wav|aac|m4a|ogg|flac|opus)$/i.test(f.name));
+                    if (!files.length) { this.value = ''; return; }
+                    let done = 0;
+                    files.forEach(file => {
+                        const reader = new FileReader();
+                        reader.onload = ev => {
+                            const newId = generateId();
+                            const lbl = file.name.replace(/\.[^/.]+$/, '').replace(/[_\-]+/g, ' ').trim();
+                            node.tracks.push({ id: newId, label: lbl, imgDataUrl: null });
+                            _musicDB.put(newId, ev.target.result);
+                            if (++done === files.length) { _saveMusicData(); renderMap(); openMusicManager(nodeId); }
+                        };
+                        reader.onerror = () => { if (++done === files.length) openMusicManager(nodeId); };
+                        reader.readAsDataURL(file);
+                    });
+                    this.value = '';
+                });
+            }
+        }
+
+        function openMusicTrackEditor(nodeId, trackId) {
+            const nd = nodesData[nodeId];
+            if (!nd) return;
+            const tr = (nd.tracks || []).find(t => t.id === trackId);
+            if (!tr) return;
+
+            const imgPrev = tr.imgDataUrl
+                ? `<div style="width:100%;aspect-ratio:5/3;border-radius:12px;overflow:hidden;background:#f1f5f9;margin-bottom:12px;"><img src="${escHtml(tr.imgDataUrl)}" style="width:100%;height:100%;object-fit:contain;"></div>`
+                : `<div style="width:100%;aspect-ratio:5/3;border-radius:12px;background:linear-gradient(135deg,#0e7490,#0369a1);margin-bottom:12px;display:flex;align-items:center;justify-content:center;"><svg width="44" height="44" viewBox="0 0 24 24" fill="white" stroke="none" opacity="0.8"><path d="M12 3v9.28a4 4 0 1 0 1.5 3.1V7h3V3h-4.5z"/></svg></div>`;
+
+            openModal(`
+                <div class="p-5">
+                    <div class="flex items-center gap-2.5 mb-4">
+                        <div class="w-8 h-8 rounded-xl bg-cyan-50 flex items-center justify-center flex-shrink-0">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0e7490" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                        </div>
+                        <h3 class="text-base font-bold text-slate-800">Edit Track</h3>
+                    </div>
+                    ${imgPrev}
+                    <div class="flex gap-2 mb-4">
+                        <button id="mte-find-sym" class="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-blue-50 text-blue-700 font-bold rounded-xl text-sm border border-blue-200 hover:bg-blue-100 transition active:scale-95">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pointer-events-none"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Find Symbol
+                        </button>
+                        <button id="mte-upload-photo" class="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-slate-50 text-slate-700 font-bold rounded-xl text-sm border border-slate-200 hover:bg-slate-100 transition active:scale-95">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pointer-events-none"><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/></svg> Upload Photo
+                        </button>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-xs font-bold text-slate-400 mb-1.5 uppercase tracking-wide">Label</label>
+                        <input id="mte-label" type="text" value="${escHtml(tr.label || '')}" maxlength="40" class="modal-input w-full border-2 border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 font-medium focus:outline-none focus:border-blue-500 transition">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-xs font-bold text-slate-400 mb-1.5 uppercase tracking-wide">Audio File</label>
+                        <label class="flex items-center gap-2 px-3.5 py-2.5 bg-cyan-50 border-2 border-cyan-200 rounded-xl text-sm font-bold text-cyan-700 cursor-pointer hover:bg-cyan-100 transition w-full box-border">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="pointer-events-none flex-shrink-0"><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/></svg>
+                            Replace Audio File
+                            <input id="mte-audio-input" type="file" accept="audio/*,.mp3,.wav,.aac,.m4a,.ogg,.flac,.opus" style="display:none;">
+                        </label>
+                    </div>
+                    <div class="flex gap-2">
+                        <button id="mte-delete" class="flex-1 bg-red-50 text-red-500 font-bold py-2.5 rounded-xl hover:bg-red-100 transition active:scale-95 border border-red-200 text-sm">Delete</button>
+                        <button id="mte-back" class="flex-1 bg-slate-100 text-slate-600 font-bold py-2.5 rounded-xl hover:bg-slate-200 transition active:scale-95 text-sm">Back</button>
+                        <button id="mte-save" class="flex-1 bg-blue-600 text-white font-bold py-2.5 rounded-xl hover:bg-blue-700 active:bg-blue-800 transition shadow-sm text-sm">Save</button>
+                    </div>
+                </div>
+            `);
+
+            document.getElementById('mte-find-sym').addEventListener('pointerdown', e => {
+                e.stopPropagation();
+                _musicImgTarget = { nodeId, trackId };
+                closeModal();
+                openSymbolPickerModal(nodeId, null);
+            });
+
+            document.getElementById('mte-upload-photo').addEventListener('pointerdown', e => {
+                e.stopPropagation();
+                _musicImgTarget = { nodeId, trackId };
+                closeModal();
+                document.getElementById('sm-file-input').click();
+            });
+
+            document.getElementById('mte-audio-input').addEventListener('change', function() {
+                const file = Array.from(this.files).find(f => f.type.startsWith('audio/') || /\.(mp3|wav|aac|m4a|ogg|flac|opus)$/i.test(f.name));
+                if (!file) { this.value = ''; return; }
+                const reader = new FileReader();
+                reader.onload = ev => {
+                    _musicDB.put(trackId, ev.target.result);
+                    delete _musicTrackCache[trackId];
+                    _saveMusicData(); renderMap();
+                    openMusicManager(nodeId);
+                };
+                reader.onerror = () => openMusicManager(nodeId);
+                reader.readAsDataURL(file);
+                this.value = '';
+            });
+
+            document.getElementById('mte-delete').addEventListener('pointerdown', e => {
+                e.stopPropagation();
+                _musicDB.del(trackId);
+                nd.tracks = nd.tracks.filter(t => t.id !== trackId);
+                if (_musicPlayingTrackId === trackId) _stopMusic();
+                delete _musicTrackCache[trackId];
+                _saveMusicData(); renderMap();
+                openMusicManager(nodeId);
+            });
+
+            document.getElementById('mte-back').addEventListener('pointerdown', e => {
+                e.stopPropagation();
+                openMusicManager(nodeId);
+            });
+
+            document.getElementById('mte-save').addEventListener('pointerdown', e => {
+                e.stopPropagation();
+                const lbl = document.getElementById('mte-label').value.trim();
+                if (lbl) tr.label = lbl;
+                _saveMusicData(); renderMap();
+                openMusicManager(nodeId);
+            });
+        }
+        // ── End Music Player ──────────────────────────────────────────────────────
+
         // --- 9. Client Side AAC App ---
         let clientNavStack = [];
         let clientCurrentNode = null;
         let sentenceStrip = []; 
-        let clientSettings = {
+        const _DEFAULT_CLIENT_SETTINGS = {
             borderColor: 'black',       // 'black', 'gray', 'none', or hex color
             folderColorBorders: true,  // folder link cells use their folder's color for border
             borderWidth: 2,           // 1 to 8
@@ -3730,6 +4209,7 @@
             dragSelectPreview: true,   // speak each symbol name while hovering (false = only on release)
             dragSelectDelay: 0         // ms to wait after hovering before speaking preview (0 = instant)
         };
+        let clientSettings = { ..._DEFAULT_CLIENT_SETTINGS };
 
         let _profiles = [];
         let _activeProfileId = null;
@@ -3902,10 +4382,10 @@
             let needsSave = false;
             try { const s = localStorage.getItem('aacProfiles'); if (s) _profiles = JSON.parse(s); } catch(e) {}
             if (!_profiles.length) {
-                let seed = {};
-                try { const leg = localStorage.getItem('aacClientSettings'); if (leg) seed = JSON.parse(leg); } catch(e) {}
-                // Snapshot current board into the first Default profile
-                _profiles = [{ id: 'p' + Date.now(), name: 'Default', settings: { ...clientSettings, ...seed },
+                // No existing profiles — create Default using the canonical defaults.
+                // We intentionally do NOT merge any legacy aacClientSettings value here
+                // so that the app always starts with the intended defaults on a clean install.
+                _profiles = [{ id: 'p' + Date.now(), name: 'Default', settings: { ..._DEFAULT_CLIENT_SETTINGS },
                     nodesData: JSON.parse(JSON.stringify(nodesData)), gridCols, gridRows }];
                 needsSave = true;
             }
@@ -3923,8 +4403,10 @@
                     gridCols = active.gridCols || gridCols;
                     gridRows = active.gridRows || gridRows;
                     updateNodeDimensions();
-                    localStorage.setItem('aacMapData', JSON.stringify(nodesData));
-                    localStorage.setItem('aacMapConfig', JSON.stringify({cols: gridCols, rows: gridRows}));
+                    try {
+                        localStorage.setItem('aacMapData', JSON.stringify(nodesData));
+                        localStorage.setItem('aacMapConfig', JSON.stringify({cols: gridCols, rows: gridRows}));
+                    } catch(e){}
                 } else {
                     active.nodesData = JSON.parse(JSON.stringify(nodesData));
                     active.gridCols = gridCols;
@@ -3936,8 +4418,95 @@
         }
 
         function saveProfiles() {
-            localStorage.setItem('aacProfiles', JSON.stringify(_profiles));
-            localStorage.setItem('aacActiveProfile', _activeProfileId);
+            try {
+                localStorage.setItem('aacProfiles', JSON.stringify(_profiles));
+                localStorage.setItem('aacActiveProfile', _activeProfileId);
+            } catch (err) {
+                console.warn('Could not save profiles to local storage (quota exceeded?).', err);
+            }
+        }
+
+        // ── Board Export / Import ──────────────────────────────────────────────
+        function exportBoard() {
+            const active = _profiles.find(p => p.id === _activeProfileId);
+            if (!active) return;
+            const payload = {
+                version: 1,
+                type: 'gridflow-aac-board',
+                name: active.name,
+                exportedAt: new Date().toISOString(),
+                settings: JSON.parse(JSON.stringify(active.settings)),
+                nodesData: JSON.parse(JSON.stringify(active.nodesData)),
+                gridCols: active.gridCols,
+                gridRows: active.gridRows
+            };
+            const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            const safeName = active.name.replace(/[^a-z0-9_\- ]/gi, '_');
+            a.download = 'gridflow-' + safeName + '.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function importBoardClick() {
+            const inp = document.getElementById('board-import-input');
+            inp.value = '';
+            inp.click();
+        }
+
+        function importBoardFile(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                let payload;
+                try { payload = JSON.parse(e.target.result); } catch(err) {
+                    alert('Could not read board file: the file format is invalid.');
+                    return;
+                }
+                if (payload.type !== 'gridflow-aac-board' || !payload.nodesData) {
+                    alert('This does not appear to be a valid GridFlowAAC board file.');
+                    return;
+                }
+                if (_profiles.length >= 15) {
+                    alert('Maximum of 15 profiles reached. Please delete a profile before importing.');
+                    return;
+                }
+                // Derive a unique profile name
+                let baseName = (payload.name || 'Imported Board').slice(0, 24);
+                let name = baseName;
+                let n = 1;
+                while (_profiles.some(p => p.name === name)) { name = baseName.slice(0, 20) + ' (' + (++n) + ')'; }
+                const newId = 'p' + Date.now();
+                const settings = { ..._DEFAULT_CLIENT_SETTINGS, ...(payload.settings || {}) };
+                _profiles.push({
+                    id: newId, name, settings,
+                    nodesData: JSON.parse(JSON.stringify(payload.nodesData)),
+                    gridCols: payload.gridCols || 4,
+                    gridRows: payload.gridRows || 4
+                });
+                saveProfiles();
+                switchProfile(newId);
+            };
+            reader.readAsText(file);
+        }
+        // ── End Board Export / Import ──────────────────────────────────────────
+
+        // Debounced persistence — batches rapid renderMap() calls into one write
+        let _saveTid = null;
+        function _debouncedSave() {
+            clearTimeout(_saveTid);
+            _saveTid = setTimeout(() => {
+                try {
+                    localStorage.setItem('aacMapData', JSON.stringify(nodesData));
+                    const _ap = _profiles && _profiles.find(p => p.id === _activeProfileId);
+                    if (_ap) { _ap.nodesData = JSON.parse(JSON.stringify(nodesData)); _ap.gridCols = gridCols; _ap.gridRows = gridRows; saveProfiles(); }
+                } catch (err) {
+                    console.warn('Storage quota exceeded or save error:', err);
+                }
+            }, 400);
         }
 
         function switchProfile(id) {
@@ -3954,8 +4523,10 @@
                 gridCols = prof.gridCols || 4;
                 gridRows = prof.gridRows || 3;
                 updateNodeDimensions();
-                localStorage.setItem('aacMapData', JSON.stringify(nodesData));
-                localStorage.setItem('aacMapConfig', JSON.stringify({cols: gridCols, rows: gridRows}));
+                try {
+                    localStorage.setItem('aacMapData', JSON.stringify(nodesData));
+                    localStorage.setItem('aacMapConfig', JSON.stringify({cols: gridCols, rows: gridRows}));
+                } catch(e){}
                 document.getElementById('grid-size-select').value = `${gridCols}x${gridRows}`;
             } else {
                 // Profile has no saved board — seed it from the current board so the
@@ -3966,7 +4537,11 @@
             }
             saveProfiles();
             updateProfileLabel();
-            if (clientCurrentNode) renderClientNode(clientCurrentNode);
+            // Always land client on the home node of the newly-active profile
+            clientNavStack = [];
+            const _swHome = nodesData['home'] ? 'home' : (Object.keys(nodesData).find(k => k !== '__lost_found__') || null);
+            clientCurrentNode = null;
+            if (_swHome) renderClientNode(_swHome);
             applyClientTheme();
             renderMap();
             fitAllNodes();
@@ -3977,12 +4552,7 @@
         function createProfile() {
             if (_profiles.length >= 15) return;
             const id = 'p' + Date.now();
-            const defaultSettings = {
-                borderColor: 'black', folderColorBorders: true, borderWidth: 2, gap: 12,
-                bgColor: '#111827', cellBg: '#f5f0e8', fontFamily: 'Outfit', fontSize: 'md',
-                labelPosition: 'bottom', emptyCellStyle: 'dashed', speakOnTap: true,
-                showMasked: false, dragSelect: false, dragSelectPreview: true, dragSelectDelay: 0
-            };
+            const defaultSettings = { ..._DEFAULT_CLIENT_SETTINGS };
             // Save current board into outgoing profile before switching
             const outgoing = _profiles.find(p => p.id === _activeProfileId);
             if (outgoing) { outgoing.nodesData = JSON.parse(JSON.stringify(nodesData)); outgoing.gridCols = gridCols; outgoing.gridRows = gridRows; }
@@ -4003,7 +4573,11 @@
             saveProfiles();
             updateProfileLabel();
             applyClientTheme();
-            if (clientCurrentNode) renderClientNode(clientCurrentNode);
+            // Always land client on the home node of the new profile
+            clientNavStack = [];
+            const _cpHome = nodesData['home'] ? 'home' : (Object.keys(nodesData).find(k => k !== '__lost_found__') || null);
+            clientCurrentNode = null;
+            if (_cpHome) renderClientNode(_cpHome);
             renderMap();
             fitAllNodes();
             setTimeout(updateAllWires, 100);
@@ -4028,7 +4602,11 @@
                     localStorage.setItem('aacMapConfig', JSON.stringify({cols: gridCols, rows: gridRows}));
                     document.getElementById('grid-size-select').value = `${gridCols}x${gridRows}`;
                 }
-                if (clientCurrentNode) renderClientNode(clientCurrentNode);
+                // Always land client on the home node of the newly-active profile
+                clientNavStack = [];
+                const _dpHome = nodesData['home'] ? 'home' : (Object.keys(nodesData).find(k => k !== '__lost_found__') || null);
+                clientCurrentNode = null;
+                if (_dpHome) renderClientNode(_dpHome);
                 applyClientTheme();
                 renderMap();
                 fitAllNodes();
@@ -4151,7 +4729,7 @@
             btn.classList.add('scale-110', 'border-blue-500');
             const isDark = ['#1e293b', '#27272a', '#000000', '#0f172a', '#171717'].includes(color);
             btn.innerHTML = `<div class="absolute inset-0 flex items-center justify-center"><i data-lucide="check" class="w-4 h-4 ${isDark ? 'text-white' : 'text-slate-800'}"></i></div>`;
-            lucide.createIcons();
+            lucide.createIcons({ nodes: [btn] });
         }
 
         function toggleSpeakOnTap(btn) {
@@ -4514,16 +5092,17 @@
 
                 const CWB_COLORS = ['#1e293b','#ef4444','#3b82f6','#10b981','#f59e0b','#8b5cf6','#ec4899','#ffffff'];
                 clientWB.innerHTML = `
-                    <div id="cwbt-${nodeId}" style="display:flex;align-items:center;gap:6px;padding:8px 12px;background:#f8fafc;border-bottom:1px solid #e2e8f0;flex-wrap:wrap;flex-shrink:0;">
-                        <button data-tool="pen"    class="cwb-tool active" title="Pen"    style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:10px;border:1.5px solid #93c5fd;background:#dbeafe;cursor:pointer;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>
-                        <button data-tool="eraser" class="cwb-tool"        title="Eraser" style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:10px;border:1.5px solid #e2e8f0;background:transparent;cursor:pointer;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20H7L3 16l11-11 6 6-3.5 3.5"/><path d="M6.5 17.5l4-4"/></svg></button>
-                        <div style="width:1px;height:24px;background:#e2e8f0;margin:0 4px;flex-shrink:0;"></div>
-                        ${CWB_COLORS.map((c,i) => `<div class="cwb-swatch${i===0?' cwb-swatch-active':''}" data-color="${c}" title="${c}" style="width:26px;height:26px;border-radius:50%;background:${c};border:2px solid white;box-shadow:0 0 0 ${i===0?'2.5px #3b82f6':'1.5px #cbd5e1'};cursor:pointer;flex-shrink:0;transition:transform 0.12s;"></div>`).join('')}
-                        <div style="width:1px;height:24px;background:#e2e8f0;margin:0 4px;flex-shrink:0;"></div>
-                        <select id="cwbsize-${nodeId}" style="font-size:12px;font-family:Outfit,sans-serif;font-weight:600;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:4px 8px;cursor:pointer;outline:none;">
-                            <option value="3">Fine</option><option value="6" selected>Medium</option><option value="12">Thick</option><option value="22">Bold</option>
+                    <div id="cwbt-${nodeId}" style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:#f8fafc;border-bottom:1px solid #e2e8f0;flex-wrap:wrap;flex-shrink:0;">
+                        <button data-tool="pen"    class="cwb-tool active" title="Pen"    style="display:flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:14px;border:1.5px solid #93c5fd;background:#dbeafe;cursor:pointer;"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>
+                        <button data-tool="eraser" class="cwb-tool"        title="Eraser" style="display:flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:14px;border:1.5px solid #e2e8f0;background:transparent;cursor:pointer;"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20H7L3 16l11-11 6 6-3.5 3.5"/><path d="M6.5 17.5l4-4"/></svg></button>
+                        <div style="width:1px;height:32px;background:#e2e8f0;margin:0 4px;flex-shrink:0;"></div>
+                        ${CWB_COLORS.map((c,i) => `<div class="cwb-swatch${i===0?' cwb-swatch-active':''}" data-color="${c}" title="${c}" style="width:42px;height:42px;border-radius:50%;background:${c};border:2px solid white;box-shadow:0 0 0 ${i===0?'2.5px #3b82f6':'1.5px #cbd5e1'};cursor:pointer;flex-shrink:0;transition:transform 0.12s;"></div>`).join('')}
+                        <div class="cwb-swatch" data-color="__rainbow__" title="Rainbow" style="width:42px;height:42px;border-radius:50%;background:conic-gradient(red,yellow,lime,cyan,blue,magenta,red);border:2px solid white;box-shadow:0 0 0 1.5px #cbd5e1;cursor:pointer;flex-shrink:0;transition:transform 0.12s;"></div>
+                        <div style="width:1px;height:32px;background:#e2e8f0;margin:0 4px;flex-shrink:0;"></div>
+                        <select id="cwbsize-${nodeId}" style="font-size:14px;font-family:Outfit,sans-serif;font-weight:600;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;padding:8px 12px;cursor:pointer;outline:none;">
+                            <option value="4">Fine</option><option value="8">Medium</option><option value="16" selected>Thick</option><option value="28">Bold</option>
                         </select>
-                        <button data-action="clear" class="cwb-tool" title="Clear" style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:10px;border:1.5px solid #e2e8f0;background:transparent;cursor:pointer;margin-left:auto;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg></button>
+                        <button data-action="clear" class="cwb-tool" title="Clear" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;width:68px;height:56px;border-radius:14px;border:1.5px solid #fca5a5;background:#fee2e2;cursor:pointer;margin-left:auto;"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg><span style="font-size:10px;font-weight:800;font-family:Outfit,sans-serif;color:#dc2626;line-height:1;">CLEAR</span></button>
                     </div>
                     <canvas id="cwbc-${nodeId}" style="flex:1;display:block;touch-action:none;cursor:crosshair;background:#fff;width:100%;"></canvas>
                 `;
@@ -4539,10 +5118,11 @@
                 });
 
                 const ctx = canvas.getContext('2d');
-                let cwbTool = 'pen', cwbColor = CWB_COLORS[0], cwbSize = 6;
+                let cwbTool = 'pen', cwbColor = CWB_COLORS[0], cwbSize = 16;
                 let cwbDrawing = false;
+                let _cwbRainbowHue = 0;
 
-                const save = () => { node.drawingData = canvas.toDataURL('image/png'); localStorage.setItem('aacMapData', JSON.stringify(nodesData)); };
+                const save = () => { node.drawingData = canvas.toDataURL('image/png'); try { localStorage.setItem('aacMapData', JSON.stringify(nodesData)); } catch(err){} };
                 const getP = (e) => { const r = canvas.getBoundingClientRect(); return { x: (e.clientX - r.left) * (canvas.width / r.width), y: (e.clientY - r.top) * (canvas.height / r.height) }; };
 
                 const toolbar = document.getElementById(`cwbt-${nodeId}`);
@@ -4579,7 +5159,13 @@
                     e.stopPropagation();
                     const p = getP(e);
                     ctx.globalCompositeOperation = cwbTool === 'eraser' ? 'destination-out' : 'source-over';
-                    ctx.strokeStyle = cwbColor; ctx.lineWidth = cwbSize;
+                    if (cwbColor === '__rainbow__') {
+                        ctx.strokeStyle = `hsl(${_cwbRainbowHue}, 100%, 50%)`;
+                        _cwbRainbowHue = (_cwbRainbowHue + 5) % 360;
+                    } else {
+                        ctx.strokeStyle = cwbColor;
+                    }
+                    ctx.lineWidth = cwbSize;
                     ctx.lineCap = 'round'; ctx.lineJoin = 'round';
                     ctx.lineTo(p.x, p.y); ctx.stroke();
                     ctx.beginPath(); ctx.moveTo(p.x, p.y);
@@ -4626,51 +5212,43 @@
 
                 const doneSet = new Set();
                 const N = steps.length;
-                const routineGridCols = `repeat(${N},1fr)`;
 
-                // ── Done row (top half) ──────────────────────────────────────────
-                const doneBlock = document.createElement('div');
-                doneBlock.style.cssText = 'flex:1;min-height:0;display:flex;flex-direction:column;padding:10px 12px 6px;';
+                // ── Header bar: progress counter + reset ─────────────────────────
+                const headerBar = document.createElement('div');
+                headerBar.style.cssText = 'flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:8px 12px 6px;';
 
-                const doneLabel = document.createElement('div');
-                doneLabel.style.cssText = 'flex-shrink:0;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.28);font-family:Outfit,sans-serif;margin-bottom:6px;';
-                doneLabel.textContent = 'Done';
+                const progressLabel = document.createElement('div');
+                progressLabel.style.cssText = 'font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.40);font-family:Outfit,sans-serif;transition:color 0.25s;';
+                progressLabel.textContent = `0 / ${N}`;
 
-                const doneInner = document.createElement('div');
-                doneInner.style.cssText = `flex:1;min-height:0;display:grid;grid-template-columns:${routineGridCols};gap:8px;`;
+                const resetBtn = document.createElement('button');
+                resetBtn.style.cssText = 'display:flex;align-items:center;gap:5px;padding:4px 10px;background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.16);border-radius:20px;color:rgba(255,255,255,0.50);font-size:11px;font-weight:600;font-family:Outfit,sans-serif;cursor:pointer;-webkit-tap-highlight-color:transparent;';
+                resetBtn.innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg> Reset`;
+                headerBar.appendChild(progressLabel);
+                headerBar.appendChild(resetBtn);
 
-                // ── Step row (bottom half) ───────────────────────────────────────
-                const sep = document.createElement('div');
-                sep.style.cssText = 'flex-shrink:0;height:1px;margin:0 12px;background:rgba(255,255,255,0.08);';
+                // ── Grid: N columns, 2 rows ───────────────────────────────────────
+                // Row 1 (top):    placeholder slots — fill when step is completed
+                // Row 2 (bottom): photo tiles — tap to send up
+                const gridEl = document.createElement('div');
+                gridEl.style.cssText = `flex:1;min-height:0;display:grid;grid-template-columns:repeat(${N},1fr);grid-template-rows:1fr 1fr;gap:8px;padding:0 10px 10px;`;
 
-                const stepBlock = document.createElement('div');
-                stepBlock.style.cssText = 'flex:1;min-height:0;display:flex;flex-direction:column;padding:6px 12px 10px;';
-
-                const stepLabel = document.createElement('div');
-                stepLabel.style.cssText = 'flex-shrink:0;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.28);font-family:Outfit,sans-serif;margin-bottom:6px;';
-                stepLabel.textContent = 'To Do';
-
-                const stepInner = document.createElement('div');
-                stepInner.style.cssText = `flex:1;min-height:0;display:grid;grid-template-columns:${routineGridCols};gap:8px;`;
-
-                // ── Build placeholder slots (done row) ───────────────────────────
+                // ── Build placeholder slots (top row) ────────────────────────────
                 const placeholders = steps.map((s, i) => {
                     const ph = document.createElement('div');
-                    ph.className = 'routine-client-slot';
-                    // ghost step number
+                    ph.style.cssText = 'position:relative;border-radius:14px;background:#1e293b;border:2px dashed rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;grid-row:1;overflow:hidden;';
                     const ghost = document.createElement('span');
-                    ghost.style.cssText = 'font-size:9px;font-weight:600;color:rgba(255,255,255,0.18);font-family:Outfit,sans-serif;text-align:center;';
+                    ghost.style.cssText = 'font-size:9px;font-weight:600;color:rgba(255,255,255,0.18);font-family:Outfit,sans-serif;text-align:center;padding:0 4px;';
                     ghost.textContent = escHtml(s.label || `${i + 1}`);
                     ph.appendChild(ghost);
-                    doneInner.appendChild(ph);
+                    gridEl.appendChild(ph);
                     return ph;
                 });
 
-                // ── Build step tiles (step row) ──────────────────────────────────
+                // ── Build step tiles (bottom row) ────────────────────────────────
                 const stepTiles = steps.map((s, i) => {
                     const tile = document.createElement('div');
-                    tile.className = 'routine-client-step';
-                    tile.style.overflow = 'hidden';
+                    tile.style.cssText = 'position:relative;border-radius:14px;overflow:hidden;cursor:pointer;-webkit-tap-highlight-color:transparent;grid-row:2;';
 
                     const img = document.createElement('img');
                     img.src = s.dataUrl;
@@ -4684,49 +5262,49 @@
                     lbl.style.cssText = 'position:absolute;bottom:8px;left:0;right:0;text-align:center;font-size:12px;font-weight:700;color:white;font-family:Outfit,sans-serif;pointer-events:none;padding:0 4px;line-height:1.25;text-shadow:0 1px 4px rgba(0,0,0,0.7);';
                     lbl.textContent = escHtml(s.label || '');
 
-                    const hint = document.createElement('div');
-                    hint.style.cssText = 'position:absolute;top:8px;left:0;right:0;text-align:center;pointer-events:none;opacity:0.45;';
-                    hint.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>`;
-
-                    tile.appendChild(img); tile.appendChild(gradOverlay); tile.appendChild(lbl); tile.appendChild(hint);
-                    stepInner.appendChild(tile);
+                    tile.appendChild(img); tile.appendChild(gradOverlay); tile.appendChild(lbl);
+                    gridEl.appendChild(tile);
                     return tile;
                 });
 
-                // ── refreshView — only touches visibility + placeholder content ──
+                // ── refreshView ──────────────────────────────────────────────────
                 function refreshView() {
                     stepTiles.forEach((tile, i) => {
-                        // visibility:hidden keeps the grid slot — no layout shift
+                        // visibility:hidden keeps the grid column — no layout shift
                         tile.style.visibility = doneSet.has(i) ? 'hidden' : 'visible';
                     });
                     placeholders.forEach((ph, i) => {
                         if (doneSet.has(i)) {
-                            ph.classList.add('done');
+                            ph.style.border = '2px solid #22c55e';
+                            ph.style.background = '#1e293b';
                             if (!ph.querySelector('img')) {
                                 ph.innerHTML = '';
                                 const mini = document.createElement('img');
                                 mini.src = steps[i].dataUrl;
-                                mini.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;border-radius:16px;';
-                                const tick = document.createElement('div');
-                                tick.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(20,83,45,0.50);border-radius:16px;';
-                                tick.innerHTML = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
-                                ph.appendChild(mini); ph.appendChild(tick);
+                                mini.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;';
+                                mini.draggable = false;
+                                // Small badge in top-right corner — image stays fully visible
+                                const badge = document.createElement('div');
+                                badge.style.cssText = 'position:absolute;top:5px;right:5px;width:20px;height:20px;border-radius:50%;background:#22c55e;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,0.40);';
+                                badge.innerHTML = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+                                ph.appendChild(mini); ph.appendChild(badge);
                             }
                         } else {
-                            ph.classList.remove('done');
+                            ph.style.border = '2px dashed rgba(255,255,255,0.12)';
+                            ph.style.background = '#1e293b';
                             ph.innerHTML = '';
-                            const g = document.createElement('span');
-                            g.style.cssText = 'font-size:9px;font-weight:600;color:rgba(255,255,255,0.18);font-family:Outfit,sans-serif;text-align:center;';
-                            g.textContent = escHtml(steps[i].label || `${i + 1}`);
-                            ph.appendChild(g);
+                            const ghost = document.createElement('span');
+                            ghost.style.cssText = 'font-size:9px;font-weight:600;color:rgba(255,255,255,0.18);font-family:Outfit,sans-serif;text-align:center;padding:0 4px;';
+                            ghost.textContent = escHtml(steps[i].label || `${i + 1}`);
+                            ph.appendChild(ghost);
                         }
                     });
-                    const remaining = steps.length - doneSet.size;
-                    stepLabel.textContent = remaining === 0 ? '✓ All Done!' : 'To Do';
-                    stepLabel.style.color  = remaining === 0 ? '#4ade80' : 'rgba(255,255,255,0.28)';
+                    const count = doneSet.size;
+                    progressLabel.textContent = count === N ? '✓ All Done!' : `${count} / ${N}`;
+                    progressLabel.style.color  = count === N ? '#4ade80' : 'rgba(255,255,255,0.40)';
                 }
 
-                // ── completeStep — flying clone from tile → placeholder ───────────
+                // ── completeStep — flying clone from tile (bottom) → placeholder (top) ──
                 function completeStep(tileIdx) {
                     if (doneSet.has(tileIdx)) return;
                     const tile = stepTiles[tileIdx];
@@ -4735,24 +5313,20 @@
                     const tRect = tile.getBoundingClientRect();
                     const pRect = ph.getBoundingClientRect();
 
-                    // Clone the tile visuals into a fixed-position ghost
+                    // Clone the tile into a fixed-position ghost for animation
                     const clone = document.createElement('div');
                     clone.style.cssText = `position:fixed;left:${tRect.left}px;top:${tRect.top}px;width:${tRect.width}px;height:${tRect.height}px;border-radius:14px;overflow:hidden;z-index:9999;pointer-events:none;will-change:transform,opacity;transition:transform 0.36s cubic-bezier(0.22,1,0.36,1),opacity 0.30s ease;`;
-                    clone.innerHTML = tile.innerHTML; // copy photo + overlay + label
+                    clone.innerHTML = tile.innerHTML;
                     document.body.appendChild(clone);
 
-                    // Hide the original immediately — slot space is preserved
+                    // Hide tile immediately — slot space preserved
                     tile.style.visibility = 'hidden';
 
-                    // Pulse the target placeholder
-                    ph.classList.add('routine-chime-anim');
-                    ph.addEventListener('animationend', () => ph.classList.remove('routine-chime-anim'), { once: true });
-
-                    // Kick off the flight on next two frames (allows clone paint first)
+                    // Fly to placeholder position
                     const dx = pRect.left - tRect.left;
                     const dy = pRect.top  - tRect.top;
                     requestAnimationFrame(() => { requestAnimationFrame(() => {
-                        clone.style.transform = `translate(${dx}px,${dy}px) scale(0.88)`;
+                        clone.style.transform = `translate(${dx}px,${dy}px) scale(0.92)`;
                         clone.style.opacity   = '0.7';
                     }); });
 
@@ -4786,24 +5360,16 @@
                     tile.addEventListener('pointercancel', () => { tsY = null; });
                 });
 
-                // ── Reset button ─────────────────────────────────────────────────
-                const resetBtn = document.createElement('button');
-                resetBtn.style.cssText = 'position:absolute;bottom:12px;right:12px;z-index:10;display:flex;align-items:center;gap:5px;padding:5px 11px;background:rgba(255,255,255,0.10);border:1.5px solid rgba(255,255,255,0.18);border-radius:20px;color:rgba(255,255,255,0.55);font-size:11px;font-weight:600;font-family:Outfit,sans-serif;cursor:pointer;-webkit-tap-highlight-color:transparent;';
-                resetBtn.innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg> Reset`;
+                // ── Reset ────────────────────────────────────────────────────────
                 resetBtn.addEventListener('pointerdown', (e) => {
                     e.stopPropagation();
                     doneSet.clear();
-                    stepTiles.forEach(t => { t.style.visibility = 'visible'; });
                     refreshView();
                 });
 
                 // ── Assemble ─────────────────────────────────────────────────────
-                doneBlock.appendChild(doneLabel); doneBlock.appendChild(doneInner);
-                stepBlock.appendChild(stepLabel); stepBlock.appendChild(stepInner);
-                container.appendChild(doneBlock);
-                container.appendChild(sep);
-                container.appendChild(stepBlock);
-                container.appendChild(resetBtn);
+                container.appendChild(headerBar);
+                container.appendChild(gridEl);
                 refreshView();
                 wrapper.appendChild(container);
                 return;
@@ -4937,6 +5503,157 @@
                 return;
             }
             // ── End gallery ──────────────────────────────────────────────────────
+
+            // ── Music Player in client view ──────────────────────────────────────
+            if (node.type === 'music') {
+                _musicPlayingNodeId = nodeId;
+                const tracks = node.tracks || [];
+
+                // Match the standard grid: gridCols columns, gridRows rows.
+                // The last row is reserved for the controls bar.
+                const effectiveRows = Math.max(2, gridRows);
+                const trackRows    = effectiveRows - 1;
+                const trackSlots   = gridCols * trackRows;
+                const gapPx        = clientSettings.gap + 'px';
+
+                const MUSIC_COLORS = ['#1d4ed8','#0369a1','#0e7490','#0f766e','#7c3aed','#be185d','#b45309','#15803d'];
+
+                const container = document.createElement('div');
+                container.style.cssText = `width:100%;height:100%;display:grid;grid-template-columns:repeat(${gridCols},minmax(0,1fr));grid-template-rows:repeat(${effectiveRows},minmax(0,1fr));gap:${gapPx};background:transparent;border-radius:16px;overflow:hidden;position:relative;`;
+
+                if (!tracks.length) {
+                    const empty = document.createElement('div');
+                    empty.style.cssText = `grid-column:1 / span ${gridCols};grid-row:1 / span ${effectiveRows};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:#0f172a;border-radius:12px;`;
+                    empty.innerHTML = `
+                        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                        <span style="font-size:16px;font-weight:600;font-family:Outfit,sans-serif;color:#64748b;">No music loaded yet</span>
+                        <span style="font-size:12px;font-family:Outfit,sans-serif;color:#94a3b8;">Ask your helper to add music in the editor</span>`;
+                    container.appendChild(empty);
+                    wrapper.appendChild(container);
+                    return;
+                }
+
+                // Preload all track data for synchronous playback (required for iOS Safari autoplay)
+                tracks.forEach(t => {
+                    if (!_musicTrackCache[t.id]) {
+                        _musicDB.get(t.id, dataUrl => { if (dataUrl) _musicTrackCache[t.id] = dataUrl; });
+                    }
+                });
+
+                // Track buttons — fill grid slots left→right, top→bottom across trackRows rows
+                for (let slot = 0; slot < trackSlots; slot++) {
+                    const track = tracks[slot];
+                    if (!track) {
+                        // Empty placeholder cell
+                        const ph = document.createElement('div');
+                        ph.style.cssText = 'background:#1e293b;border-radius:12px;';
+                        container.appendChild(ph);
+                        continue;
+                    }
+                    const color = MUSIC_COLORS[slot % MUSIC_COLORS.length];
+                    const btn = document.createElement('button');
+                    btn.className = 'music-track-btn';
+                    btn.dataset.trackId = track.id;
+                    const isActive = track.id === _musicPlayingTrackId;
+                    if (isActive) btn.classList.add('music-playing');
+
+                    const dot = document.createElement('div');
+                    dot.className = 'music-playing-dot';
+                    dot.style.cssText = `display:${isActive ? 'block' : 'none'};position:absolute;top:8px;right:8px;width:8px;height:8px;border-radius:50%;background:white;box-shadow:0 0 0 3px rgba(255,255,255,0.35);`;
+
+                    if (track.imgDataUrl) {
+                        btn.style.cssText = `position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;padding:0;background:${color};border:none;border-radius:12px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform 0.14s,box-shadow 0.14s;overflow:hidden;width:100%;height:100%;`;
+                        const imgEl = document.createElement('img');
+                        imgEl.src = track.imgDataUrl;
+                        imgEl.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:12px;';
+                        const grad = document.createElement('div');
+                        grad.style.cssText = 'position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.62));padding:4px 5px 7px;border-radius:0 0 12px 12px;';
+                        const lbl = document.createElement('span');
+                        lbl.style.cssText = 'font-family:Outfit,sans-serif;font-size:12px;font-weight:700;color:white;text-align:center;line-height:1.2;word-break:break-word;display:block;';
+                        lbl.textContent = track.label || `Track ${slot + 1}`;
+                        grad.appendChild(lbl);
+                        btn.appendChild(dot); btn.appendChild(imgEl); btn.appendChild(grad);
+                    } else {
+                        btn.style.cssText = `position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:8px 6px;background:${color};border:none;border-radius:12px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform 0.14s,box-shadow 0.14s;overflow:hidden;width:100%;height:100%;`;
+                        const icon = document.createElement('div');
+                        icon.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="white" stroke="none"><path d="M12 3v9.28a4 4 0 1 0 1.5 3.1V7h3V3h-4.5z" opacity="0.9"/></svg>`;
+                        const lbl = document.createElement('span');
+                        lbl.style.cssText = 'font-family:Outfit,sans-serif;font-size:13px;font-weight:700;color:white;text-align:center;line-height:1.25;word-break:break-word;max-width:100%;';
+                        lbl.textContent = track.label || `Track ${slot + 1}`;
+                        btn.appendChild(dot); btn.appendChild(icon); btn.appendChild(lbl);
+                    }
+                    container.appendChild(btn);
+
+                    btn.addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); });
+                    btn.addEventListener('pointerup', e => {
+                        e.preventDefault();
+                        btn.style.transform = 'scale(0.95)';
+                        setTimeout(() => { btn.style.transform = ''; }, 120);
+                        _musicPlayQueue = []; // tapping a track directly clears any queue
+                        const audio = _getMusicAudio();
+                        if (_musicTrackCache[track.id]) {
+                            if (_musicPlayingTrackId === track.id) {
+                                if (audio.paused) { audio.play().catch(() => {}); } else { audio.pause(); _musicPlayingTrackId = null; }
+                                _updateMusicClientUI();
+                            } else {
+                                audio.pause(); audio.src = '';
+                                _musicPlayingNodeId = nodeId; _musicPlayingTrackId = track.id;
+                                audio.src = _musicTrackCache[track.id]; audio.currentTime = 0;
+                                audio.play().catch(() => {});
+                                _updateMusicClientUI();
+                            }
+                        } else {
+                            _playMusicTrack(nodeId, track.id);
+                        }
+                    });
+                }
+
+                // Bottom row — Shuffle (col 1), Play All (col 2), placeholders for remaining cols
+                const shuffleBtn = document.createElement('button');
+                shuffleBtn.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:8px 6px;background:#1e3a5f;border:1.5px solid rgba(255,255,255,0.12);border-radius:12px;cursor:pointer;-webkit-tap-highlight-color:transparent;width:100%;height:100%;transition:transform 0.14s;';
+                shuffleBtn.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/></svg><span style="font-family:Outfit,sans-serif;font-size:13px;font-weight:700;color:white;">Shuffle</span>';
+                shuffleBtn.addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); });
+                shuffleBtn.addEventListener('pointerup', e => { e.preventDefault(); e.stopPropagation(); shuffleBtn.style.transform='scale(0.95)'; setTimeout(()=>{ shuffleBtn.style.transform=''; },120); _shuffleMusic(nodeId); });
+                container.appendChild(shuffleBtn);
+
+                const playAllBtn = document.createElement('button');
+                playAllBtn.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:8px 6px;background:#14532d;border:1.5px solid rgba(255,255,255,0.12);border-radius:12px;cursor:pointer;-webkit-tap-highlight-color:transparent;width:100%;height:100%;transition:transform 0.14s;';
+                playAllBtn.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg><span style="font-family:Outfit,sans-serif;font-size:13px;font-weight:700;color:white;">Play All</span>';
+                playAllBtn.addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); });
+                playAllBtn.addEventListener('pointerup', e => { e.preventDefault(); e.stopPropagation(); playAllBtn.style.transform='scale(0.95)'; setTimeout(()=>{ playAllBtn.style.transform=''; },120); _playAllMusic(nodeId); });
+                container.appendChild(playAllBtn);
+
+                const skipBtn = document.createElement('button');
+                skipBtn.className = 'music-skip-btn';
+                const _skipActive = () => _musicPlayQueue.length > 0;
+                const _applySkipStyle = () => {
+                    skipBtn.style.cssText = `display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:8px 6px;background:${_skipActive() ? '#4c1d95' : '#1e293b'};border:1.5px solid ${_skipActive() ? 'rgba(167,139,250,0.45)' : 'rgba(255,255,255,0.08)'};border-radius:12px;cursor:${_skipActive() ? 'pointer' : 'default'};-webkit-tap-highlight-color:transparent;width:100%;height:100%;transition:background 0.2s,border 0.2s,opacity 0.2s;opacity:${_skipActive() ? '1' : '0.35'};`;
+                };
+                _applySkipStyle();
+                skipBtn.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="white"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19" stroke="white" stroke-width="2" stroke-linecap="round"/></svg><span style="font-family:Outfit,sans-serif;font-size:13px;font-weight:700;color:white;">Skip</span>';
+                skipBtn.dataset.musicSkip = '1';
+                skipBtn.addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); });
+                skipBtn.addEventListener('pointerup', e => {
+                    e.preventDefault(); e.stopPropagation();
+                    if (!_musicPlayQueue.length) return;
+                    skipBtn.style.transform = 'scale(0.95)';
+                    setTimeout(() => { skipBtn.style.transform = ''; }, 120);
+                    const next = _musicPlayQueue.shift();
+                    _playMusicTrack(next.nodeId, next.trackId);
+                });
+                container.appendChild(skipBtn);
+
+                // Fill remaining bottom-row slots with dark placeholders
+                for (let c = 3; c < gridCols; c++) {
+                    const ph = document.createElement('div');
+                    ph.style.cssText = 'background:#1e293b;border-radius:12px;';
+                    container.appendChild(ph);
+                }
+
+                wrapper.appendChild(container);
+                return;
+            }
+            // ── End Music Player ─────────────────────────────────────────────────
 
             const grid = document.createElement('div');
             grid.style.display = 'grid';
@@ -5170,7 +5887,7 @@
                 grid.addEventListener('pointercancel', (e) => { isDragSel = false; grid.releasePointerCapture(e.pointerId); clearHover(); });
             }
 
-            lucide.createIcons();
+            lucide.createIcons({ nodes: [wrapper] });
         }
 
         function handleClientCellClick(cell) {
@@ -5306,40 +6023,29 @@
             <!-- Tabs -->
             <div class="px-4 pt-4 pb-0 flex-shrink-0">
                 <div class="symbol-picker-tabs">
+                    <button id="sp-tab-all" class="symbol-picker-tab" onclick="switchSymbolTab('all')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                        All Sets
+                    </button>
                     <button id="sp-tab-arasaac" class="symbol-picker-tab active" onclick="switchSymbolTab('arasaac')">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
-                        <span class="flex flex-col items-start leading-tight gap-px">
-                            <span>ARASAAC</span>
-                            <span class="text-[9px] font-medium opacity-70">Line drawings</span>
-                        </span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
+                        ARASAAC
                     </button>
                     <button id="sp-tab-mulberry" class="symbol-picker-tab" onclick="switchSymbolTab('mulberry')">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
-                        <span class="flex flex-col items-start leading-tight gap-px">
-                            <span>Mulberry</span>
-                            <span class="text-[9px] font-medium opacity-70">Pictograms</span>
-                        </span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+                        Mulberry
                     </button>
                     <button id="sp-tab-jellow" class="symbol-picker-tab" onclick="switchSymbolTab('jellow')">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
-                        <span class="flex flex-col items-start leading-tight gap-px">
-                            <span>Jellow</span>
-                            <span class="text-[9px] font-medium opacity-70">Colorful</span>
-                        </span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+                        Jellow
                     </button>
                     <button id="sp-tab-openmoji" class="symbol-picker-tab" onclick="switchSymbolTab('openmoji')">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
-                        <span class="flex flex-col items-start leading-tight gap-px">
-                            <span>OpenMoji</span>
-                            <span class="text-[9px] font-medium opacity-70">Emoji</span>
-                        </span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+                        OpenMoji
                     </button>
                     <button id="sp-tab-picom" class="symbol-picker-tab" onclick="switchSymbolTab('picom')">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                        <span class="flex flex-col items-start leading-tight gap-px">
-                            <span>PiCom AI</span>
-                            <span class="text-[9px] font-medium opacity-70">Photographs</span>
-                        </span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                        PiCom AI
                     </button>
                 </div>
             </div>
@@ -5455,9 +6161,35 @@
                 </div>
             </div>
 
+            <!-- All Sets Tab Content -->
+            <div id="sp-all-content" class="symbol-tab-content">
+                <div class="sp-search-wrapper">
+                    <svg class="sp-search-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="sp-all-input" class="sp-search-input" placeholder="Search all symbol sets simultaneously…" autocomplete="off">
+                </div>
+                <div id="sp-all-results" class="sp-results-grid">
+                    <div class="sp-empty">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                        <p class="font-bold text-sm text-slate-500 mt-1">Search all symbol sets</p>
+                        <p class="text-xs text-slate-400 mt-1 max-w-[220px]">Searches ARASAAC, Mulberry, Jellow, OpenMoji &amp; PiCom simultaneously</p>
+                        <div class="flex flex-wrap gap-1 justify-center mt-3">
+                            <span style="font-size:9px;font-weight:800;color:#3b82f6;background:#eff6ff;padding:2px 7px;border-radius:20px;">ARASAAC</span>
+                            <span style="font-size:9px;font-weight:800;color:#8b5cf6;background:#f5f3ff;padding:2px 7px;border-radius:20px;">Mulberry</span>
+                            <span style="font-size:9px;font-weight:800;color:#f97316;background:#fff7ed;padding:2px 7px;border-radius:20px;">Jellow</span>
+                            <span style="font-size:9px;font-weight:800;color:#06b6d4;background:#ecfeff;padding:2px 7px;border-radius:20px;">OpenMoji</span>
+                            <span style="font-size:9px;font-weight:800;color:#10b981;background:#f0fdf4;padding:2px 7px;border-radius:20px;">PiCom</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Footer -->
             <div class="px-4 pb-4 pt-3 border-t border-slate-100 bg-slate-50/70 sm:rounded-b-2xl flex-shrink-0 space-y-3">
                 <!-- Attribution -->
+                <div id="sp-attr-all" class="hidden flex items-center gap-2 text-[10px] text-slate-400 leading-relaxed flex-wrap">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="flex-shrink-0 opacity-60"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    <span>Symbols from <a href="https://arasaac.org" target="_blank" rel="noopener" class="text-blue-500 hover:underline font-semibold">ARASAAC</a> (CC BY-NC-SA 4.0), <a href="https://mulberrysymbols.org" target="_blank" rel="noopener" class="text-violet-600 hover:underline font-semibold">Mulberry</a> (CC BY-SA 2.0), <a href="https://jellow.app" target="_blank" rel="noopener" class="text-orange-500 hover:underline font-semibold">Jellow</a> (CC BY-NC-SA 4.0), <a href="https://openmoji.org" target="_blank" rel="noopener" class="text-cyan-600 hover:underline font-semibold">OpenMoji</a> &amp; <a href="https://www.sensoryapphouse.com/" target="_blank" rel="noopener" class="text-emerald-600 hover:underline font-semibold">PiCom</a> (CC BY-SA 4.0)</span>
+                </div>
                 <div id="sp-attr-arasaac" class="flex items-center gap-2 text-[10px] text-slate-400 leading-relaxed">
                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="flex-shrink-0 opacity-60"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                     <span>Symbols by <a href="https://arasaac.org" target="_blank" rel="noopener" class="text-blue-500 hover:text-blue-700 hover:underline font-semibold">ARASAAC</a> (Sergio Palao / Gobierno de Aragón) · <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener" class="text-blue-500 hover:text-blue-700 hover:underline">CC BY-NC-SA 4.0</a></span>
@@ -5484,6 +6216,17 @@
                 </button>
             </div>
         </div>
+    </div>
+
+<!-- Floating music stop button — sits above everything, visible whenever music is playing -->
+    <div id="music-float-stop" style="display:none;position:fixed;bottom:22px;right:18px;z-index:10001;align-items:center;gap:10px;background:rgba(15,23,42,0.82);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:40px;padding:10px 16px 10px 14px;box-shadow:0 4px 24px rgba(0,0,0,0.45);border:1.5px solid rgba(255,255,255,0.10);max-width:260px;">
+        <div style="display:flex;align-items:center;justify-content:center;width:30px;height:30px;flex-shrink:0;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="rgba(255,255,255,0.75)" stroke="none"><path d="M12 3v9.28a4 4 0 1 0 1.5 3.1V7h3V3h-4.5z"/></svg>
+        </div>
+        <span id="music-float-label" style="flex:1;font-family:Outfit,sans-serif;font-size:12px;font-weight:700;color:rgba(255,255,255,0.88);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;">Now Playing</span>
+        <button id="music-float-stop-btn" style="width:40px;height:40px;border-radius:50%;background:#ef4444;border:2px solid #fca5a5;color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 10px rgba(239,68,68,0.5);-webkit-tap-highlight-color:transparent;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+        </button>
     </div>
 
 <!-- Client App Overlay -->
@@ -5556,6 +6299,13 @@
 
     <script>
         setupSymbolPickerInputs();
+        // Wire floating music stop button
+        (function() {
+            const btn = document.getElementById('music-float-stop-btn');
+            if (!btn) return;
+            btn.addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); });
+            btn.addEventListener('pointerup',   e => { e.preventDefault(); e.stopPropagation(); _stopMusic(); });
+        })();
     </script>
 
     <script>

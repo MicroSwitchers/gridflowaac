@@ -20,7 +20,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/lucide@0.460.0"></script>
     <style>
         /* ── Core Animations ── */
         .animate-pop { animation: popScale 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
@@ -73,7 +73,7 @@
 
         /* ── Nodes ── */
         .aac-node {
-            position: absolute; pointer-events: auto;
+            position: absolute; pointer-events: auto; touch-action: none;
             background: white; border-radius: 22px;
             box-shadow:
                 0 0 0 1px rgba(0,0,0,0.06),
@@ -104,6 +104,23 @@
             z-index: 100 !important;
         }
 
+        /* ── Routing tabs spine ── */
+        .routing-tabs-container { position: absolute; }
+        .routing-tabs-list {
+            display: flex; flex-direction: column; align-items: flex-start; gap: 8px;
+        }
+        .routing-spine {
+            position: absolute; left: -1px; top: 0; bottom: 0; width: 3px;
+            border-radius: 0 2px 2px 0; opacity: 0.30; transition: opacity 0.28s;
+            pointer-events: none; z-index: 0;
+        }
+        /* Hover lift on all routing tabs */
+        .routing-tab:hover .routing-tab-body,
+        .routing-tab-new:hover .routing-tab-body { transform: translateY(-2px); }
+        .routing-tab-body {
+            transition: transform 0.15s cubic-bezier(0.34,1.4,0.64,1), box-shadow 0.15s;
+        }
+
         /* Node Entrance Animation */
         .node-enter { animation: popIn 0.48s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         @keyframes popIn {
@@ -114,21 +131,29 @@
 
         /* ── Ports ── */
         .port {
-            position: absolute; width: 16px; height: 16px;
+            position: absolute; width: 22px; height: 22px;
             background: white; border: 2.5px solid #94a3b8; border-radius: 50%;
-            top: 24px; transform: translateY(-50%); z-index: 10; transition: all 0.22s cubic-bezier(0.34,1.4,0.64,1);
-            box-shadow: 0 0 0 3px white, 0 2px 6px rgba(0,0,0,0.18);
+            top: 24px; transform: translateY(-50%); z-index: 10;
+            transition: all 0.22s cubic-bezier(0.34,1.4,0.64,1);
+            box-shadow: 0 0 0 4px white, 0 2px 8px rgba(0,0,0,0.20);
+            display: flex; align-items: center; justify-content: center;
         }
-        .port-in { left: -8px; cursor: crosshair; }
+        .port-in { left: -11px; cursor: crosshair; }
+        .port-in::after {
+            content: ''; width: 9px; height: 9px; border-radius: 50%;
+            background: #94a3b8; transition: background 0.2s, transform 0.2s;
+            pointer-events: none;
+        }
         .port-in.highlight {
-            transform: translateY(-50%) scale(1.7); border-color: #3b82f6;
-            background: #dbeafe; box-shadow: 0 0 0 3px white, 0 0 0 6px rgba(59,130,246,0.30), 0 0 12px rgba(59,130,246,0.25);
+            transform: translateY(-50%) scale(1.60); border-color: #3b82f6; background: #eff6ff;
+            box-shadow: 0 0 0 4px white, 0 0 0 7px rgba(59,130,246,0.22), 0 0 18px rgba(59,130,246,0.32);
         }
+        .port-in.highlight::after { background: #3b82f6; }
 
         /* ── Grid Cells ── */
         .grid-cell {
             transition: outline 0.12s, opacity 0.2s, transform 0.16s cubic-bezier(0.34,1.4,0.64,1), box-shadow 0.16s;
-            user-select: none; -webkit-user-select: none; cursor: grab;
+            user-select: none; -webkit-user-select: none; cursor: grab; touch-action: none;
         }
         .grid-cell:hover:not(.drop-target):not(.merge-resize-src) { transform: scale(1.06); box-shadow: 0 6px 18px rgba(0,0,0,0.14) !important; }
         .grid-cell:active { cursor: grabbing; transform: scale(0.92) !important; }
@@ -137,7 +162,7 @@
             box-shadow: 0 0 0 5px rgba(59,130,246,0.20) !important;
         }
 
-        .node-header { cursor: grab; overflow: hidden; }
+        .node-header { cursor: grab; overflow: hidden; touch-action: none; }
         .node-header:active { cursor: grabbing; }
         
         /* ── Overlays & Modals ── */
@@ -167,7 +192,6 @@
         /* ── Inputs inside Modals ── */
         .modal-input { user-select: auto; -webkit-user-select: auto; }
 
-        /* ── Symbol Picker ── */
         /* ── Symbol Picker ── */
         .symbol-picker-tabs { display:flex; gap:4px; padding:0 2px; background:transparent; margin-bottom:0; }
         .symbol-picker-tab { flex:1 1 0; min-width:0; padding:7px 2px 6px; border:2px solid #e2e8f0; background:white; border-radius:14px; font-family:'Outfit',sans-serif; font-weight:700; font-size:0.67rem; color:#64748b; cursor:pointer; transition:all 0.22s cubic-bezier(0.34,1.2,0.64,1); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; white-space:normal; text-align:center; line-height:1.2; overflow:hidden; }
@@ -312,15 +336,13 @@
         .splash-enter-btn:active { opacity: 1; transform: scale(0.98); box-shadow: 0 2px 10px rgba(99,102,241,0.30); }
 
         /* ── Landscape / Tablet Layout Optimizations ── */
-        #client-grid-area { min-height: 0; }
+        #client-grid-area { min-height: 0; padding: 6px !important; }
         @media (orientation: landscape) {
             #client-strip-area { height: 80px !important; padding: 5px 10px !important; }
-            #client-grid-area  { padding: 6px !important; }
         }
         @media (orientation: landscape) and (max-height: 500px) {
             #client-strip-area { height: 56px !important; padding: 3px 8px !important; gap: 6px !important; }
             #client-strip-area svg { width: 1rem !important; height: 1rem !important; }
-            #client-grid-area  { padding: 3px !important; }
         }
 
         /* ── Photo & Routine Manager Modals: Responsive ─────────────────────────── */
@@ -395,6 +417,23 @@
         #palette-toggle.open .palette-plus-icon { transform: rotate(45deg); }
         @keyframes palettePulse { 0%,100% { box-shadow:0 2px 8px rgba(59,130,246,0.40); } 50% { box-shadow:0 2px 18px rgba(99,102,241,0.80); } }
         #palette-toggle:not(.open) .palette-icon-box { animation: palettePulse 2.8s ease-in-out infinite; }
+        @keyframes paletteNudge {
+            0%, 100% { border-color: rgba(255,255,255,0.09); box-shadow: none; }
+            50%      { border-color: rgba(129,140,248,0.5); box-shadow: 0 0 12px rgba(99,102,241,0.18); }
+        }
+        #board-palette.palette-shimmer .palette-board-card {
+            animation: paletteNudge 0.8s ease-in-out 2;
+        }
+        #palette-pick-banner {
+            display: flex; align-items: center; justify-content: center; gap: 6px;
+            padding: 8px 10px; margin-bottom: 8px; border-radius: 10px;
+            background: linear-gradient(135deg, #4338ca, #6366f1);
+            color: white; font-family: 'Outfit', sans-serif; font-size: 11.5px;
+            font-weight: 700; letter-spacing: 0.01em; text-align: center;
+            box-shadow: 0 2px 12px rgba(99,102,241,0.35);
+            transition: opacity 0.5s ease;
+        }
+        #palette-pick-banner.palette-banner-fade { opacity: 0; }
         .palette-board-card {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             gap: 8px; padding: 14px 10px; border-radius: 14px;
@@ -460,6 +499,20 @@
         .music-node.dragging { box-shadow:0 8px 48px rgba(0,0,0,0.24)!important; transform:translate(-50%,-50%) scale(1.01)!important; }
         @keyframes musicPulse { 0%,100%{box-shadow:0 0 0 4px rgba(6,182,212,0.55),0 8px 32px rgba(0,0,0,0.28);} 50%{box-shadow:0 0 0 8px rgba(6,182,212,0.20),0 8px 32px rgba(0,0,0,0.28);} }
         .music-playing { animation:musicPulse 1.4s ease-in-out infinite; }
+
+        /* ── Video Player Node ── */
+        .video-node { background:#ffffff; border-radius:20px; overflow:hidden; box-shadow:0 2px 6px rgba(0,0,0,0.08),0 12px 32px -4px rgba(0,0,0,0.14); border:1.5px solid #e2e8f0; }
+        .video-node.dragging { box-shadow:0 8px 48px rgba(0,0,0,0.24)!important; transform:translate(-50%,-50%) scale(1.01)!important; }
+        @keyframes videoPulse { 0%,100%{box-shadow:0 0 0 4px rgba(168,85,247,0.55),0 8px 32px rgba(0,0,0,0.28);} 50%{box-shadow:0 0 0 8px rgba(168,85,247,0.20),0 8px 32px rgba(0,0,0,0.28);} }
+        .video-clip-active { animation:videoPulse 1.4s ease-in-out infinite; }
+        /* Video overlay for fullscreen playback */
+        #video-player-overlay { position:fixed;inset:0;z-index:10002;background:rgba(0,0,0,0.92);display:flex;flex-direction:column;align-items:center;justify-content:center; }
+        #video-player-overlay video { max-width:100%;max-height:calc(100vh - 80px);border-radius:12px;background:#000;outline:none; }
+        #video-player-overlay .vpo-title { font-family:Outfit,sans-serif;font-size:15px;font-weight:700;color:#f1f5f9;margin-bottom:10px;text-align:center;padding:0 16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:90vw; }
+        #video-player-overlay .vpo-stop { position:absolute;right:20px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:20px 18px;background:#dc2626;color:white;font-family:Outfit,sans-serif;font-size:15px;font-weight:800;border:none;border-radius:18px;cursor:pointer;box-shadow:0 6px 28px rgba(220,38,38,0.55);letter-spacing:0.02em;-webkit-tap-highlight-color:transparent;transition:transform 0.14s,box-shadow 0.14s;min-width:72px; }
+        #video-player-overlay .vpo-stop:hover { box-shadow:0 8px 36px rgba(220,38,38,0.70); }
+        #video-player-overlay .vpo-close { position:absolute;top:16px;right:16px;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.22);color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.15s; }
+        #video-player-overlay .vpo-close:hover { background:rgba(255,255,255,0.22); }
         .routine-node.dragging { box-shadow:0 8px 48px rgba(0,0,0,0.24)!important; transform:translate(-50%,-50%) scale(1.01)!important; }
         .routine-step-card { background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:12px; overflow:hidden; transition:opacity 0.15s,box-shadow 0.15s; cursor:grab; }
         .routine-step-card.routine-drop-over { outline:2.5px dashed #f59e0b !important; background:#fffbeb !important; }
@@ -517,12 +570,10 @@
                 height: env(safe-area-inset-top, 0px) !important;
                 overflow: visible !important;
             }
-            #client-grid-area {
-                padding-bottom: max(8px, env(safe-area-inset-bottom, 0px));
-            }
             #aac-client-app {
                 padding-left:  env(safe-area-inset-left,  0px);
                 padding-right: env(safe-area-inset-right, 0px);
+                padding-bottom: env(safe-area-inset-bottom, 0px);
             }
         }
 
@@ -621,6 +672,7 @@
             <button id="fullscreen-btn" onpointerdown="toggleFullscreen()" class="bg-white hover:bg-slate-50 border border-slate-200/80 p-1.5 rounded-lg flex items-center transition text-slate-600 shadow-sm" title="Toggle Fullscreen" aria-label="Toggle fullscreen">
                 <i data-lucide="expand" class="w-3.5 h-3.5 pointer-events-none" aria-hidden="true"></i>
             </button>
+            <span id="save-status-badge" style="font-size:10px;font-weight:700;font-family:Outfit,sans-serif;padding:3px 9px;border-radius:20px;opacity:0;transition:opacity 0.4s;pointer-events:none;flex-shrink:0;"></span>
         </div>
     </div>
 
@@ -691,6 +743,14 @@
                 <span>Music Player</span>
                 <span style="font-weight:400;color:#94a3b8;font-size:0.65rem;">AAC music selection board</span>
             </div>
+            <!-- Video Player -->
+            <div class="palette-board-card" onpointerdown="pushHistory(); spawnVideoNode();">
+                <div class="pbc-icon" style="background:linear-gradient(135deg,#7c3aed,#a855f7);">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+                </div>
+                <span>Video Player</span>
+                <span style="font-weight:400;color:#94a3b8;font-size:0.65rem;">AAC video selection board</span>
+            </div>
         </div>
     </div>
 
@@ -749,6 +809,15 @@
                     <span style="font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.07em;font-family:Outfit,sans-serif;white-space:nowrap;">Number of steps</span>
                     <div id="routine-mgr-count-btns" style="display:flex;gap:6px;"></div>
                     <span style="font-size:12px;color:#94a3b8;font-family:Outfit,sans-serif;margin-left:auto;" class="routine-mgr-hint">Tap a slot to add a photo &bull; <strong>Drag</strong> to reorder</span>
+                </div>
+                <!-- Tap mode setting -->
+                <div style="padding:12px 20px;border-bottom:1.5px solid #e2e8f0;background:#fafafa;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+                    <span style="font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.07em;font-family:Outfit,sans-serif;white-space:nowrap;">Tap Mode</span>
+                    <div style="display:flex;gap:6px;">
+                        <button id="routine-tapmode-oneway" onclick="_setRoutineTapMode('one-way')" style="padding:6px 14px;border-radius:20px;border:1.5px solid #e2e8f0;background:#fff;color:#475569;font-size:12px;font-weight:700;font-family:Outfit,sans-serif;cursor:pointer;">Click Once</button>
+                        <button id="routine-tapmode-toggle" onclick="_setRoutineTapMode('toggle')" style="padding:6px 14px;border-radius:20px;border:1.5px solid #e2e8f0;background:#fff;color:#475569;font-size:12px;font-weight:700;font-family:Outfit,sans-serif;cursor:pointer;">Toggle</button>
+                    </div>
+                    <span id="routine-tapmode-desc" style="font-size:11px;color:#94a3b8;font-family:Outfit,sans-serif;flex:1;"></span>
                 </div>
                 <!-- Step grid (populated by _renderRoutineMgrGrid) -->
                 <div id="routine-mgr-grid" style="padding:20px;display:grid;gap:14px;background:#fff;min-height:160px;"></div>
@@ -861,7 +930,7 @@
 
         // Migrate: add per-node cols/rows if missing (uses current global defaults)
         Object.values(nodesData).forEach(node => {
-            if (node.id === '__lost_found__' || node.type === 'whiteboard' || node.type === 'gallery' || node.type === 'routine' || node.type === 'music') return;
+            if (node.id === '__lost_found__' || node.type === 'whiteboard' || node.type === 'gallery' || node.type === 'routine' || node.type === 'music' || node.type === 'video') return;
             if (!node.cols) node.cols = gridCols;
             if (!node.rows) node.rows = gridRows;
         });
@@ -872,7 +941,7 @@
             Object.values(nodesData).forEach(node => {
                 if (!node.cells) node.cells = [];
                 node.cells.forEach(c => { delete c.emoji; });
-                if (node.id === '__lost_found__' || node.type === 'whiteboard' || node.type === 'gallery' || node.type === 'routine' || node.type === 'music') return;
+                if (node.id === '__lost_found__' || node.type === 'whiteboard' || node.type === 'gallery' || node.type === 'routine' || node.type === 'music' || node.type === 'video') return;
                 const targetLen = (node.cols || gridCols) * (node.rows || gridRows);
                 while (node.cells.length < targetLen) node.cells.push({ label: '', linkId: null, src: null });
                 if (node.cells.length > targetLen) {
@@ -943,7 +1012,8 @@
         let isPanning = false, isDraggingNode = false, isWiring = false;
         let startPointerX = 0, startPointerY = 0;
         let _panRafPending = false;
-        let activeSourceNodeId = null, activeSourceCellIdx = null; 
+        let activeSourceNodeId = null, activeSourceCellIdx = null;
+        let _newLinkClickStart = null;
         
         const activePointers = new Map(); let prevPinchDiff = -1;
         let isCellPointerDown = false, isDraggingCell = false;
@@ -1141,9 +1211,9 @@
                 return `<button class="color-swatch-btn w-8 h-8 rounded-full transition-all duration-150" style="background:${def.hex}; box-shadow:${shadow}; transform:${transform};" data-hex="${def.hex}" onclick="selectNodeColor('${def.hex}')" title="${def.label}"></button>`;
             }).join('');
 
-            const typeLabels = { whiteboard: 'Whiteboard', gallery: 'Photo Gallery', routine: 'Routine Board', music: 'Music Player' };
+            const typeLabels = { whiteboard: 'Whiteboard', gallery: 'Photo Gallery', routine: 'Routine Board', music: 'Music Player', video: 'Video Player' };
             const title = isGridNode ? 'Edit Grid' : `Edit ${typeLabels[node.type] || 'Module'}`;
-            const icon  = isGridNode ? 'layout-grid' : (node.type === 'whiteboard' ? 'pen-line' : node.type === 'gallery' ? 'image' : node.type === 'music' ? 'music' : 'check-square');
+            const icon  = isGridNode ? 'layout-grid' : (node.type === 'whiteboard' ? 'pen-line' : node.type === 'gallery' ? 'image' : node.type === 'music' ? 'music' : node.type === 'video' ? 'video' : 'check-square');
 
 
             openModal(`
@@ -1199,7 +1269,6 @@
 
             window.tempClearCell = () => {
                 pushHistory();
-                if(isLink) nodesData[nodeId].links = nodesData[nodeId].links ? nodesData[nodeId].links.filter(id => id !== cell.linkId) : [];
                 nodesData[nodeId].cells[cellIdx] = { label: '', linkId: null, src: null };
                 closeModal(); renderMap(); setTimeout(updateAllWires, 50);
             };
@@ -1219,7 +1288,7 @@
                             <button onclick="closeModal(); openSymbolPickerModal('${nodeId}', ${cellIdx})" class="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-blue-50 text-blue-700 font-bold rounded-xl text-sm border border-blue-200 hover:bg-blue-100 transition active:scale-95">
                                 <i data-lucide="image-search" class="w-4 h-4 pointer-events-none"></i> Find Symbol
                             </button>
-                            <button onclick="closeModal(); symbolPickerTarget={nodeId:'${nodeId}',cellIdx:${cellIdx}}; document.getElementById('sm-file-input').click()" class="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-slate-50 text-slate-700 font-bold rounded-xl text-sm border border-slate-200 hover:bg-slate-100 transition active:scale-95">
+                            <button onclick="symbolPickerTarget={nodeId:'${nodeId}',cellIdx:${cellIdx}}; document.getElementById('sm-file-input').click(); closeModal();" class="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-slate-50 text-slate-700 font-bold rounded-xl text-sm border border-slate-200 hover:bg-slate-100 transition active:scale-95">
                                 <i data-lucide="upload" class="w-4 h-4 pointer-events-none"></i> Upload Photo
                             </button>
                         </div>
@@ -1261,7 +1330,7 @@
                             <button onclick="closeModal(); openSymbolPickerModal('${nodeId}', ${cellIdx})" class="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-blue-50 text-blue-700 font-bold rounded-xl text-sm border border-blue-200 hover:bg-blue-100 transition active:scale-95">
                                 <i data-lucide="image-search" class="w-4 h-4 pointer-events-none"></i> Find Symbol
                             </button>
-                            <button onclick="closeModal(); symbolPickerTarget={nodeId:'${nodeId}',cellIdx:${cellIdx}}; document.getElementById('sm-file-input').click()" class="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-slate-50 text-slate-700 font-bold rounded-xl text-sm border border-slate-200 hover:bg-slate-100 transition active:scale-95">
+                            <button onclick="symbolPickerTarget={nodeId:'${nodeId}',cellIdx:${cellIdx}}; document.getElementById('sm-file-input').click(); closeModal();" class="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-slate-50 text-slate-700 font-bold rounded-xl text-sm border border-slate-200 hover:bg-slate-100 transition active:scale-95">
                                 <i data-lucide="upload" class="w-4 h-4 pointer-events-none"></i> Upload Photo
                             </button>
                         </div>
@@ -1326,18 +1395,19 @@
             _undoHistIdx = _undoHistory.length - 1;
             if (_undoHistory.length > 50) { _undoHistory.shift(); _undoHistIdx--; }
             updateUndoRedoUI();
+            _debouncedSave();
         }
         function undo() {
             if (_undoHistIdx <= 0) return;
             _undoHistIdx--;
             nodesData = JSON.parse(JSON.stringify(_undoHistory[_undoHistIdx]));
-            renderMap(); setTimeout(updateAllWires, 50); updateUndoRedoUI();
+            renderMap(); setTimeout(updateAllWires, 50); updateUndoRedoUI(); _debouncedSave();
         }
         function redo() {
             if (_undoHistIdx >= _undoHistory.length - 1) return;
             _undoHistIdx++;
             nodesData = JSON.parse(JSON.stringify(_undoHistory[_undoHistIdx]));
-            renderMap(); setTimeout(updateAllWires, 50); updateUndoRedoUI();
+            renderMap(); setTimeout(updateAllWires, 50); updateUndoRedoUI(); _debouncedSave();
         }
         function updateUndoRedoUI() {
             const u = document.getElementById('undo-btn'), r = document.getElementById('redo-btn');
@@ -1578,7 +1648,7 @@
 
             const displaced = [];
             Object.values(nodesData).forEach(node => {
-                if (node.id === '__lost_found__' || node.type === 'whiteboard' || node.type === 'gallery' || node.type === 'routine' || node.type === 'music') return;
+                if (node.id === '__lost_found__' || node.type === 'whiteboard' || node.type === 'gallery' || node.type === 'routine' || node.type === 'music' || node.type === 'video') return;
                 _unmergeOverflowCells(node.id, c, r);
                 node.cols = c; node.rows = r; // update per-node size to match global change
                 if (node.cells.length < newTotal) {
@@ -1598,7 +1668,6 @@
                 displaced.forEach(oc => nodesData['__lost_found__'].cells.push(oc));
             }
 
-            localStorage.setItem('aacMapConfig', JSON.stringify({cols: gridCols, rows: gridRows}));
             renderMap(); setTimeout(updateAllWires, 50);
         }
 
@@ -1613,7 +1682,7 @@
             cleanupLostFound();
             // Sanitize: trim cells to per-node size and fix any corrupt _mergedInto refs
             Object.values(nodesData).forEach(node => {
-                if (node.id === '__lost_found__' || !node.cells || node.type === 'whiteboard' || node.type === 'gallery' || node.type === 'routine' || node.type === 'music') return;
+                if (node.id === '__lost_found__' || !node.cells || node.type === 'whiteboard' || node.type === 'gallery' || node.type === 'routine' || node.type === 'music' || node.type === 'video') return;
                 const targetLen = (node.cols || gridCols) * (node.rows || gridRows);
                 if (node.cells.length > targetLen) node.cells.length = targetLen;
                 while (node.cells.length < targetLen) node.cells.push({ label: '', linkId: null, src: null });
@@ -1641,7 +1710,7 @@
             nodesLayer.getBoundingClientRect(); // flush
             Object.values(nodesData).forEach(node => {
                 if (node.id === '__lost_found__') return;
-                if (node.type === 'whiteboard' || node.type === 'gallery' || node.type === 'routine' || node.type === 'music') return;
+                if (node.type === 'whiteboard' || node.type === 'gallery' || node.type === 'routine' || node.type === 'music' || node.type === 'video') return;
                 node.cells.forEach((cell, idx) => { if(cell.linkId && nodesData[cell.linkId]) drawWire(node.id, idx, cell.linkId); });
             });
             _debouncedSave();
@@ -1720,6 +1789,7 @@
             if (node.type === 'gallery')    { createGalleryElement(node);    return; }
             if (node.type === 'routine')    { createRoutineElement(node);    return; }
             if (node.type === 'music')      { createMusicElement(node);      return; }
+            if (node.type === 'video')      { createVideoElement(node);      return; }
 
             const nCols = node.cols || gridCols;
             const nRows = node.rows || gridRows;
@@ -1785,26 +1855,43 @@
                 if(!c.linkId || !nodesData[c.linkId]) return '';
                 const titleStr = nodesData[c.linkId].title;
                 const tabColor = nodesData[c.linkId].color;
-                // Match the symbol-space (cell) background so the tab feels part of the node body
                 const tabBg    = getComputedStyle(document.documentElement).getPropertyValue('--map-cell-bg').trim() || '#ffffff';
                 const tabText  = contrastTextColor(tabBg);
-                const tabBorderOpacity = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--map-cell-bg').trim() ? '0.18' : '0.18');
-                const borderEdge = `rgba(${parseInt(tabText.slice(1,3)||'0',16)},${parseInt(tabText.slice(3,5)||'0',16)},${parseInt(tabText.slice(5,7)||'0',16)},0.14)`;
                 return `
-                <div class="routing-tab flex items-center cursor-crosshair group pointer-events-auto" data-cell-idx="${i}">
-                    <div class="rounded-r-xl pl-2.5 pr-2 py-1.5 shadow-[0_2px_8px_rgba(0,0,0,0.10)] flex items-center gap-2 transition-all group-hover:shadow-[0_4px_14px_rgba(0,0,0,0.14)] group-hover:-translate-y-0.5" style="border-left: 3.5px solid ${tabColor}; border-top: 1px solid ${borderEdge}; border-right: 1px solid ${borderEdge}; border-bottom: 1px solid ${borderEdge}; background:${tabBg}; width:120px;">
-                        <span class="text-[10px] font-bold truncate pointer-events-none leading-none flex-1 min-w-0" style="color:${tabText};">${escHtml(titleStr)}</span>
-                        <div class="w-3 h-3 flex-shrink-0 rounded-full border-2 port-anchor pointer-events-none group-hover:scale-125 transition-all shadow-sm" style="border-color:${tabColor}; background:${tabBg};"></div>
+                <div class="routing-tab flex items-center cursor-crosshair group pointer-events-auto" data-cell-idx="${i}" title="${escHtml(titleStr)}">
+                    <div class="routing-tab-body rounded-r-xl pl-3 pr-2.5 py-[9px] flex items-center gap-2.5" style="
+                        background: ${tabBg};
+                        border-left: 4px solid ${tabColor};
+                        border-top: 1px solid rgba(0,0,0,0.09);
+                        border-right: 1px solid rgba(0,0,0,0.09);
+                        border-bottom: 1px solid rgba(0,0,0,0.09);
+                        box-shadow: 0 2px 10px rgba(0,0,0,0.11), inset 0 1px 0 rgba(255,255,255,0.75);
+                        width: 144px;">
+                        <span class="text-[11px] font-bold truncate pointer-events-none leading-none flex-1 min-w-0" style="color:${tabText};">${escHtml(titleStr)}</span>
+                        <div class="w-[18px] h-[18px] flex-shrink-0 rounded-full flex items-center justify-center port-anchor pointer-events-none group-hover:scale-125 transition-transform" style="background:${tabColor}; box-shadow: 0 0 0 3px ${tabBg}, 0 2px 6px rgba(0,0,0,0.22);">
+                            <div class="w-[7px] h-[7px] rounded-full bg-white/90 pointer-events-none"></div>
+                        </div>
                     </div>
                 </div>`;
             }).join('');
 
             const newLinkTabHtml = `
-                <div class="routing-tab-new flex items-center cursor-crosshair group pointer-events-auto" data-node="${node.id}" title="Drag to empty canvas for a new grid, or to an existing grid to link">
-                    <div class="border border-y border-r border-slate-200 border-dashed rounded-r-xl py-1.5 pr-2 shadow-sm flex items-center gap-1.5 transition-all group-hover:border-blue-400 group-hover:border-solid group-hover:shadow-[0_4px_12px_rgba(59,130,246,0.10)]" style="background:#f8fafc; width:120px;">
-                        <i data-lucide="plus" class="w-3 h-3 flex-shrink-0 text-slate-400 group-hover:text-blue-500 pointer-events-none"></i>
-                        <span class="text-[10px] font-bold text-slate-500 group-hover:text-blue-600 truncate pointer-events-none flex-1 min-w-0">New Link</span>
-                        <div class="w-3.5 h-3.5 flex-shrink-0 rounded-full border-2 border-slate-300 bg-white port-anchor-new pointer-events-none group-hover:border-blue-500 group-hover:scale-125 transition-transform shadow-sm"></div>
+                <div class="routing-tab-new flex items-center cursor-crosshair group pointer-events-auto" data-node="${node.id}" title="Click to add a new module, or drag to an existing one to link">
+                    <div class="routing-tab-body rounded-r-xl pl-3 pr-2.5 py-[9px] flex items-center gap-2.5 transition-colors" style="
+                        background: #f8fafc;
+                        border-left: 4px dashed #cbd5e1;
+                        border-top: 1px solid rgba(0,0,0,0.07);
+                        border-right: 1px solid rgba(0,0,0,0.07);
+                        border-bottom: 1px solid rgba(0,0,0,0.07);
+                        box-shadow: 0 1px 6px rgba(0,0,0,0.07), inset 0 1px 0 rgba(255,255,255,0.80);
+                        width: 144px;">
+                        <div class="w-[18px] h-[18px] flex-shrink-0 rounded-full border-2 border-dashed border-slate-300 bg-white flex items-center justify-center group-hover:border-blue-400 group-hover:bg-blue-50 transition-colors shadow-sm">
+                            <i data-lucide="plus" class="w-2.5 h-2.5 text-slate-400 group-hover:text-blue-500 pointer-events-none"></i>
+                        </div>
+                        <span class="text-[11px] font-bold text-slate-400 group-hover:text-blue-600 truncate pointer-events-none flex-1 min-w-0 transition-colors">New Link</span>
+                        <div class="w-[18px] h-[18px] flex-shrink-0 rounded-full border-2 border-slate-200 bg-white flex items-center justify-center port-anchor-new pointer-events-none group-hover:border-blue-400 transition-colors shadow-sm">
+                            <div class="w-[7px] h-[7px] rounded-full bg-slate-200 group-hover:bg-blue-400 pointer-events-none transition-colors"></div>
+                        </div>
                     </div>
                 </div>
             `;
@@ -1824,9 +1911,12 @@
                     ${cellsHtml}
                 </div>
                 <div class="port port-in" data-node="${node.id}"></div>
-                <div class="absolute left-full top-12 bottom-0 flex flex-col items-start gap-1.5 z-10 pointer-events-none pl-[1px]">
-                    ${routingTabsHtml}
-                    ${newLinkTabHtml}
+                <div class="routing-tabs-container absolute left-full top-12 z-10 pointer-events-none">
+                    <div class="routing-spine" style="background:${node.color};"></div>
+                    <div class="routing-tabs-list">
+                        ${routingTabsHtml}
+                        ${newLinkTabHtml}
+                    </div>
                 </div>
             `;
 
@@ -1874,7 +1964,8 @@
 
             el.querySelector('.routing-tab-new').addEventListener('pointerdown', (e) => {
                 e.stopPropagation();
-                isWiring = true; activeSourceNodeId = node.id; activeSourceCellIdx = null; 
+                isWiring = true; activeSourceNodeId = node.id; activeSourceCellIdx = null;
+                _newLinkClickStart = { x: e.clientX, y: e.clientY };
                 tempWire = document.createElementNS('http://www.w3.org/2000/svg', 'path'); tempWire.setAttribute('class', 'wire-temp'); svgLayer.appendChild(tempWire);
                 updateTempWire(e.clientX, e.clientY);
             });
@@ -1889,6 +1980,59 @@
             });
 
             nodesLayer.appendChild(el);
+
+            // Dynamically compress routing tabs vertically to always fit within node height.
+            // Only adjusts gap + vertical padding — label text is always visible.
+            requestAnimationFrame(() => {
+                const tabsC = el.querySelector('.routing-tabs-container');
+                if (!tabsC) return;
+                const list = tabsC.querySelector('.routing-tabs-list');
+                if (!list) return;
+
+                // Reset any previously applied inline overrides
+                list.style.gap = '';
+                list.querySelectorAll('.routing-tab-body').forEach(b => {
+                    b.style.paddingTop = b.style.paddingBottom = b.style.fontSize = '';
+                });
+
+                const available = el.offsetHeight - 48; // node height minus 48px header
+                void list.offsetHeight; // force reflow after reset
+
+                if (list.offsetHeight <= available + 4) return; // fits — nothing to do
+
+                const items = Array.from(list.querySelectorAll('.routing-tab, .routing-tab-new'));
+                const n = items.length;
+                if (n === 0) return;
+
+                // Step 1: collapse gap to 2px and check again
+                const minGap = 2;
+                list.style.gap = minGap + 'px';
+                void list.offsetHeight;
+                if (list.offsetHeight <= available + 4) return;
+
+                // Step 2: calculate exact vertical padding needed to make everything fit.
+                // Each tab body: paddingTop + paddingBottom + content (~16px line-height).
+                const totalGap  = (n - 1) * minGap;
+                const perItem   = (available - totalGap) / n;
+                const vPad      = Math.max(Math.floor((perItem - 16) / 2), 2); // min 2px padding
+
+                items.forEach(item => {
+                    const body = item.querySelector('.routing-tab-body');
+                    if (!body) return;
+                    body.style.paddingTop    = vPad + 'px';
+                    body.style.paddingBottom = vPad + 'px';
+                });
+
+                void list.offsetHeight;
+                if (list.offsetHeight <= available + 4) return;
+
+                // Step 3: last resort — shrink font size too (floor at 9px, still readable)
+                const fontPx = Math.max(Math.floor(perItem * 0.55), 9);
+                items.forEach(item => {
+                    const span = item.querySelector('.routing-tab-body > span');
+                    if (span) span.style.fontSize = fontPx + 'px';
+                });
+            });
         }
 
         // --- 5. High-Performance SVG Wiring ---
@@ -2069,7 +2213,7 @@
 
         function promptClearAll() {
             promptConfirm("Clear Entire Map?", "This will delete all folders and symbols. This cannot be undone.", "Clear Map", "red", () => {
-                pushHistory(); nodesData = {}; localStorage.removeItem('aacMapData'); _spawnRootNodeQuiet(); fitAllNodes();
+                pushHistory(); nodesData = {}; _spawnRootNodeQuiet(); _saveNow(); fitAllNodes();
             });
         }
 
@@ -2084,21 +2228,29 @@
             return best;
         }
 
+        function _isFullscreen() {
+            return !!(document.fullscreenElement || document.webkitFullscreenElement);
+        }
         function toggleFullscreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(() => {});
+            if (!_isFullscreen()) {
+                const el = document.documentElement;
+                if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
+                else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen(); // iOS Safari
             } else {
-                document.exitFullscreen().catch(() => {});
+                if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
+                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
             }
         }
-        document.addEventListener('fullscreenchange', () => {
+        function _onFullscreenChange() {
             const btn = document.getElementById('fullscreen-btn');
             if (!btn) return;
             const icon = btn.querySelector('i[data-lucide]');
             if (!icon) return;
-            icon.setAttribute('data-lucide', document.fullscreenElement ? 'shrink' : 'expand');
+            icon.setAttribute('data-lucide', _isFullscreen() ? 'shrink' : 'expand');
             lucide.createIcons({ nodes: [icon] });
-        });
+        }
+        document.addEventListener('fullscreenchange', _onFullscreenChange);
+        document.addEventListener('webkitfullscreenchange', _onFullscreenChange);
 
         function resetPanZoomAnchors() {
             if (activePointers.size === 1) {
@@ -2115,20 +2267,20 @@
                 if (isModalOpen || e.target.closest('button') || !dropDialog.classList.contains('hidden') || e.target.tagName === 'SELECT') return; 
                 
                 if (e.target === wrapper || e.target === bgGrid || e.target === svgLayer) {
-                    wrapper.setPointerCapture(e.pointerId); activePointers.set(e.pointerId, e);
+                    wrapper.setPointerCapture(e.pointerId); activePointers.set(e.pointerId, { clientX: e.clientX, clientY: e.clientY });
                     if (!isCellPointerDown && !isDraggingNode && !isWiring) resetPanZoomAnchors();
                 }
             });
 
             window.addEventListener('pointermove', (e) => {
                 if (isModalOpen) return;
-                if (activePointers.has(e.pointerId)) activePointers.set(e.pointerId, e);
+                if (activePointers.has(e.pointerId)) activePointers.set(e.pointerId, { clientX: e.clientX, clientY: e.clientY });
 
                 if (isMergeResizing) {
                     const previewEl = document.getElementById('merge-preview-overlay');
                     const tgtIdx = getCellIdxAtPoint(mergeResizeNodeId, e.clientX, e.clientY);
                     if (tgtIdx !== -1) {
-                        const box = _anchorMergeBox(mergeResizeAnchorIdx, tgtIdx);
+                        const box = _anchorMergeBox(mergeResizeAnchorIdx, tgtIdx, (nodesData[mergeResizeNodeId] && nodesData[mergeResizeNodeId].cols) || gridCols);
                         const r0 = _gridCellRect(mergeResizeNodeId, box.minCol, box.minRow);
                         const r1 = _gridCellRect(mergeResizeNodeId, box.maxCol, box.maxRow);
                         if (r0 && r1) {
@@ -2167,11 +2319,13 @@
                 }
 
                 if (isDraggingNode && activeSourceNodeId) {
-                    nodesData[activeSourceNodeId].x = (e.clientX - panX) / scale - startPointerX;
-                    nodesData[activeSourceNodeId].y = (e.clientY - panY) / scale - startPointerY;
+                    const _dragNode = nodesData[activeSourceNodeId];
+                    if (!_dragNode) { isDraggingNode = false; activeSourceNodeId = null; return; }
+                    _dragNode.x = (e.clientX - panX) / scale - startPointerX;
+                    _dragNode.y = (e.clientY - panY) / scale - startPointerY;
                     const domNode = document.getElementById(`dom-node-${activeSourceNodeId}`);
-                    domNode.style.left = `${nodesData[activeSourceNodeId].x}px`; domNode.style.top = `${nodesData[activeSourceNodeId].y}px`;
-                    updateLiveWires(activeSourceNodeId); 
+                    if (domNode) { domNode.style.left = `${_dragNode.x}px`; domNode.style.top = `${_dragNode.y}px`; }
+                    updateLiveWires(activeSourceNodeId);
                     return;
                 } 
                 
@@ -2204,6 +2358,7 @@
             const handlePointerUp = (e) => {
                 if (isModalOpen) return;
                 activePointers.delete(e.pointerId);
+                try { wrapper.releasePointerCapture(e.pointerId); } catch(_) {}
                 if (!isCellPointerDown && !isDraggingNode && !isWiring && !isMergeResizing) resetPanZoomAnchors();
 
                 if (isMergeResizing) {
@@ -2279,6 +2434,28 @@
                 }
 
                 if (isWiring) {
+                    // Detect a simple click on "New Link" (no drag) — open Modules palette
+                    const _wasClick = _newLinkClickStart && activeSourceCellIdx === null
+                        && Math.hypot(e.clientX - _newLinkClickStart.x, e.clientY - _newLinkClickStart.y) < 8;
+                    _newLinkClickStart = null;
+                    if (_wasClick) {
+                        const srcNode = nodesData[activeSourceNodeId];
+                        const emptyIdx = srcNode ? srcNode.cells.findIndex(c => !c.label && !c.linkId) : -1;
+                        if (emptyIdx !== -1) {
+                            // Place new module to the right of the source node
+                            const srcEl = document.getElementById(`dom-node-${activeSourceNodeId}`);
+                            const offsetX = srcEl ? srcEl.offsetWidth / scale + 80 : 300;
+                            const dropCoords = { x: srcNode.x + offsetX, y: srcNode.y };
+                            _pendingWireDrop = { sourceNodeId: activeSourceNodeId, cellIdx: emptyIdx, x: dropCoords.x, y: dropCoords.y };
+                            _openPaletteWithShimmer();
+                        } else { promptAlert("Grid Full", "Please clear a cell before creating a new linked folder."); }
+                        isWiring = false; activeSourceNodeId = null; activeSourceCellIdx = null;
+                        if(tempWire) { tempWire.remove(); tempWire = null; }
+                        document.querySelectorAll('.port-in').forEach(p => p.classList.remove('highlight'));
+                        renderMap(); setTimeout(updateAllWires, 50);
+                        return;
+                    }
+
                     if(tempWire) tempWire.style.display = 'none'; const dropTarget = document.elementFromPoint(e.clientX, e.clientY); if(tempWire) tempWire.style.display = '';
                     const _snapPortUp = (!dropTarget || !dropTarget.closest('.aac-node:not(.lf-node)')) ? _nearestPortIn(e.clientX, e.clientY, 44) : null;
                     const targetNodeEl = _snapPortUp ? _snapPortUp.closest('.aac-node:not(.lf-node)') : (dropTarget ? dropTarget.closest('.aac-node:not(.lf-node)') : null);
@@ -2302,11 +2479,10 @@
                     } else if (!targetNodeEl && activeSourceCellIdx === null) {
                         const srcNode = nodesData[activeSourceNodeId]; const emptyIdx = srcNode.cells.findIndex(c => !c.label && !c.linkId);
                         if(emptyIdx !== -1) {
-                            pushHistory();
-                            const newId = generateId(); const dropCoords = getWorkspaceCoords(e.clientX, e.clientY);
-                            nodesData[newId] = { id: newId, title: 'New Folder', color: nextNodeColor(), cols: gridCols, rows: gridRows, x: dropCoords.x, y: dropCoords.y, cells: defaultCells() };
-                            srcNode.cells[emptyIdx] = { label: 'New Folder', linkId: newId, src: null };
-                            setTimeout(() => { document.getElementById(`dom-node-${newId}`).classList.add('node-enter'); }, 50); // Add pop animation
+                            // Store pending wire context and open the Modules palette so the user can choose
+                            const dropCoords = getWorkspaceCoords(e.clientX, e.clientY);
+                            _pendingWireDrop = { sourceNodeId: activeSourceNodeId, cellIdx: emptyIdx, x: dropCoords.x, y: dropCoords.y };
+                            _openPaletteWithShimmer();
                         } else { promptAlert("Grid Full", "Please clear a cell before creating a new linked folder."); }
                     }
                     
@@ -2322,10 +2498,12 @@
         // --- 7. Generators ---
         function _spawnRootNodeQuiet(title, cols, rows, color) {
             const c = cols || gridCols, r = rows || gridRows;
-            const newId = generateId(); const center = getWorkspaceCoords(window.innerWidth/2, window.innerHeight/2);
-            nodesData[newId] = { id: newId, title: title || 'New Page', color: color || nextNodeColor(), cols: c, rows: r, x: center.x, y: center.y, cells: defaultCells(c, r) };
-            renderMap(); setTimeout(updateAllWires, 50);
+            const newId = generateId();
+            const pos = _pendingWireDrop ? { x: _pendingWireDrop.x, y: _pendingWireDrop.y } : getWorkspaceCoords(window.innerWidth/2, window.innerHeight/2);
+            nodesData[newId] = { id: newId, title: title || 'New Page', color: color || nextNodeColor(), cols: c, rows: r, x: pos.x, y: pos.y, cells: defaultCells(c, r) };
+            if (_pendingWireDrop) { _completePendingWire(newId); } else { renderMap(); setTimeout(updateAllWires, 50); }
             setTimeout(() => { const el = document.getElementById(`dom-node-${newId}`); if (el) el.classList.add('node-enter'); }, 10);
+            _debouncedSave();
         }
 
         function spawnRootNode() {
@@ -2389,6 +2567,51 @@
             const isOpen  = palette.classList.toggle('open');
             toggle.classList.toggle('open', isOpen);
             toggle.setAttribute('aria-expanded', String(isOpen));
+            // Clear pending wire if the user manually closes the palette
+            if (!isOpen) _pendingWireDrop = null;
+        }
+
+        // ── Pending wire → module palette flow ──────────────────────────────────
+        let _pendingWireDrop = null; // { sourceNodeId, cellIdx, x, y }
+
+        function _openPaletteWithShimmer() {
+            const palette = document.getElementById('board-palette');
+            const toggle  = document.getElementById('palette-toggle');
+            // Open palette if not already open
+            if (!palette.classList.contains('open')) {
+                palette.classList.add('open');
+                toggle.classList.add('open');
+                toggle.setAttribute('aria-expanded', 'true');
+            }
+            // Gentle border glow on the cards
+            palette.classList.remove('palette-shimmer');
+            void palette.offsetWidth;
+            palette.classList.add('palette-shimmer');
+            palette.addEventListener('animationend', () => palette.classList.remove('palette-shimmer'), { once: true });
+            // Show instruction banner
+            let banner = document.getElementById('palette-pick-banner');
+            if (banner) banner.remove();
+            banner = document.createElement('div');
+            banner.id = 'palette-pick-banner';
+            banner.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg> Choose a module to connect';
+            const scrollArea = palette.querySelector('.flex-1.overflow-y-auto');
+            if (scrollArea) scrollArea.insertBefore(banner, scrollArea.firstChild);
+            // Auto-fade after 4s
+            setTimeout(() => { if (banner.parentElement) { banner.classList.add('palette-banner-fade'); setTimeout(() => banner.remove(), 500); } }, 4000);
+        }
+
+        function _completePendingWire(newNodeId) {
+            if (!_pendingWireDrop) return;
+            const { sourceNodeId, cellIdx } = _pendingWireDrop;
+            const srcNode = nodesData[sourceNodeId];
+            if (srcNode && srcNode.cells[cellIdx] !== undefined && newNodeId) {
+                // Wire link is applied within the same undo step as the node creation
+                srcNode.cells[cellIdx] = { label: nodesData[newNodeId].title, linkId: newNodeId, src: null };
+                renderMap(); setTimeout(updateAllWires, 50);
+            }
+            _pendingWireDrop = null;
+            const banner = document.getElementById('palette-pick-banner');
+            if (banner) banner.remove();
         }
 
         // ── Whiteboard Node ────────────────────────────────────────────────────
@@ -2396,10 +2619,10 @@
 
         function spawnWhiteboardNode() {
             const newId = generateId();
-            const center = getWorkspaceCoords(window.innerWidth / 2, window.innerHeight / 2);
+            const pos = _pendingWireDrop ? { x: _pendingWireDrop.x, y: _pendingWireDrop.y } : getWorkspaceCoords(window.innerWidth / 2, window.innerHeight / 2);
             nodesData[newId] = { id: newId, type: 'whiteboard', title: 'Whiteboard', color: '#f59e0b',
-                                 x: center.x, y: center.y, drawingData: null };
-            renderMap(); setTimeout(updateAllWires, 50);
+                                 x: pos.x, y: pos.y, drawingData: null };
+            if (_pendingWireDrop) { _completePendingWire(newId); } else { renderMap(); setTimeout(updateAllWires, 50); }
             setTimeout(() => { const el = document.getElementById(`dom-node-${newId}`); if (el) el.classList.add('node-enter'); }, 10);
         }
 
@@ -2448,7 +2671,7 @@
             // Restore saved drawing
             if (node.drawingData) { const img = new Image(); img.onload = () => ctx.drawImage(img, 0, 0); img.src = node.drawingData; }
 
-            const save = () => { node.drawingData = canvas.toDataURL('image/png'); try { localStorage.setItem('aacMapData', JSON.stringify(nodesData)); } catch(e){} };
+            const save = () => { node.drawingData = canvas.toDataURL('image/png'); _debouncedSave(); };
 
             // Toolbar interactions
             const toolbar = document.getElementById(`wbt-${node.id}`);
@@ -2527,7 +2750,9 @@
             el.querySelector('.wb-delete-btn').addEventListener('pointerdown', (e) => {
                 e.stopPropagation();
                 promptConfirm('Delete Whiteboard?', `Delete "${escHtml(node.title)}"? This cannot be undone.`, 'Delete', 'red', () => {
-                    pushHistory(); delete nodesData[node.id]; renderMap(); setTimeout(updateAllWires, 50);
+                    pushHistory(); delete nodesData[node.id];
+                    Object.values(nodesData).forEach(n => (n.cells || []).forEach(c => { if (c.linkId === node.id) { c.label = ''; c.linkId = null; c.src = null; } }));
+                    renderMap(); setTimeout(updateAllWires, 50);
                 });
             });
         }
@@ -2535,10 +2760,10 @@
         // ── Photo Gallery ──────────────────────────────────────────────────────────
         function spawnGalleryNode() {
             const newId = generateId();
-            const center = getWorkspaceCoords(window.innerWidth / 2, window.innerHeight / 2);
+            const pos = _pendingWireDrop ? { x: _pendingWireDrop.x, y: _pendingWireDrop.y } : getWorkspaceCoords(window.innerWidth / 2, window.innerHeight / 2);
             nodesData[newId] = { id: newId, type: 'gallery', title: 'Photo Gallery', color: '#10b981',
-                                 x: center.x, y: center.y, photos: [] };
-            renderMap(); setTimeout(updateAllWires, 50);
+                                 x: pos.x, y: pos.y, photos: [] };
+            if (_pendingWireDrop) { _completePendingWire(newId); } else { renderMap(); setTimeout(updateAllWires, 50); }
             setTimeout(() => { const el = document.getElementById(`dom-node-${newId}`); if (el) el.classList.add('node-enter'); }, 10);
         }
 
@@ -2603,7 +2828,9 @@
             el.querySelector('.gal-delete-btn').addEventListener('pointerdown', (e) => {
                 e.stopPropagation();
                 promptConfirm('Delete Gallery?', `Delete "${escHtml(node.title)}" and all its photos? This cannot be undone.`, 'Delete', 'red', () => {
-                    pushHistory(); delete nodesData[node.id]; renderMap(); setTimeout(updateAllWires, 50);
+                    pushHistory(); delete nodesData[node.id];
+                    Object.values(nodesData).forEach(n => (n.cells || []).forEach(c => { if (c.linkId === node.id) { c.label = ''; c.linkId = null; c.src = null; } }));
+                    renderMap(); setTimeout(updateAllWires, 50);
                 });
             });
             el.querySelector('.gal-manage-btn').addEventListener('pointerdown', (e) => {
@@ -2705,7 +2932,7 @@
             _renderPhotoMgrNav();
             const overlay = document.getElementById('photo-mgr-overlay');
             overlay.ondragover = (e) => { if (!e.dataTransfer.types.includes('Files')) return; e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; };
-            overlay.ondrop    = (e) => { if (!e.dataTransfer.files.length) return; e.preventDefault(); const f = [...e.dataTransfer.files].filter(f => f.type.startsWith('image/')); if (f.length) _processGalleryFiles(f); };
+            overlay.ondrop    = (e) => { if (!e.dataTransfer.files.length) return; e.preventDefault(); const f = [...e.dataTransfer.files].filter(f => f.type.startsWith('image/') || /\.(heic|heif|jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(f.name)); if (f.length) _processGalleryFiles(f); };
             overlay.style.display = 'block';
             // Move focus into the dialog
             setTimeout(() => { const closeBtn = overlay.querySelector('button'); if (closeBtn) closeBtn.focus(); }, 50);
@@ -2802,7 +3029,7 @@
         }
 
         function handlePhotoManagerUpload(event) {
-            const files = [...event.target.files].filter(f => f.type.startsWith('image/'));
+            const files = [...event.target.files].filter(f => f.type.startsWith('image/') || /\.(heic|heif|jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(f.name));
             event.target.value = '';
             _processGalleryFiles(files);
         }
@@ -2816,24 +3043,31 @@
             // Process sequentially to preserve file-picker order
             for (const file of files) {
                 await new Promise((resolve) => {
-                    const reader = new FileReader();
-                    reader.onload = (ev) => {
-                        const img = new Image();
-                        img.onload = () => {
-                            const MAX = 1400;
-                            let w = img.width, h = img.height;
-                            if (w > MAX || h > MAX) { if (w >= h) { h = Math.round(h * MAX / w); w = MAX; } else { w = Math.round(w * MAX / h); h = MAX; } }
-                            const cvs = document.createElement('canvas');
-                            cvs.width = w; cvs.height = h;
-                            cvs.getContext('2d').drawImage(img, 0, 0, w, h);
-                            node.photos.push({ id: generateId(), dataUrl: cvs.toDataURL('image/jpeg', 0.85), caption: '' });
+                    const objUrl = URL.createObjectURL(file);
+                    const img = new Image();
+                    img.onload = () => {
+                        const MAX = 800;
+                        let w = img.width, h = img.height;
+                        if (w > MAX || h > MAX) { if (w >= h) { h = Math.round(h * MAX / w); w = MAX; } else { w = Math.round(w * MAX / h); h = MAX; } }
+                        const cvs = document.createElement('canvas');
+                        cvs.width = w; cvs.height = h;
+                        cvs.getContext('2d').drawImage(img, 0, 0, w, h);
+                        URL.revokeObjectURL(objUrl);
+                        node.photos.push({ id: generateId(), dataUrl: cvs.toDataURL('image/jpeg', 0.75), caption: '' });
+                        resolve();
+                    };
+                    img.onerror = () => {
+                        URL.revokeObjectURL(objUrl);
+                        // Fallback for HEIC/HEIF on platforms where canvas can't decode
+                        const reader = new FileReader();
+                        reader.onload = (ev) => {
+                            node.photos.push({ id: generateId(), dataUrl: ev.target.result, caption: '' });
                             resolve();
                         };
-                        img.onerror = () => resolve();
-                        img.src = ev.target.result;
+                        reader.onerror = () => resolve();
+                        reader.readAsDataURL(file);
                     };
-                    reader.onerror = () => resolve();
-                    reader.readAsDataURL(file);
+                    img.src = objUrl;
                 });
             }
             if (_photoMgrNodeId === mgrId) {
@@ -2857,11 +3091,7 @@
             _saveAndSyncGallery();
         }
 
-        function _saveAndSyncGallery() {
-            try { localStorage.setItem('aacMapData', JSON.stringify(nodesData)); } catch(e) { console.warn('Storage quota exceeded — gallery data not saved:', e); }
-            const _ap = _profiles && _profiles.find(p => p.id === _activeProfileId);
-            if (_ap) { _ap.nodesData = JSON.parse(JSON.stringify(nodesData)); _ap.gridCols = gridCols; _ap.gridRows = gridRows; saveProfiles(); }
-        }
+        function _saveAndSyncGallery() { _saveNow(); }
         // ── End Photo Gallery ──────────────────────────────────────────────────────
 
 
@@ -2871,15 +3101,15 @@
 
         function spawnRoutineNode() {
             const newId = generateId();
-            const center = getWorkspaceCoords(window.innerWidth / 2, window.innerHeight / 2);
+            const pos = _pendingWireDrop ? { x: _pendingWireDrop.x, y: _pendingWireDrop.y } : getWorkspaceCoords(window.innerWidth / 2, window.innerHeight / 2);
             nodesData[newId] = { id: newId, type: 'routine', title: 'My Routine',
-                                 color: '#f59e0b', x: center.x, y: center.y,
+                                 color: '#f59e0b', x: pos.x, y: pos.y, tapMode: 'one-way',
                                  steps: [
                                      { id: generateId(), label: '', dataUrl: null },
                                      { id: generateId(), label: '', dataUrl: null },
                                      { id: generateId(), label: '', dataUrl: null }
                                  ] };
-            renderMap();
+            if (_pendingWireDrop) { _completePendingWire(newId); } else { renderMap(); setTimeout(updateAllWires, 50); }
             setTimeout(() => { const el = document.getElementById(`dom-node-${newId}`); if (el) el.classList.add('node-enter'); }, 10);
         }
 
@@ -2942,7 +3172,9 @@
             el.querySelector('.routine-delete-btn').addEventListener('pointerdown', (e) => {
                 e.stopPropagation();
                 promptConfirm('Delete Routine Board?', `Delete "${escHtml(node.title)}"? This cannot be undone.`, 'Delete', 'red', () => {
-                    pushHistory(); delete nodesData[node.id]; renderMap();
+                    pushHistory(); delete nodesData[node.id];
+                    Object.values(nodesData).forEach(n => (n.cells || []).forEach(c => { if (c.linkId === node.id) { c.label = ''; c.linkId = null; c.src = null; } }));
+                    renderMap(); setTimeout(updateAllWires, 50);
                 });
             });
             el.querySelector('.routine-manage-btn').addEventListener('pointerdown', (e) => {
@@ -2965,6 +3197,7 @@
             isModalOpen = true; activePointers.clear();
             document.getElementById('routine-mgr-title').textContent = node.title;
             _renderRoutineMgrCounts();
+            _updateRoutineTapModeUI();
             _renderRoutineMgrGrid();
             const rmOverlay = document.getElementById('routine-mgr-overlay');
             rmOverlay.style.display = 'block';
@@ -2984,6 +3217,7 @@
 
         function _renderRoutineMgrCounts() {
             const node = nodesData[_routineMgrNodeId];
+            if (!node) return;
             const current = node.steps.length;
             const container = document.getElementById('routine-mgr-count-btns');
             container.innerHTML = '';
@@ -2993,6 +3227,7 @@
                 btn.style.cssText = `width:36px;height:36px;border-radius:10px;border:1.5px solid ${active?'#f59e0b':'#e2e8f0'};background:${active?'#f59e0b':'#fff'};color:${active?'white':'#475569'};font-size:14px;font-weight:700;font-family:Outfit,sans-serif;cursor:pointer;transition:all 0.13s;`;
                 btn.textContent = String(n);
                 btn.addEventListener('click', () => {
+                    pushHistory();
                     const old = node.steps;
                     if (n > old.length) {
                         while (node.steps.length < n) node.steps.push({ id: generateId(), label: '', dataUrl: null });
@@ -3009,6 +3244,7 @@
 
         function _renderRoutineMgrGrid() {
             const node  = nodesData[_routineMgrNodeId];
+            if (!node) return;
             const grid  = document.getElementById('routine-mgr-grid');
             const empty = document.getElementById('routine-mgr-empty');
             grid.innerHTML = '';
@@ -3137,11 +3373,31 @@
             _saveAndSyncRoutine();
         }
 
-        function _saveAndSyncRoutine() {
-            try { localStorage.setItem('aacMapData', JSON.stringify(nodesData)); } catch(e) { console.warn('Storage quota exceeded:', e); }
-            const _ap = _profiles && _profiles.find(p => p.id === _activeProfileId);
-            if (_ap) { _ap.nodesData = JSON.parse(JSON.stringify(nodesData)); _ap.gridCols = gridCols; _ap.gridRows = gridRows; saveProfiles(); }
+        function _setRoutineTapMode(mode) {
+            const node = nodesData[_routineMgrNodeId];
+            if (!node) return;
+            node.tapMode = mode;
+            _updateRoutineTapModeUI();
+            _saveAndSyncRoutine();
         }
+
+        function _updateRoutineTapModeUI() {
+            const node = nodesData[_routineMgrNodeId];
+            if (!node) return;
+            const mode = node.tapMode || 'one-way';
+            const activeCSS = 'padding:6px 14px;border-radius:20px;border:1.5px solid #f59e0b;background:#f59e0b;color:white;font-size:12px;font-weight:700;font-family:Outfit,sans-serif;cursor:pointer;';
+            const inactiveCSS = 'padding:6px 14px;border-radius:20px;border:1.5px solid #e2e8f0;background:#fff;color:#475569;font-size:12px;font-weight:700;font-family:Outfit,sans-serif;cursor:pointer;';
+            const onewayBtn = document.getElementById('routine-tapmode-oneway');
+            const toggleBtn = document.getElementById('routine-tapmode-toggle');
+            const descEl    = document.getElementById('routine-tapmode-desc');
+            if (onewayBtn) onewayBtn.style.cssText = mode === 'one-way' ? activeCSS : inactiveCSS;
+            if (toggleBtn) toggleBtn.style.cssText = mode === 'toggle'   ? activeCSS : inactiveCSS;
+            if (descEl) descEl.textContent = mode === 'one-way'
+                ? 'Steps move up and stay — use Reset to start over.'
+                : 'Tap a completed step to send it back down.';
+        }
+
+        function _saveAndSyncRoutine() { _saveNow(); }
 
         // ── Symbol Picker ────────────────────────────────────────────────────────
 
@@ -3428,11 +3684,11 @@
         let _openmojiTimeout = null, _lastOpenmojiQ = '', _openmojiData = null, _openmojiLoading = false, _openmojiSkin = '';
         const _OPENMOJI_CDN = 'https://cdn.jsdelivr.net/npm/openmoji@15.0.0';
         const _OPENMOJI_SKIN_MAP = {
-            'light':    1,
-            'medlight': 2,
-            'medium':   3,
-            'meddark':  4,
-            'dark':     5
+            'light':    '1',
+            'medlight': '2',
+            'medium':   '3',
+            'meddark':  '4',
+            'dark':     '5'
         };
         function _loadOpenmojiData(cb) {
             if (_openmojiData) { cb(_openmojiData); return; }
@@ -3787,6 +4043,7 @@
                         const newLabel = existing.linkId ? existing.label : (existing.label || file.name.replace(/\.[^.]+$/, '').substring(0, 15));
                         nodesData[nodeId].cells[cellIdx] = { label: newLabel, linkId: existing.linkId || null, src: dataUrl, isUpload: true };
                         symbolPickerTarget = { nodeId: null, cellIdx: null };
+                        closeSymbolPickerModal();
                         renderMap(); setTimeout(updateAllWires, 50);
                     };
 
@@ -3825,15 +4082,22 @@
         const _musicDB = (() => {
             let _db = null;
             const _q = [];
-            const _req = indexedDB.open('gridflow-music-v1', 1);
-            _req.onupgradeneeded = e => e.target.result.createObjectStore('audio');
-            _req.onsuccess = e => { _db = e.target.result; _q.forEach(fn => fn(_db)); _q.length = 0; };
-            _req.onerror = e => { console.error('Audio DB error:', e); };
-            const _ready = fn => _db ? fn(_db) : _q.push(fn);
+            let _dbFailed = false;
+            try {
+                const _req = indexedDB.open('gridflow-music-v1', 1);
+                _req.onupgradeneeded = e => e.target.result.createObjectStore('audio');
+                _req.onsuccess = e => { _db = e.target.result; _q.forEach(fn => fn(_db)); _q.length = 0; };
+                _req.onerror = e => { console.warn('Audio DB error:', e); _dbFailed = true; _q.forEach(fn => fn(null)); _q.length = 0; };
+            } catch(e) {
+                // IndexedDB unavailable (e.g. private browsing on older iOS/Firefox)
+                console.warn('IndexedDB unavailable:', e);
+                _dbFailed = true;
+            }
+            const _ready = fn => { if (_db) fn(_db); else if (_dbFailed) fn(null); else _q.push(fn); };
             return {
-                put(id, dataUrl)   { _ready(db => { try { const tx = db.transaction('audio','readwrite'); tx.objectStore('audio').put(dataUrl, id); } catch(err){} }); },
-                get(id, cb)        { _ready(db => { try { const tx = db.transaction('audio','readonly');  const r = tx.objectStore('audio').get(id); r.onsuccess = () => cb(r.result || null); r.onerror = () => cb(null); } catch(err){cb(null);} }); },
-                del(id)            { _ready(db => { try { const tx = db.transaction('audio','readwrite'); tx.objectStore('audio').delete(id); } catch(err){} }); }
+                put(id, dataUrl)   { _ready(db => { if (!db) return; try { const tx = db.transaction('audio','readwrite'); tx.objectStore('audio').put(dataUrl, id); } catch(err){} }); },
+                get(id, cb)        { _ready(db => { if (!db) { cb(null); return; } try { const tx = db.transaction('audio','readonly');  const r = tx.objectStore('audio').get(id); r.onsuccess = () => cb(r.result || null); r.onerror = () => cb(null); } catch(err){cb(null);} }); },
+                del(id)            { _ready(db => { if (!db) return; try { const tx = db.transaction('audio','readwrite'); tx.objectStore('audio').delete(id); } catch(err){} }); }
             };
         })();
 
@@ -3946,17 +4210,13 @@
             _playMusicTrack(nodeId, shuffled[0].id);
         }
 
-        function _saveMusicData() {
-            try { localStorage.setItem('aacMapData', JSON.stringify(nodesData)); } catch(e) {}
-            const ap = _profiles && _profiles.find(p => p.id === _activeProfileId);
-            if (ap) { ap.nodesData = JSON.parse(JSON.stringify(nodesData)); ap.gridCols = gridCols; ap.gridRows = gridRows; saveProfiles(); }
-        }
+        function _saveMusicData() { _saveNow(); }
 
         function spawnMusicNode() {
             const newId = generateId();
-            const center = getWorkspaceCoords(window.innerWidth / 2, window.innerHeight / 2);
-            nodesData[newId] = { id: newId, type: 'music', title: 'Music Player', color: '#0e7490', x: center.x, y: center.y, tracks: [] };
-            renderMap(); setTimeout(updateAllWires, 50);
+            const pos = _pendingWireDrop ? { x: _pendingWireDrop.x, y: _pendingWireDrop.y } : getWorkspaceCoords(window.innerWidth / 2, window.innerHeight / 2);
+            nodesData[newId] = { id: newId, type: 'music', title: 'Music Player', color: '#0e7490', x: pos.x, y: pos.y, tracks: [] };
+            if (_pendingWireDrop) { _completePendingWire(newId); } else { renderMap(); setTimeout(updateAllWires, 50); }
             setTimeout(() => { const el = document.getElementById(`dom-node-${newId}`); if (el) el.classList.add('node-enter'); }, 10);
             const pal = document.getElementById('board-palette');
             if (pal && pal.classList.contains('open') && window.innerWidth < 768) toggleBoardPalette();
@@ -4010,7 +4270,9 @@
                 promptConfirm('Delete Music Player?', `Delete "${escHtml(node.title)}"? All loaded tracks will also be removed.`, 'Delete', 'red', () => {
                     (node.tracks || []).forEach(t => _musicDB.del(t.id));
                     if (_musicPlayingNodeId === node.id) _stopMusic();
-                    pushHistory(); delete nodesData[node.id]; renderMap(); setTimeout(updateAllWires, 50);
+                    pushHistory(); delete nodesData[node.id];
+                    Object.values(nodesData).forEach(n => (n.cells || []).forEach(c => { if (c.linkId === node.id) { c.label = ''; c.linkId = null; c.src = null; } }));
+                    renderMap(); setTimeout(updateAllWires, 50);
                 });
             });
             el.querySelector('.music-manage-btn').addEventListener('pointerdown', e => { e.stopPropagation(); openMusicManager(node.id); });
@@ -4143,8 +4405,8 @@
             document.getElementById('mte-upload-photo').addEventListener('pointerdown', e => {
                 e.stopPropagation();
                 _musicImgTarget = { nodeId, trackId };
-                closeModal();
                 document.getElementById('sm-file-input').click();
+                closeModal();
             });
 
             document.getElementById('mte-audio-input').addEventListener('change', function() {
@@ -4187,6 +4449,358 @@
         }
         // ── End Music Player ──────────────────────────────────────────────────────
 
+        // ── Video Player ──────────────────────────────────────────────────────────
+        const _videoDB = (() => {
+            let _db = null;
+            const _q = [];
+            let _dbFailed = false;
+            try {
+                const _req = indexedDB.open('gridflow-video-v1', 1);
+                _req.onupgradeneeded = e => e.target.result.createObjectStore('video');
+                _req.onsuccess = e => { _db = e.target.result; _q.forEach(fn => fn(_db)); _q.length = 0; };
+                _req.onerror = e => { console.warn('Video DB error:', e); _dbFailed = true; _q.forEach(fn => fn(null)); _q.length = 0; };
+            } catch(e) { console.warn('Video IndexedDB unavailable:', e); _dbFailed = true; }
+            const _ready = fn => { if (_db) fn(_db); else if (_dbFailed) fn(null); else _q.push(fn); };
+            return {
+                put(id, dataUrl) { _ready(db => { if (!db) return; try { const tx = db.transaction('video','readwrite'); tx.objectStore('video').put(dataUrl, id); } catch(err){} }); },
+                get(id, cb)      { _ready(db => { if (!db) { cb(null); return; } try { const tx = db.transaction('video','readonly'); const r = tx.objectStore('video').get(id); r.onsuccess = () => cb(r.result || null); r.onerror = () => cb(null); } catch(err){cb(null);} }); },
+                del(id)          { _ready(db => { if (!db) return; try { const tx = db.transaction('video','readwrite'); tx.objectStore('video').delete(id); } catch(err){} }); }
+            };
+        })();
+
+        let _videoPlayingNodeId = null;
+        let _videoPlayingClipId = null;
+        let _videoThumbTarget = { nodeId: null, clipId: null };
+
+        function _generateVideoThumb(dataUrl, cb) {
+            let _called = false;
+            const _once = result => { if (!_called) { _called = true; cb(result); } };
+            try {
+                const v = document.createElement('video');
+                v.muted = true; v.preload = 'metadata';
+                v.addEventListener('loadedmetadata', () => { v.currentTime = Math.min(0.5, (v.duration || 1) * 0.1); }, { once: true });
+                v.addEventListener('seeked', () => {
+                    try {
+                        const c = document.createElement('canvas'); c.width = 160; c.height = 90;
+                        c.getContext('2d').drawImage(v, 0, 0, 160, 90);
+                        _once(c.toDataURL('image/jpeg', 0.72));
+                    } catch(e) { _once(null); }
+                    v.src = '';
+                }, { once: true });
+                v.addEventListener('error', () => _once(null), { once: true });
+                v.src = dataUrl;
+            } catch(e) { _once(null); }
+        }
+
+        function _saveVideoData() { _saveNow(); }
+
+        function _stopVideo() {
+            const ov = document.getElementById('video-player-overlay');
+            if (ov) {
+                const v = ov.querySelector('video');
+                if (v) { v.pause(); v.src = ''; }
+                ov.remove();
+            }
+            _videoPlayingNodeId = null; _videoPlayingClipId = null;
+        }
+
+        function _playVideoClip(nodeId, clipId) {
+            _stopVideo();
+            _stopMusic();
+            const nd = nodesData[nodeId];
+            if (!nd) return;
+            const clip = (nd.clips || []).find(c => c.id === clipId);
+            if (!clip) return;
+            _videoPlayingNodeId = nodeId; _videoPlayingClipId = clipId;
+
+            const _doPlay = dataUrl => {
+                if (!dataUrl) {
+                    promptAlert('Video Not Available', 'This video has not been loaded yet. Open the editor and use Manage Videos to add the video file.');
+                    _videoPlayingNodeId = null; _videoPlayingClipId = null;
+                    return;
+                }
+                // Build overlay
+                const ov = document.createElement('div');
+                ov.id = 'video-player-overlay';
+                ov.innerHTML = `
+                    <div class="vpo-title">${escHtml(clip.label || 'Video')}</div>
+                    <video src="${escHtml(dataUrl)}" controls autoplay playsinline webkit-playsinline style="max-width:80vw;max-height:calc(100vh - 80px);border-radius:12px;background:#000;"></video>
+                    <button class="vpo-stop" title="Stop video" aria-label="Stop video">
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="white"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+                        <span>Stop</span>
+                    </button>
+                    <button class="vpo-close" title="Close video" aria-label="Close video">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>`;
+                document.body.appendChild(ov);
+                const vid = ov.querySelector('video');
+                vid.addEventListener('ended', () => _stopVideo());
+                ov.querySelector('.vpo-stop').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); _stopVideo(); });
+                ov.querySelector('.vpo-close').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); _stopVideo(); });
+                // Tap backdrop to close
+                ov.addEventListener('pointerdown', e => { if (e.target === ov) _stopVideo(); });
+            };
+            _videoDB.get(clipId, _doPlay);
+        }
+
+        function spawnVideoNode() {
+            const newId = generateId();
+            const pos = _pendingWireDrop ? { x: _pendingWireDrop.x, y: _pendingWireDrop.y } : getWorkspaceCoords(window.innerWidth / 2, window.innerHeight / 2);
+            nodesData[newId] = { id: newId, type: 'video', title: 'Video Player', color: '#7c3aed', x: pos.x, y: pos.y, clips: [] };
+            if (_pendingWireDrop) { _completePendingWire(newId); } else { renderMap(); setTimeout(updateAllWires, 50); }
+            setTimeout(() => { const el = document.getElementById(`dom-node-${newId}`); if (el) el.classList.add('node-enter'); }, 10);
+            const pal = document.getElementById('board-palette');
+            if (pal && pal.classList.contains('open') && window.innerWidth < 768) toggleBoardPalette();
+        }
+
+        function createVideoElement(node) {
+            const el = document.createElement('div');
+            el.className = 'aac-node video-node';
+            el.id = `dom-node-${node.id}`;
+            el.style.left = `${node.x}px`; el.style.top = `${node.y}px`;
+            el.style.width = '280px';
+            const clips = node.clips || [];
+            const countText = clips.length === 0 ? 'No videos — tap Manage to add videos' : `${clips.length} video${clips.length === 1 ? '' : 's'} loaded`;
+            el.innerHTML = `
+                <div class="node-header" style="display:flex;align-items:center;gap:8px;padding:10px 12px 8px;background:linear-gradient(135deg,#7c3aed,#a855f7);border-radius:20px 20px 0 0;cursor:grab;">
+                    <div style="width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+                    </div>
+                    <span style="flex:1;font-family:Outfit,sans-serif;font-size:13px;font-weight:700;color:white;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(node.title)}</span>
+                    <button class="video-rename-btn" style="background:rgba(255,255,255,0.18);border:none;border-radius:6px;width:26px;height:26px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:white;flex-shrink:0;" title="Rename">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    </button>
+                    <button class="video-delete-btn" style="background:rgba(255,255,255,0.18);border:none;border-radius:6px;width:26px;height:26px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:white;flex-shrink:0;" title="Delete">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                </div>
+                <div style="padding:14px 14px 14px;">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+                        <span style="font-family:Outfit,sans-serif;font-size:12px;color:#64748b;">${escHtml(countText)}</span>
+                    </div>
+                    <button class="video-manage-btn" style="width:100%;padding:9px 0;background:linear-gradient(135deg,#7c3aed,#a855f7);color:white;border:none;border-radius:10px;font-family:Outfit,sans-serif;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+                        Manage Videos
+                    </button>
+                </div>
+                <div class="port port-in" data-node="${node.id}"></div>
+            `;
+            nodesLayer.appendChild(el);
+            el.querySelector('.node-header').addEventListener('pointerdown', (e) => {
+                if (e.target.closest('button')) return;
+                e.stopPropagation(); pushHistory(); isDraggingNode = true; activeSourceNodeId = node.id;
+                const coords = getWorkspaceCoords(e.clientX, e.clientY);
+                startPointerX = coords.x - nodesData[node.id].x;
+                startPointerY = coords.y - nodesData[node.id].y;
+                el.classList.add('dragging');
+            });
+            el.querySelector('.video-rename-btn').addEventListener('pointerdown', e => { e.stopPropagation(); promptEditNode(node.id); });
+            el.querySelector('.video-delete-btn').addEventListener('pointerdown', e => {
+                e.stopPropagation();
+                promptConfirm('Delete Video Player?', `Delete "${escHtml(node.title)}"? All loaded videos will also be removed.`, 'Delete', 'red', () => {
+                    (node.clips || []).forEach(c => _videoDB.del(c.id));
+                    if (_videoPlayingNodeId === node.id) _stopVideo();
+                    pushHistory(); delete nodesData[node.id];
+                    Object.values(nodesData).forEach(n => (n.cells || []).forEach(c => { if (c.linkId === node.id) { c.label = ''; c.linkId = null; c.src = null; } }));
+                    renderMap(); setTimeout(updateAllWires, 50);
+                });
+            });
+            el.querySelector('.video-manage-btn').addEventListener('pointerdown', e => { e.stopPropagation(); openVideoManager(node.id); });
+        }
+
+        function openVideoManager(nodeId) {
+            const node = nodesData[nodeId];
+            if (!node) return;
+            if (!node.clips) node.clips = [];
+
+            const tiles = node.clips.map(cl => {
+                const hasThumb = !!cl.thumbDataUrl;
+                return `<div class="vc-tile" data-cid="${escHtml(cl.id)}" style="position:relative;aspect-ratio:16/9;border-radius:14px;overflow:hidden;cursor:pointer;background:${hasThumb ? '#e2e8f0' : 'linear-gradient(135deg,#7c3aed,#a855f7)'};border:2.5px solid #e2e8f0;">
+                    ${hasThumb
+                        ? `<img src="${escHtml(cl.thumbDataUrl)}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">`
+                        : `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;"><svg width="32" height="32" viewBox="0 0 24 24" fill="white" stroke="none" opacity="0.9"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>`}
+                    <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.68));padding:4px 5px 7px;">
+                        <span style="font-family:Outfit,sans-serif;font-size:11px;font-weight:700;color:white;display:block;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(cl.label || '')}</span>
+                    </div>
+                </div>`;
+            }).join('');
+
+            openModal(`
+                <div style="display:flex;flex-direction:column;max-height:90vh;overflow:hidden;">
+                    <div style="padding:18px 16px 12px;flex-shrink:0;">
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <div style="width:34px;height:34px;border-radius:12px;background:linear-gradient(135deg,#7c3aed,#a855f7);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+                            </div>
+                            <div style="flex:1;">
+                                <h3 style="font-family:Outfit,sans-serif;font-size:15px;font-weight:800;color:#0f172a;margin:0;">${escHtml(node.title)}</h3>
+                                <p style="font-family:Outfit,sans-serif;font-size:11px;color:#94a3b8;margin:2px 0 0;">Tap a video to edit · Tap + to add</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y;padding:0 16px 4px;" class="custom-scrollbar">
+                        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;padding-bottom:8px;">
+                            ${tiles}
+                            <label style="position:relative;aspect-ratio:16/9;border-radius:14px;cursor:pointer;background:#f8fafc;border:2.5px dashed #cbd5e1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                <span style="font-family:Outfit,sans-serif;font-size:10px;font-weight:700;color:#94a3b8;">Add Video</span>
+                                <input id="vc-video-add-input" type="file" accept="video/*,.mp4,.webm,.mov,.m4v,.3gp,.3g2,.ogv,.avi" multiple style="display:none;">
+                            </label>
+                        </div>
+                    </div>
+                    <div style="padding:12px 16px 16px;flex-shrink:0;">
+                        <button type="button" onclick="closeModal()" style="width:100%;padding:11px 0;background:linear-gradient(135deg,#7c3aed,#a855f7);color:white;font-family:Outfit,sans-serif;font-size:14px;font-weight:700;border:none;border-radius:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                            Done
+                        </button>
+                    </div>
+                </div>
+            `);
+
+            document.querySelectorAll('.vc-tile').forEach(tile => {
+                tile.addEventListener('pointerdown', e => { e.stopPropagation(); openVideoClipEditor(nodeId, tile.dataset.cid); });
+            });
+
+            const addInput = document.getElementById('vc-video-add-input');
+            if (addInput) {
+                let _addBusy = false;
+                addInput.addEventListener('change', function() {
+                    if (_addBusy) return;
+                    const files = Array.from(this.files).filter(f => f.type.startsWith('video/') || /\.(mp4|webm|mov|m4v|3gp|3g2|ogv|avi|mkv)$/i.test(f.name));
+                    if (!files.length) return;
+                    _addBusy = true;
+                    let done = 0;
+                    files.forEach(file => {
+                        const reader = new FileReader();
+                        reader.onload = ev => {
+                            const newId = generateId();
+                            const lbl = file.name.replace(/\.[^/.]+$/, '').replace(/[_\-]+/g, ' ').trim();
+                            _generateVideoThumb(ev.target.result, thumb => {
+                                node.clips.push({ id: newId, label: lbl, thumbDataUrl: thumb || null });
+                                _videoDB.put(newId, ev.target.result);
+                                if (++done === files.length) { _saveVideoData(); renderMap(); openVideoManager(nodeId); }
+                                // _addBusy stays true — modal is replaced by openVideoManager
+                            });
+                        };
+                        reader.onerror = () => { if (++done === files.length) { _addBusy = false; openVideoManager(nodeId); } };
+                        reader.readAsDataURL(file);
+                    });
+                    // Do NOT clear this.value here — it can re-trigger 'change' on some browsers,
+                    // causing duplicate clips. The modal is rebuilt by openVideoManager anyway.
+                });
+            }
+        }
+
+        function openVideoClipEditor(nodeId, clipId) {
+            const nd = nodesData[nodeId];
+            if (!nd) return;
+            const cl = (nd.clips || []).find(c => c.id === clipId);
+            if (!cl) return;
+
+            const thumbPrev = cl.thumbDataUrl
+                ? `<div style="width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:#f1f5f9;margin-bottom:12px;"><img src="${escHtml(cl.thumbDataUrl)}" style="width:100%;height:100%;object-fit:cover;"></div>`
+                : `<div style="width:100%;aspect-ratio:16/9;border-radius:12px;background:linear-gradient(135deg,#7c3aed,#a855f7);margin-bottom:12px;display:flex;align-items:center;justify-content:center;"><svg width="44" height="44" viewBox="0 0 24 24" fill="white" stroke="none" opacity="0.8"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>`;
+
+            openModal(`
+                <div style="display:flex;flex-direction:column;max-height:90vh;overflow:hidden;">
+                    <div style="padding:20px 20px 14px;flex-shrink:0;display:flex;align-items:center;gap:10px;border-bottom:1px solid #f1f5f9;">
+                        <div style="width:32px;height:32px;border-radius:10px;background:#f3f0ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+                        </div>
+                        <h3 style="font-family:Outfit,sans-serif;font-size:15px;font-weight:800;color:#0f172a;margin:0;">Edit Video</h3>
+                    </div>
+                    <div style="flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y;padding:16px 20px;" class="custom-scrollbar">
+                        ${thumbPrev}
+                        <div style="margin-bottom:16px;">
+                            <div style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.07em;font-family:Outfit,sans-serif;margin-bottom:6px;">Upload Custom Thumbnail</div>
+                            <label style="display:flex;align-items:center;gap:8px;padding:11px 14px;background:#f3f0ff;border:2px solid #ddd6fe;border-radius:12px;font-size:13px;font-weight:700;color:#7c3aed;cursor:pointer;box-sizing:border-box;width:100%;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events:none;flex-shrink:0;"><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/></svg>
+                                Upload Thumbnail Image
+                                <input id="vce-thumb-input" type="file" accept="image/*" style="display:none;">
+                            </label>
+                        </div>
+                        <div style="margin-bottom:16px;">
+                            <div style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.07em;font-family:Outfit,sans-serif;margin-bottom:6px;">Label</div>
+                            <input id="vce-label" type="text" value="${escHtml(cl.label || '')}" maxlength="40" class="modal-input" style="width:100%;border:2px solid #e2e8f0;border-radius:12px;padding:11px 14px;font-size:13px;font-family:Outfit,sans-serif;color:#1e293b;font-weight:500;outline:none;box-sizing:border-box;" onfocus="this.style.borderColor='#7c3aed'" onblur="this.style.borderColor='#e2e8f0'">
+                        </div>
+                        <div style="margin-bottom:16px;">
+                            <div style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.07em;font-family:Outfit,sans-serif;margin-bottom:6px;">Video File</div>
+                            <label style="display:flex;align-items:center;gap:8px;padding:11px 14px;background:#f3f0ff;border:2px solid #ddd6fe;border-radius:12px;font-size:13px;font-weight:700;color:#7c3aed;cursor:pointer;box-sizing:border-box;width:100%;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events:none;flex-shrink:0;"><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/></svg>
+                                Replace Video File
+                                <input id="vce-video-input" type="file" accept="video/*,.mp4,.webm,.mov,.m4v,.3gp,.3g2,.ogv,.avi" style="display:none;">
+                            </label>
+                        </div>
+                    </div>
+                    <div style="padding:12px 20px 20px;flex-shrink:0;border-top:1px solid #f1f5f9;display:flex;gap:8px;">
+                        <button id="vce-delete" style="flex:1;background:#fef2f2;color:#ef4444;font-family:Outfit,sans-serif;font-weight:700;padding:11px 0;border-radius:12px;border:1.5px solid #fecaca;cursor:pointer;font-size:13px;">Delete</button>
+                        <button id="vce-back" style="flex:1;background:#f1f5f9;color:#475569;font-family:Outfit,sans-serif;font-weight:700;padding:11px 0;border-radius:12px;border:none;cursor:pointer;font-size:13px;">Back</button>
+                        <button id="vce-save" style="flex:1;background:linear-gradient(135deg,#7c3aed,#a855f7);color:white;font-family:Outfit,sans-serif;font-weight:700;padding:11px 0;border-radius:12px;border:none;cursor:pointer;font-size:13px;">Save</button>
+                    </div>
+                </div>
+            `);
+
+            let _thumbBusy = false;
+            document.getElementById('vce-thumb-input').addEventListener('change', function() {
+                if (_thumbBusy) return;
+                const file = this.files[0];
+                if (!file) return;
+                _thumbBusy = true;
+                const reader = new FileReader();
+                reader.onload = ev => {
+                    cl.thumbDataUrl = ev.target.result;
+                    _saveVideoData(); renderMap();
+                    openVideoClipEditor(nodeId, clipId);
+                    // _thumbBusy stays true — modal element is replaced by openVideoClipEditor
+                };
+                reader.onerror = () => { _thumbBusy = false; };
+                reader.readAsDataURL(file);
+                // Do NOT clear this.value here — it can re-trigger 'change' on some browsers,
+                // and the modal is replaced by openVideoClipEditor anyway.
+            });
+
+            document.getElementById('vce-video-input').addEventListener('change', function() {
+                const file = Array.from(this.files).find(f => f.type.startsWith('video/') || /\.(mp4|webm|mov|m4v|3gp|3g2|ogv|avi|mkv)$/i.test(f.name));
+                if (!file) { this.value = ''; return; }
+                const reader = new FileReader();
+                reader.onload = ev => {
+                    _videoDB.put(clipId, ev.target.result);
+                    _generateVideoThumb(ev.target.result, thumb => {
+                        if (thumb && !cl.thumbDataUrl) cl.thumbDataUrl = thumb;
+                        _saveVideoData(); renderMap();
+                        openVideoManager(nodeId);
+                    });
+                };
+                reader.onerror = () => openVideoManager(nodeId);
+                reader.readAsDataURL(file);
+                this.value = '';
+            });
+
+            document.getElementById('vce-delete').addEventListener('pointerdown', e => {
+                e.stopPropagation();
+                _videoDB.del(clipId);
+                nd.clips = nd.clips.filter(c => c.id !== clipId);
+                if (_videoPlayingClipId === clipId) _stopVideo();
+                _saveVideoData(); renderMap();
+                openVideoManager(nodeId);
+            });
+
+            document.getElementById('vce-back').addEventListener('pointerdown', e => {
+                e.stopPropagation();
+                openVideoManager(nodeId);
+            });
+
+            document.getElementById('vce-save').addEventListener('pointerdown', e => {
+                e.stopPropagation();
+                const lbl = document.getElementById('vce-label').value.trim();
+                if (lbl) cl.label = lbl;
+                _saveVideoData(); renderMap();
+                openVideoManager(nodeId);
+            });
+        }
+        // ── End Video Player ──────────────────────────────────────────────────────
+
         // --- 9. Client Side AAC App ---
         let clientNavStack = [];
         let clientCurrentNode = null;
@@ -4213,19 +4827,23 @@
 
         let _profiles = [];
         let _activeProfileId = null;
-        initProfiles(); // hoisted — defined below
+        // initProfiles() is async — called inside the boot IIFE at the bottom of the script.
+        // Any code that executes at module level and needs loaded profiles must be inside that IIFE.
 
-        // Migrate old single 'borderColorType' setting to separate borderColor + folderColorBorders
-        if (clientSettings.borderColorType !== undefined) {
-            if (clientSettings.borderColorType === 'node') {
-                clientSettings.borderColor = 'black';
-                clientSettings.folderColorBorders = true;
-            } else {
-                clientSettings.borderColor = clientSettings.borderColorType;
-                clientSettings.folderColorBorders = false;
+        // Settings migration (runs after initProfiles resolves)
+        function _runMigrations() {
+            if (clientSettings.borderColorType !== undefined) {
+                if (clientSettings.borderColorType === 'node') {
+                    clientSettings.borderColor = 'black';
+                    clientSettings.folderColorBorders = true;
+                } else {
+                    clientSettings.borderColor = clientSettings.borderColorType;
+                    clientSettings.folderColorBorders = false;
+                }
+                delete clientSettings.borderColorType;
+                const _migProf = _profiles.find(p => p.id === _activeProfileId);
+                if (_migProf) { _migProf.settings = JSON.parse(JSON.stringify(clientSettings)); saveProfiles(); }
             }
-            delete clientSettings.borderColorType;
-            localStorage.setItem('aacClientSettings', JSON.stringify(clientSettings));
         }
 
         let _clientHoldTimer = null;
@@ -4378,56 +4996,115 @@
         }
 
         // ── Profile Management ────────────────────────────────────────────────────
-        function initProfiles() {
+        async function initProfiles() {
             let needsSave = false;
-            try { const s = localStorage.getItem('aacProfiles'); if (s) _profiles = JSON.parse(s); } catch(e) {}
+            // Try IndexedDB first (primary store, no quota limit)
+            let idbState = null;
+            try { idbState = await _IDB.get('appState'); } catch(e) {}
+            if (idbState && Array.isArray(idbState.profiles) && idbState.profiles.length) {
+                _profiles      = idbState.profiles;
+                _activeProfileId = idbState.activeId || null;
+            } else {
+                // Fallback: legacy localStorage
+                try { const s = localStorage.getItem('aacProfiles'); if (s) _profiles = JSON.parse(s); } catch(e) {}
+                try { _activeProfileId = localStorage.getItem('aacActiveProfile'); } catch(e) {}
+            }
             if (!_profiles.length) {
-                // No existing profiles — create Default using the canonical defaults.
-                // We intentionally do NOT merge any legacy aacClientSettings value here
-                // so that the app always starts with the intended defaults on a clean install.
                 _profiles = [{ id: 'p' + Date.now(), name: 'Default', settings: { ..._DEFAULT_CLIENT_SETTINGS },
                     nodesData: JSON.parse(JSON.stringify(nodesData)), gridCols, gridRows }];
                 needsSave = true;
             }
-            try { _activeProfileId = localStorage.getItem('aacActiveProfile'); } catch(e) {}
-            if (!_profiles.find(p => p.id === _activeProfileId)) { 
+            if (!_profiles.find(p => p.id === _activeProfileId)) {
                 _activeProfileId = _profiles[0].id;
                 needsSave = true;
             }
             const active = _profiles.find(p => p.id === _activeProfileId);
             if (active) {
-                clientSettings = { ...clientSettings, ...active.settings };
-                // Restore board from profile if it has one (migration: legacy profiles without nodesData keep current board)
+                clientSettings = { ..._DEFAULT_CLIENT_SETTINGS, ...active.settings };
                 if (active.nodesData) {
                     nodesData = JSON.parse(JSON.stringify(active.nodesData));
-                    gridCols = active.gridCols || gridCols;
-                    gridRows = active.gridRows || gridRows;
+                    gridCols  = active.gridCols || gridCols;
+                    gridRows  = active.gridRows || gridRows;
                     updateNodeDimensions();
-                    try {
-                        localStorage.setItem('aacMapData', JSON.stringify(nodesData));
-                        localStorage.setItem('aacMapConfig', JSON.stringify({cols: gridCols, rows: gridRows}));
-                    } catch(e){}
                 } else {
                     active.nodesData = JSON.parse(JSON.stringify(nodesData));
-                    active.gridCols = gridCols;
-                    active.gridRows = gridRows;
+                    active.gridCols  = gridCols;
+                    active.gridRows  = gridRows;
                     needsSave = true;
                 }
             }
             if (needsSave) saveProfiles();
         }
 
-        function saveProfiles() {
-            try {
-                localStorage.setItem('aacProfiles', JSON.stringify(_profiles));
-                localStorage.setItem('aacActiveProfile', _activeProfileId);
-            } catch (err) {
-                console.warn('Could not save profiles to local storage (quota exceeded?).', err);
+        // ── IndexedDB helper (no quota limit — required for base64 images) ──────
+        const _IDB = (() => {
+            const DB_NAME = 'gridflow-aac', DB_VER = 1, STORE = 'kv';
+            let _db = null;
+            function open() {
+                if (_db) return Promise.resolve(_db);
+                return new Promise((res, rej) => {
+                    const req = indexedDB.open(DB_NAME, DB_VER);
+                    req.onupgradeneeded = e => e.target.result.createObjectStore(STORE);
+                    req.onsuccess = e => { _db = e.target.result; res(_db); };
+                    req.onerror   = e => rej(e.target.error);
+                });
             }
+            return {
+                get(key) {
+                    return open().then(db => new Promise((res, rej) => {
+                        const req = db.transaction(STORE).objectStore(STORE).get(key);
+                        req.onsuccess = e => res(e.target.result ?? null);
+                        req.onerror   = e => rej(e.target.error);
+                    }));
+                },
+                set(key, val) {
+                    return open().then(db => new Promise((res, rej) => {
+                        const req = db.transaction(STORE, 'readwrite').objectStore(STORE).put(val, key);
+                        req.onsuccess = () => res();
+                        req.onerror   = e => rej(e.target.error);
+                    }));
+                }
+            };
+        })();
+
+        let _saveStatusTid = null;
+        function _showSaveStatus(ok) {
+            const badge = document.getElementById('save-status-badge');
+            if (!badge) return;
+            clearTimeout(_saveStatusTid);
+            badge.textContent = ok ? '✓ Saved' : '⚠ Save failed';
+            badge.style.background = ok ? '#22c55e' : '#ef4444';
+            badge.style.color = '#fff';
+            badge.style.opacity = '1';
+            _saveStatusTid = setTimeout(() => { badge.style.opacity = '0'; }, ok ? 2200 : 6000);
+        }
+
+        function saveProfiles() {
+            const payload = { profiles: _profiles, activeId: _activeProfileId };
+            // Primary: IndexedDB (no size limit — works with large base64 images)
+            _IDB.set('appState', payload)
+                .then(() => {
+                    _showSaveStatus(true);
+                    // Keep a lightweight LS marker so fast-boot knows IDB is the source of truth
+                    try { localStorage.setItem('aacActiveProfile', _activeProfileId); } catch(_) {}
+                })
+                .catch(idbErr => {
+                    console.warn('IDB save failed, trying localStorage:', idbErr);
+                    // Fallback: localStorage (may fail if board has large images)
+                    try {
+                        localStorage.setItem('aacProfiles', JSON.stringify(_profiles));
+                        localStorage.setItem('aacActiveProfile', _activeProfileId);
+                        _showSaveStatus(true);
+                    } catch(lsErr) {
+                        console.warn('localStorage save also failed (quota exceeded):', lsErr);
+                        _showSaveStatus(false);
+                    }
+                });
         }
 
         // ── Board Export / Import ──────────────────────────────────────────────
         function exportBoard() {
+            _flushSave(); // ensure profile is up-to-date with any pending edits
             const active = _profiles.find(p => p.id === _activeProfileId);
             if (!active) return;
             const payload = {
@@ -4435,10 +5112,10 @@
                 type: 'gridflow-aac-board',
                 name: active.name,
                 exportedAt: new Date().toISOString(),
-                settings: JSON.parse(JSON.stringify(active.settings)),
-                nodesData: JSON.parse(JSON.stringify(active.nodesData)),
-                gridCols: active.gridCols,
-                gridRows: active.gridRows
+                settings: JSON.parse(JSON.stringify(clientSettings)),
+                nodesData: JSON.parse(JSON.stringify(nodesData)),
+                gridCols: gridCols,
+                gridRows: gridRows
             };
             const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
@@ -4494,39 +5171,49 @@
         }
         // ── End Board Export / Import ──────────────────────────────────────────
 
-        // Debounced persistence — batches rapid renderMap() calls into one write
+        // ── Centralised Save ──────────────────────────────────────────────────
+        // ONE place that persists the board + grid config + active profile.
+        // Every code-path that mutates nodesData/gridCols/gridRows should
+        // call either  _saveNow()  (immediate) or  _debouncedSave()  (batched).
+        // Never write 'aacMapData' or 'aacMapConfig' directly elsewhere.
+        function _saveNow() {
+            const ap = _profiles && _profiles.find(p => p.id === _activeProfileId);
+            if (ap) {
+                ap.nodesData = JSON.parse(JSON.stringify(nodesData));
+                ap.gridCols = gridCols;
+                ap.gridRows = gridRows;
+                ap.settings = JSON.parse(JSON.stringify(clientSettings));
+            }
+            saveProfiles();
+        }
         let _saveTid = null;
         function _debouncedSave() {
             clearTimeout(_saveTid);
-            _saveTid = setTimeout(() => {
-                try {
-                    localStorage.setItem('aacMapData', JSON.stringify(nodesData));
-                    const _ap = _profiles && _profiles.find(p => p.id === _activeProfileId);
-                    if (_ap) { _ap.nodesData = JSON.parse(JSON.stringify(nodesData)); _ap.gridCols = gridCols; _ap.gridRows = gridRows; saveProfiles(); }
-                } catch (err) {
-                    console.warn('Storage quota exceeded or save error:', err);
-                }
-            }, 400);
+            _saveTid = setTimeout(() => { _saveTid = null; _saveNow(); }, 400);
         }
+        function _flushSave() {
+            if (_saveTid) { clearTimeout(_saveTid); _saveTid = null; _saveNow(); }
+        }
+        // Flush on tab close/hide (beforeunload unreliable on mobile; visibilitychange is robust)
+        window.addEventListener('beforeunload', _flushSave);
+        document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') _flushSave(); });
 
         function switchProfile(id) {
             const prof = _profiles.find(p => p.id === id);
             if (!prof) return;
+            // Flush any pending debounced save before switching away
+            _flushSave();
             // Save current board into the outgoing profile before switching
             const outgoing = _profiles.find(p => p.id === _activeProfileId);
-            if (outgoing) { outgoing.nodesData = JSON.parse(JSON.stringify(nodesData)); outgoing.gridCols = gridCols; outgoing.gridRows = gridRows; }
+            if (outgoing) { outgoing.nodesData = JSON.parse(JSON.stringify(nodesData)); outgoing.gridCols = gridCols; outgoing.gridRows = gridRows; outgoing.settings = JSON.parse(JSON.stringify(clientSettings)); }
             _activeProfileId = id;
-            clientSettings = { ...clientSettings, ...prof.settings };
+            clientSettings = { ..._DEFAULT_CLIENT_SETTINGS, ...prof.settings };
             // Restore board from the new profile
             if (prof.nodesData) {
                 nodesData = JSON.parse(JSON.stringify(prof.nodesData));
                 gridCols = prof.gridCols || 4;
                 gridRows = prof.gridRows || 3;
                 updateNodeDimensions();
-                try {
-                    localStorage.setItem('aacMapData', JSON.stringify(nodesData));
-                    localStorage.setItem('aacMapConfig', JSON.stringify({cols: gridCols, rows: gridRows}));
-                } catch(e){}
                 document.getElementById('grid-size-select').value = `${gridCols}x${gridRows}`;
             } else {
                 // Profile has no saved board — seed it from the current board so the
@@ -4535,7 +5222,7 @@
                 prof.gridCols = gridCols;
                 prof.gridRows = gridRows;
             }
-            saveProfiles();
+            _saveNow();
             updateProfileLabel();
             // Always land client on the home node of the newly-active profile
             clientNavStack = [];
@@ -4551,11 +5238,12 @@
 
         function createProfile() {
             if (_profiles.length >= 15) return;
+            _flushSave();
             const id = 'p' + Date.now();
             const defaultSettings = { ..._DEFAULT_CLIENT_SETTINGS };
             // Save current board into outgoing profile before switching
             const outgoing = _profiles.find(p => p.id === _activeProfileId);
-            if (outgoing) { outgoing.nodesData = JSON.parse(JSON.stringify(nodesData)); outgoing.gridCols = gridCols; outgoing.gridRows = gridRows; }
+            if (outgoing) { outgoing.nodesData = JSON.parse(JSON.stringify(nodesData)); outgoing.gridCols = gridCols; outgoing.gridRows = gridRows; outgoing.settings = JSON.parse(JSON.stringify(clientSettings)); }
             // New profile starts with a blank board (single empty home node)
             const newGridCols = 4, newGridRows = 3;
             const emptyBoard = { 'home': { id: 'home', title: 'Home Page', color: '#047857', x: 0, y: 0,
@@ -4567,10 +5255,8 @@
             nodesData = JSON.parse(JSON.stringify(emptyBoard));
             gridCols = newGridCols; gridRows = newGridRows;
             updateNodeDimensions();
-            localStorage.setItem('aacMapData', JSON.stringify(nodesData));
-            localStorage.setItem('aacMapConfig', JSON.stringify({cols: gridCols, rows: gridRows}));
             document.getElementById('grid-size-select').value = `${gridCols}x${gridRows}`;
-            saveProfiles();
+            _saveNow();
             updateProfileLabel();
             applyClientTheme();
             // Always land client on the home node of the new profile
@@ -4586,11 +5272,12 @@
 
         function deleteProfile(id) {
             if (_profiles.length <= 1) return;
+            _flushSave();
             _profiles = _profiles.filter(p => p.id !== id);
             if (_activeProfileId === id) {
                 _activeProfileId = _profiles[0].id;
                 const newActive = _profiles[0];
-                clientSettings = { ...clientSettings, ...newActive.settings };
+                clientSettings = { ..._DEFAULT_CLIENT_SETTINGS, ...newActive.settings };
                 // Restore the board from the newly-active profile so stale data
                 // from the deleted profile cannot overwrite it via renderMap auto-save
                 if (newActive.nodesData) {
@@ -4598,8 +5285,6 @@
                     gridCols = newActive.gridCols || 4;
                     gridRows = newActive.gridRows || 3;
                     updateNodeDimensions();
-                    localStorage.setItem('aacMapData', JSON.stringify(nodesData));
-                    localStorage.setItem('aacMapConfig', JSON.stringify({cols: gridCols, rows: gridRows}));
                     document.getElementById('grid-size-select').value = `${gridCols}x${gridRows}`;
                 }
                 // Always land client on the home node of the newly-active profile
@@ -4612,7 +5297,7 @@
                 fitAllNodes();
                 setTimeout(updateAllWires, 100);
             }
-            saveProfiles();
+            _saveNow();
             updateProfileLabel();
             openProfileManager();
         }
@@ -4702,9 +5387,7 @@
 
         function saveClientSettings() {
             const activeProf = _profiles.find(p => p.id === _activeProfileId);
-            if (activeProf) activeProf.settings = JSON.parse(JSON.stringify(clientSettings));
-            saveProfiles();
-            localStorage.setItem('aacClientSettings', JSON.stringify(clientSettings));
+            if (activeProf) { activeProf.settings = JSON.parse(JSON.stringify(clientSettings)); saveProfiles(); }
             if (clientCurrentNode) renderClientNode(clientCurrentNode);
             applyClientTheme();
         }
@@ -5052,7 +5735,10 @@
         function exitClientApp() {
             document.getElementById('aac-client-app').classList.add('hidden');
             document.getElementById('aac-client-app').classList.remove('flex');
-            window.speechSynthesis.cancel();
+            if (window.speechSynthesis) window.speechSynthesis.cancel();
+            if (_speechKeepAlive) { clearInterval(_speechKeepAlive); _speechKeepAlive = null; }
+            _stopMusic();
+            _stopVideo();
             // Restore OS chrome to editor white
             const themeColorMeta = document.getElementById('meta-theme-color');
             if (themeColorMeta) themeColorMeta.setAttribute('content', '#ffffff');
@@ -5079,16 +5765,19 @@
             const node = nodesData[nodeId];
             if (!node) return;
             clientCurrentNode = nodeId;
+            // Stop any playing video when navigating away
+            _stopVideo();
 
             const wrapper = document.getElementById('client-grid-wrapper');
             if (!wrapper) return;
             wrapper.innerHTML = '';
+            wrapper.style.position = '';
 
             // ── Whiteboard node in client view ──
             if (node.type === 'whiteboard') {
                 wrapper.style.position = 'relative';
                 const clientWB = document.createElement('div');
-                clientWB.style.cssText = 'width:100%;height:100%;display:flex;flex-direction:column;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.10);';
+                clientWB.style.cssText = 'width:100%;flex:1;min-height:0;display:flex;flex-direction:column;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.10);';
 
                 const CWB_COLORS = ['#1e293b','#ef4444','#3b82f6','#10b981','#f59e0b','#8b5cf6','#ec4899','#ffffff'];
                 clientWB.innerHTML = `
@@ -5122,7 +5811,7 @@
                 let cwbDrawing = false;
                 let _cwbRainbowHue = 0;
 
-                const save = () => { node.drawingData = canvas.toDataURL('image/png'); try { localStorage.setItem('aacMapData', JSON.stringify(nodesData)); } catch(err){} };
+                const save = () => { node.drawingData = canvas.toDataURL('image/png'); _debouncedSave(); };
                 const getP = (e) => { const r = canvas.getBoundingClientRect(); return { x: (e.clientX - r.left) * (canvas.width / r.width), y: (e.clientY - r.top) * (canvas.height / r.height) }; };
 
                 const toolbar = document.getElementById(`cwbt-${nodeId}`);
@@ -5180,7 +5869,7 @@
                 wrapper.style.position = 'relative';
                 const steps = (node.steps || []).filter(s => s.dataUrl);
                 const container = document.createElement('div');
-                container.style.cssText = 'width:100%;height:100%;background:#0f172a;border-radius:16px;overflow:hidden;position:relative;display:flex;flex-direction:column;';
+                container.style.cssText = 'width:100%;flex:1;min-height:0;background:#0f172a;border-radius:16px;overflow:hidden;position:relative;display:flex;flex-direction:column;';
 
                 if (steps.length === 0) {
                     container.innerHTML = `
@@ -5194,14 +5883,16 @@
                 }
 
                 // ── Chime synthesizer ────────────────────────────────────────────
+                let _chimeCtx = null;
                 function playChime() {
                     try {
-                        const actx = new (window.AudioContext || window.webkitAudioContext)();
+                        if (!_chimeCtx) _chimeCtx = new (window.AudioContext || window.webkitAudioContext)();
+                        if (_chimeCtx.state === 'suspended') _chimeCtx.resume();
                         [523.25, 659.25, 783.99].forEach((freq, i) => {
-                            const osc = actx.createOscillator(), gain = actx.createGain();
-                            osc.connect(gain); gain.connect(actx.destination);
+                            const osc = _chimeCtx.createOscillator(), gain = _chimeCtx.createGain();
+                            osc.connect(gain); gain.connect(_chimeCtx.destination);
                             osc.type = 'sine'; osc.frequency.value = freq;
-                            const t = actx.currentTime + i * 0.10;
+                            const t = _chimeCtx.currentTime + i * 0.10;
                             gain.gain.setValueAtTime(0, t);
                             gain.gain.linearRampToValueAtTime(0.28, t + 0.02);
                             gain.gain.exponentialRampToValueAtTime(0.001, t + 0.55);
@@ -5210,6 +5901,7 @@
                     } catch(e) {}
                 }
 
+                const tapMode = node.tapMode || 'one-way';
                 const doneSet = new Set();
                 const N = steps.length;
 
@@ -5222,8 +5914,8 @@
                 progressLabel.textContent = `0 / ${N}`;
 
                 const resetBtn = document.createElement('button');
-                resetBtn.style.cssText = 'display:flex;align-items:center;gap:5px;padding:4px 10px;background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.16);border-radius:20px;color:rgba(255,255,255,0.50);font-size:11px;font-weight:600;font-family:Outfit,sans-serif;cursor:pointer;-webkit-tap-highlight-color:transparent;';
-                resetBtn.innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg> Reset`;
+                resetBtn.style.cssText = 'display:flex;align-items:center;gap:8px;padding:12px 24px;background:#e53935;border:none;border-radius:24px;color:#fff;font-size:20px;font-weight:700;font-family:Outfit,sans-serif;cursor:pointer;-webkit-tap-highlight-color:transparent;box-shadow:0 4px 14px rgba(229,57,53,0.50);';
+                resetBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg> Reset`;
                 headerBar.appendChild(progressLabel);
                 headerBar.appendChild(resetBtn);
 
@@ -5304,6 +5996,35 @@
                     progressLabel.style.color  = count === N ? '#4ade80' : 'rgba(255,255,255,0.40)';
                 }
 
+                // ── uncompleteStep — flying clone from placeholder (top) → tile (bottom) ──
+                function uncompleteStep(tileIdx) {
+                    if (!doneSet.has(tileIdx)) return;
+                    const tile = stepTiles[tileIdx];
+                    const ph   = placeholders[tileIdx];
+                    const tRect = tile.getBoundingClientRect();
+                    const pRect = ph.getBoundingClientRect();
+                    const clone = document.createElement('div');
+                    clone.style.cssText = `position:fixed;left:${pRect.left}px;top:${pRect.top}px;width:${pRect.width}px;height:${pRect.height}px;border-radius:14px;overflow:hidden;z-index:9999;pointer-events:none;will-change:transform,opacity;transition:transform 0.36s cubic-bezier(0.22,1,0.36,1),opacity 0.30s ease;`;
+                    const mini = document.createElement('img');
+                    mini.src = steps[tileIdx].dataUrl;
+                    mini.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;';
+                    clone.appendChild(mini);
+                    document.body.appendChild(clone);
+                    doneSet.delete(tileIdx);
+                    refreshView(); // hides placeholder content, keeps tile visibility:hidden
+                    tile.style.visibility = 'hidden'; // keep hidden during animation
+                    const dx = tRect.left - pRect.left;
+                    const dy = tRect.top  - pRect.top;
+                    requestAnimationFrame(() => { requestAnimationFrame(() => {
+                        clone.style.transform = `translate(${dx}px,${dy}px) scale(1)`;
+                        clone.style.opacity   = '1';
+                    }); });
+                    setTimeout(() => {
+                        clone.remove();
+                        tile.style.visibility = 'visible';
+                    }, 370);
+                }
+
                 // ── completeStep — flying clone from tile (bottom) → placeholder (top) ──
                 function completeStep(tileIdx) {
                     if (doneSet.has(tileIdx)) return;
@@ -5360,6 +6081,17 @@
                     tile.addEventListener('pointercancel', () => { tsY = null; });
                 });
 
+                // ── Tap completed placeholder to send step back down (toggle mode) ──
+                if (tapMode === 'toggle') {
+                    placeholders.forEach((ph, i) => {
+                        ph.style.cursor = 'pointer';
+                        let phDown = false;
+                        ph.addEventListener('pointerdown', (e) => { if (doneSet.has(i)) { e.stopPropagation(); phDown = true; } });
+                        ph.addEventListener('pointerup',   (e) => { if (phDown) { phDown = false; uncompleteStep(i); } });
+                        ph.addEventListener('pointercancel', () => { phDown = false; });
+                    });
+                }
+
                 // ── Reset ────────────────────────────────────────────────────────
                 resetBtn.addEventListener('pointerdown', (e) => {
                     e.stopPropagation();
@@ -5381,7 +6113,7 @@
                 const photos = node.photos || [];
                 const navMode = node.nav || 'buttons'; // per-node setting: 'buttons' | 'swipe' | 'tap' | 'all'
                 const container = document.createElement('div');
-                container.style.cssText = 'width:100%;height:100%;background:#0f172a;border-radius:16px;overflow:hidden;position:relative;outline:none;';
+                container.style.cssText = 'width:100%;flex:1;min-height:0;background:#0f172a;border-radius:16px;overflow:hidden;position:relative;outline:none;';
 
                 if (photos.length === 0) {
                     container.innerHTML = `
@@ -5519,7 +6251,7 @@
                 const MUSIC_COLORS = ['#1d4ed8','#0369a1','#0e7490','#0f766e','#7c3aed','#be185d','#b45309','#15803d'];
 
                 const container = document.createElement('div');
-                container.style.cssText = `width:100%;height:100%;display:grid;grid-template-columns:repeat(${gridCols},minmax(0,1fr));grid-template-rows:repeat(${effectiveRows},minmax(0,1fr));gap:${gapPx};background:transparent;border-radius:16px;overflow:hidden;position:relative;`;
+                container.style.cssText = `width:100%;flex:1;min-height:0;display:grid;grid-template-columns:repeat(${gridCols},minmax(0,1fr));grid-template-rows:repeat(${effectiveRows},minmax(0,1fr));gap:${gapPx};background:transparent;border-radius:16px;overflow:hidden;position:relative;`;
 
                 if (!tracks.length) {
                     const empty = document.createElement('div');
@@ -5655,13 +6387,94 @@
             }
             // ── End Music Player ─────────────────────────────────────────────────
 
+            // ── Video Player in client view ──────────────────────────────────────
+            if (node.type === 'video') {
+                const clips = node.clips || [];
+                const clipSlots = gridCols * gridRows;
+                const gapPx     = clientSettings.gap + 'px';
+
+                const VIDEO_COLORS = ['#7c3aed','#6d28d9','#5b21b6','#4c1d95','#8b5cf6','#a855f7','#9333ea','#7e22ce'];
+
+                const container = document.createElement('div');
+                container.style.cssText = `width:100%;flex:1;min-height:0;display:grid;grid-template-columns:repeat(${gridCols},minmax(0,1fr));grid-template-rows:repeat(${gridRows},minmax(0,1fr));gap:${gapPx};background:transparent;border-radius:16px;overflow:hidden;position:relative;`;
+
+                if (!clips.length) {
+                    const empty = document.createElement('div');
+                    empty.style.cssText = `grid-column:1 / span ${gridCols};grid-row:1 / span ${gridRows};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:#0f172a;border-radius:12px;`;
+                    empty.innerHTML = `
+                        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+                        <span style="font-size:16px;font-weight:600;font-family:Outfit,sans-serif;color:#64748b;">No videos loaded yet</span>
+                        <span style="font-size:12px;font-family:Outfit,sans-serif;color:#94a3b8;">Ask your helper to add videos in the editor</span>`;
+                    container.appendChild(empty);
+                    wrapper.appendChild(container);
+                    return;
+                }
+
+                // Video clip buttons
+                for (let slot = 0; slot < clipSlots; slot++) {
+                    const clip = clips[slot];
+                    if (!clip) {
+                        const ph = document.createElement('div');
+                        ph.style.cssText = 'background:#1e293b;border-radius:12px;';
+                        container.appendChild(ph);
+                        continue;
+                    }
+                    const color = VIDEO_COLORS[slot % VIDEO_COLORS.length];
+                    const btn = document.createElement('button');
+                    btn.className = 'video-clip-btn';
+                    btn.dataset.clipId = clip.id;
+                    const isActive = clip.id === _videoPlayingClipId;
+                    if (isActive) btn.classList.add('video-clip-active');
+
+                    if (clip.thumbDataUrl) {
+                        btn.style.cssText = `position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0;background:${color};border:none;border-radius:12px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform 0.14s,box-shadow 0.14s;overflow:hidden;width:100%;height:100%;`;
+                        const imgEl = document.createElement('img');
+                        imgEl.src = clip.thumbDataUrl;
+                        imgEl.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:12px;';
+                        // Play icon overlay
+                        const playIcon = document.createElement('div');
+                        playIcon.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.22);';
+                        playIcon.innerHTML = '<svg width="28" height="28" viewBox="0 0 24 24" fill="white" stroke="none" opacity="0.85"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+                        const grad = document.createElement('div');
+                        grad.style.cssText = 'position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.65));padding:4px 5px 7px;border-radius:0 0 12px 12px;';
+                        const lbl = document.createElement('span');
+                        lbl.style.cssText = 'font-family:Outfit,sans-serif;font-size:12px;font-weight:700;color:white;text-align:center;line-height:1.2;word-break:break-word;display:block;';
+                        lbl.textContent = clip.label || `Video ${slot + 1}`;
+                        grad.appendChild(lbl);
+                        btn.appendChild(imgEl); btn.appendChild(playIcon); btn.appendChild(grad);
+                    } else {
+                        btn.style.cssText = `position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:8px 6px;background:${color};border:none;border-radius:12px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform 0.14s,box-shadow 0.14s;overflow:hidden;width:100%;height:100%;`;
+                        const icon = document.createElement('div');
+                        icon.innerHTML = '<svg width="28" height="28" viewBox="0 0 24 24" fill="white" stroke="none" opacity="0.9"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+                        const lbl = document.createElement('span');
+                        lbl.style.cssText = 'font-family:Outfit,sans-serif;font-size:13px;font-weight:700;color:white;text-align:center;line-height:1.25;word-break:break-word;max-width:100%;';
+                        lbl.textContent = clip.label || `Video ${slot + 1}`;
+                        btn.appendChild(icon); btn.appendChild(lbl);
+                    }
+                    container.appendChild(btn);
+
+                    btn.addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); });
+                    btn.addEventListener('pointerup', e => {
+                        e.preventDefault();
+                        btn.style.transform = 'scale(0.95)';
+                        setTimeout(() => { btn.style.transform = ''; }, 120);
+                        _playVideoClip(nodeId, clip.id);
+                    });
+                }
+
+                wrapper.appendChild(container);
+                return;
+            }
+            // ── End Video Player ─────────────────────────────────────────────────
+
             const grid = document.createElement('div');
             grid.style.display = 'grid';
             grid.style.gridTemplateColumns = `repeat(${gridCols}, minmax(0, 1fr))`;
             grid.style.gridTemplateRows = `repeat(${gridRows}, minmax(0, 1fr))`;
             grid.style.gap = clientSettings.gap + 'px';
             grid.style.width = '100%';
-            grid.style.height = '100%';
+            grid.style.flex = '1';
+            grid.style.minHeight = '0';
             
             for(let i=0; i < gridCols * gridRows; i++) {
                 const cell = node.cells[i];
@@ -5917,15 +6730,25 @@
             }
         }
 
+        let _speechKeepAlive = null;
         function speakWord(text) {
             if(!text || !window.speechSynthesis) return;
             // Stop current speech before speaking new to prevent long queues
             window.speechSynthesis.cancel();
+            if (_speechKeepAlive) { clearInterval(_speechKeepAlive); _speechKeepAlive = null; }
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.rate = 0.95;
             utterance.pitch = 1.0;
             const voice = _getVoiceForGender(clientSettings.voiceGender || 'female');
             if (voice) utterance.voice = voice;
+            // iOS Safari stalls speechSynthesis after ~15s — keep it alive with pause/resume
+            _speechKeepAlive = setInterval(() => {
+                if (!window.speechSynthesis.speaking) { clearInterval(_speechKeepAlive); _speechKeepAlive = null; return; }
+                window.speechSynthesis.pause();
+                window.speechSynthesis.resume();
+            }, 10000);
+            utterance.onend = () => { if (_speechKeepAlive) { clearInterval(_speechKeepAlive); _speechKeepAlive = null; } };
+            utterance.onerror = () => { if (_speechKeepAlive) { clearInterval(_speechKeepAlive); _speechKeepAlive = null; } };
             window.speechSynthesis.speak(utterance);
             // Also announce to screen-reader live region
             announce(text);
@@ -5998,7 +6821,13 @@
             speakWord(sentence);
         }
 
-        init();
+        // ── Async boot ───────────────────────────────────────────────────────────────────────────
+        // Awaits IndexedDB load before first render so no stale data is ever shown.
+        (async () => {
+            await initProfiles();
+            _runMigrations();
+            init();
+        })();
     </script>
     <!-- Symbol Picker Modal -->
     <div id="symbol-picker-overlay" style="display:none;" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[10005] flex items-end sm:items-center justify-center" onclick="if(event.target===this)closeSymbolPickerModal()">
@@ -6261,24 +7090,20 @@
                 <button
                     class="client-bar-btn client-hold-btn p-1 rounded-lg transition flex items-center justify-center"
                     title="Exit to Editor (hold 3s)"
-                    onmousedown="startClientHold(this,'exit')"
-                    onmouseup="cancelClientHold()"
-                    onmouseleave="cancelClientHold()"
-                    ontouchstart="startClientHold(this,'exit');event.preventDefault();"
-                    ontouchend="cancelClientHold()"
-                    ontouchcancel="cancelClientHold()"
+                    onpointerdown="event.preventDefault(); startClientHold(this,'exit')"
+                    onpointerup="cancelClientHold()"
+                    onpointerleave="cancelClientHold()"
+                    onpointercancel="cancelClientHold()"
                     oncontextmenu="return false">
                     <i data-lucide="x" class="w-4 h-4 pointer-events-none"></i>
                 </button>
                 <button
                     class="client-bar-btn client-hold-btn p-1 rounded-lg transition flex items-center justify-center"
                     title="Visual Settings (hold 3s)"
-                    onmousedown="startClientHold(this,'settings')"
-                    onmouseup="cancelClientHold()"
-                    onmouseleave="cancelClientHold()"
-                    ontouchstart="startClientHold(this,'settings');event.preventDefault();"
-                    ontouchend="cancelClientHold()"
-                    ontouchcancel="cancelClientHold()"
+                    onpointerdown="event.preventDefault(); startClientHold(this,'settings')"
+                    onpointerup="cancelClientHold()"
+                    onpointerleave="cancelClientHold()"
+                    onpointercancel="cancelClientHold()"
                     oncontextmenu="return false">
                     <i data-lucide="palette" class="w-4 h-4 pointer-events-none"></i>
                 </button>
@@ -6286,8 +7111,8 @@
         </div>
 
         <!-- Client Grid Area -->
-        <div id="client-grid-area" class="flex-1 overflow-hidden p-2 sm:p-4 bg-transparent w-full max-w-7xl mx-auto flex items-center justify-center">
-            <div id="client-grid-wrapper" class="w-full h-full">
+        <div id="client-grid-area" class="flex-1 overflow-hidden bg-transparent w-full flex items-stretch" style="box-sizing:border-box;">
+            <div id="client-grid-wrapper" class="w-full" style="display:flex;flex-direction:column;">
                 <!-- grid container injected here with dynamically calculated columns/rows -->
             </div>
         </div>

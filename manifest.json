@@ -6,7 +6,7 @@
   "scope": "./",
   "display": "fullscreen",
   "orientation": "any",
-  "background_color": "#1d4ed8",
+  "background_color": "#060d1b",
   "theme_color": "#ffffff",
   "lang": "en",
   "categories": ["education", "medical"],

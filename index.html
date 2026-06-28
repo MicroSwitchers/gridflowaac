@@ -1120,7 +1120,7 @@
             <button onpointerdown="startClientApp()" class="tb-action play ml-1 sm:ml-2" title="Play App" aria-label="Preview app in play mode">
                 <i data-lucide="play" class="w-3.5 h-3.5 pointer-events-none fill-current" aria-hidden="true"></i> <span class="tb-action-label" aria-hidden="true">Play App</span>
             </button>
-            <button id="fullscreen-btn" onpointerdown="toggleFullscreen()" class="tb-btn ml-1" style="border:1px solid rgba(15,23,42,0.06);background:rgba(255,255,255,0.9);padding:6px 10px;border-radius:11px;" title="Toggle Fullscreen" aria-label="Toggle fullscreen">
+            <button id="fullscreen-btn" onclick="toggleFullscreen()" class="tb-btn ml-1" style="border:1px solid rgba(15,23,42,0.06);background:rgba(255,255,255,0.9);padding:6px 10px;border-radius:11px;" title="Toggle Fullscreen" aria-label="Toggle fullscreen">
                 <i data-lucide="expand" class="w-3.5 h-3.5 pointer-events-none" aria-hidden="true"></i>
             </button>
             <span id="save-status-badge" style="font-size:10px;font-weight:700;font-family:Outfit,sans-serif;padding:3px 9px;border-radius:20px;opacity:0;transition:opacity 0.4s;pointer-events:none;flex-shrink:0;"></span>
@@ -1926,6 +1926,7 @@
         // --- 3. Viewport & Setup ---
         function init() {
             lucide.createIcons(); document.getElementById('grid-size-select').value = `${gridCols}x${gridRows}`;
+            if (_isPWA()) { const _fsBtn = document.getElementById('fullscreen-btn'); if (_fsBtn) _fsBtn.style.display = 'none'; }
             applyClientTheme();
             updateProfileLabel();
             pushHistory();
@@ -3013,11 +3014,13 @@
         function _isFullscreen() {
             return !!(document.fullscreenElement || document.webkitFullscreenElement);
         }
+        function _isPWA() { return window.matchMedia('(display-mode: fullscreen)').matches || window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true; }
         function toggleFullscreen() {
+            if (_isPWA()) return;
             if (!_isFullscreen()) {
                 const el = document.documentElement;
                 if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
-                else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen(); // iOS Safari
+                else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
             } else {
                 if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
                 else if (document.webkitExitFullscreen) document.webkitExitFullscreen();

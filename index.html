@@ -1411,6 +1411,9 @@
             requestAnimationFrame(() => { el.textContent = msg; });
         }
 
+        // Block long-press context menu on touch devices (the app handles all interactions)
+        document.addEventListener('contextmenu', e => { e.preventDefault(); return false; });
+
         // --- 1. Global Config & Data State ---
         let gridCols = 4, gridRows = 3, NODE_WIDTH = 320;
         let bgDotColor = '#cbd5e1'; // adapts with applyClientTheme 
@@ -10448,7 +10451,7 @@
                     onpointerup="cancelClientHold()"
                     onpointerleave="cancelClientHold()"
                     onpointercancel="cancelClientHold()"
-                    oncontextmenu="return false">
+>
                     <i data-lucide="x" class="w-4 h-4 pointer-events-none"></i>
                 </button>
                 <button id="client-settings-btn"
@@ -10458,7 +10461,7 @@
                     onpointerup="cancelClientHold()"
                     onpointerleave="cancelClientHold()"
                     onpointercancel="cancelClientHold()"
-                    oncontextmenu="return false">
+>
                     <i data-lucide="palette" class="w-4 h-4 pointer-events-none"></i>
                 </button>
             </div>

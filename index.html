@@ -6708,22 +6708,26 @@
             else if (action === 'settings') openClientSettings();
         }
 
+        let _clientHoldPointerId = null;
         function startClientHold(btn, action) {
             const mode = clientSettings.lockoutMode || 'timer';
             if (mode === 'taps') { _handleLockoutTap(btn, action); return; }
-            // Timer (hold) mode
             cancelClientHold();
             _clientHoldBtn = btn;
+            // Capture the pointer so finger drift doesn't trigger pointerleave
+            const pid = event && event.pointerId;
+            if (pid != null) { try { btn.setPointerCapture(pid); _clientHoldPointerId = pid; } catch(_) {} }
             const delay = clientSettings.lockoutDelay || 3000;
-            // Drive the progress-bar fill to match the configured hold duration
-            const bar = btn;
-            bar.style.setProperty('--hold-dur', (delay / 1000) + 's');
+            btn.style.setProperty('--hold-dur', (delay / 1000) + 's');
             btn.classList.add('holding');
             _clientHoldTimer = setTimeout(() => { cancelClientHold(); _runLockoutAction(action); }, delay);
         }
         function cancelClientHold() {
             if (_clientHoldTimer) { clearTimeout(_clientHoldTimer); _clientHoldTimer = null; }
-            if (_clientHoldBtn) { _clientHoldBtn.classList.remove('holding'); _clientHoldBtn = null; }
+            if (_clientHoldBtn) {
+                if (_clientHoldPointerId != null) { try { _clientHoldBtn.releasePointerCapture(_clientHoldPointerId); } catch(_) {} _clientHoldPointerId = null; }
+                _clientHoldBtn.classList.remove('holding'); _clientHoldBtn = null;
+            }
         }
 
         // Tap-to-unlock: N quick taps on the same button within a short window.

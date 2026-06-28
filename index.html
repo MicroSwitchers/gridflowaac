@@ -323,10 +323,10 @@
             -webkit-tap-highlight-color: transparent;
         }
         .tb-btn .tb-btn-label { white-space: nowrap; }
-        .tb-btn:hover { background: rgba(255,255,255,0.95); color: #1e293b; box-shadow: 0 1px 4px rgba(15,23,42,0.08); }
-        .tb-btn:active { transform: scale(0.94); }
+        .tb-btn:hover { background: var(--tb-hover-bg, rgba(255,255,255,0.95)); color: var(--tb-hover-text, #1e293b) !important; box-shadow: 0 1px 4px rgba(15,23,42,0.08); }
+        .tb-btn:active { transform: scale(0.94); background: var(--tb-hover-bg, rgba(255,255,255,0.95)); color: var(--tb-hover-text, #1e293b) !important; }
         .tb-btn:disabled { opacity: 0.32; cursor: not-allowed; pointer-events: none; }
-        .tb-btn.danger:hover { background: #fff1f2; color: #e11d48; }
+        .tb-btn.danger:hover { background: #fff1f2; color: #e11d48 !important; }
         @media (max-width: 1180px) { .tb-btn .tb-btn-label { display: none; } }
 
         /* Solid accent action buttons (New Page, Play) */
@@ -1156,7 +1156,7 @@
         </div>
         <div class="flex-1 overflow-y-auto p-3 flex flex-col gap-3">
             <!-- Symbol Grid -->
-            <div class="palette-board-card" onpointerdown="spawnRootNode();">
+            <div class="palette-board-card" onclick="spawnRootNode();">
                 <div class="pbc-icon" style="background:linear-gradient(135deg,#3b82f6,#6366f1);">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
                 </div>
@@ -1164,7 +1164,7 @@
                 <span style="font-weight:400;color:#94a3b8;font-size:0.65rem;">Standard AAC board</span>
             </div>
             <!-- Whiteboard -->
-            <div class="palette-board-card" onpointerdown="pushHistory(); spawnWhiteboardNode();">
+            <div class="palette-board-card" onclick="pushHistory(); spawnWhiteboardNode();">
                 <div class="pbc-icon" style="background:linear-gradient(135deg,#f59e0b,#ef4444);">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
                 </div>
@@ -1172,7 +1172,7 @@
                 <span style="font-weight:400;color:#94a3b8;font-size:0.65rem;">Freehand drawing board</span>
             </div>
             <!-- Hotspot Scene -->
-            <div class="palette-board-card" onpointerdown="pushHistory(); spawnSceneNode();">
+            <div class="palette-board-card" onclick="pushHistory(); spawnSceneNode();">
                 <div class="pbc-icon" style="background:linear-gradient(135deg,#0891b2,#7c3aed);">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="10" r="2.4"/><path d="M14 8h4M14 12h2"/></svg>
                 </div>
@@ -1180,7 +1180,7 @@
                 <span style="font-weight:400;color:#94a3b8;font-size:0.65rem;">Tap-points on a picture</span>
             </div>
             <!-- Photo Gallery -->
-            <div class="palette-board-card" onpointerdown="pushHistory(); spawnGalleryNode();">
+            <div class="palette-board-card" onclick="pushHistory(); spawnGalleryNode();">
                 <div class="pbc-icon" style="background:linear-gradient(135deg,#10b981,#0ea5e9);">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                 </div>
@@ -1188,7 +1188,7 @@
                 <span style="font-weight:400;color:#94a3b8;font-size:0.65rem;">Swipeable photo board</span>
             </div>
             <!-- Routine Board -->
-            <div class="palette-board-card" onpointerdown="pushHistory(); spawnRoutineNode();">
+            <div class="palette-board-card" onclick="pushHistory(); spawnRoutineNode();">
                 <div class="pbc-icon" style="background:linear-gradient(135deg,#8b5cf6,#db2777);">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
                 </div>
@@ -1196,7 +1196,7 @@
                 <span style="font-weight:400;color:#94a3b8;font-size:0.65rem;">Step-by-step activity strip</span>
             </div>
             <!-- Music Player -->
-            <div class="palette-board-card" onpointerdown="pushHistory(); spawnMusicNode();">
+            <div class="palette-board-card" onclick="pushHistory(); spawnMusicNode();">
                 <div class="pbc-icon" style="background:linear-gradient(135deg,#0e7490,#0369a1);">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
                 </div>
@@ -1204,7 +1204,7 @@
                 <span style="font-weight:400;color:#94a3b8;font-size:0.65rem;">AAC music selection board</span>
             </div>
             <!-- Video Player -->
-            <div class="palette-board-card" onpointerdown="pushHistory(); spawnVideoNode();">
+            <div class="palette-board-card" onclick="pushHistory(); spawnVideoNode();">
                 <div class="pbc-icon" style="background:linear-gradient(135deg,#7c3aed,#a855f7);">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
                 </div>
@@ -1212,7 +1212,7 @@
                 <span style="font-weight:400;color:#94a3b8;font-size:0.65rem;">AAC video selection board</span>
             </div>
             <!-- Keyboard -->
-            <div class="palette-board-card" onpointerdown="pushHistory(); spawnKeyboardNode();">
+            <div class="palette-board-card" onclick="pushHistory(); spawnKeyboardNode();">
                 <div class="pbc-icon" style="background:linear-gradient(135deg,#d97706,#ea580c);">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M8 12h.01M12 12h.01M16 12h.01M8 16h8"/></svg>
                 </div>
@@ -3077,9 +3077,12 @@
                     if (_activeTouchCount >= 2) {
                         _cancelInteractions();
                     }
-                    try { wrapper.setPointerCapture(e.pointerId); } catch (_) {}
-                    activePointers.set(e.pointerId, { clientX: e.clientX, clientY: e.clientY });
-                    if (_activeTouchCount >= 2) resetPanZoomAnchors();
+                    const onCanvas = e.target === wrapper || e.target === bgGrid || e.target === svgLayer || e.target.closest('#nodes-layer');
+                    if (onCanvas) {
+                        try { wrapper.setPointerCapture(e.pointerId); } catch (_) {}
+                        activePointers.set(e.pointerId, { clientX: e.clientX, clientY: e.clientY });
+                    }
+                    if (_activeTouchCount >= 2 && activePointers.size >= 2) resetPanZoomAnchors();
                 }
             }, true);
             window.addEventListener('pointerup', (e) => { if (e.pointerType === 'touch') _activeTouchCount = Math.max(0, _activeTouchCount - 1); }, true);
@@ -6789,6 +6792,10 @@
                 const lblTxt   = isLight ? '#94a3b8' : 'rgba(226,232,240,0.55)';
                 const standaloneBg  = isLight ? '#ffffff' : 'rgba(255,255,255,0.10)';
                 const standaloneBdr = isLight ? '1px solid rgba(15,23,42,0.10)' : '1px solid rgba(255,255,255,0.20)';
+                const hoverBg = isLight ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.18)';
+                const hoverText = isLight ? '#1e293b' : '#ffffff';
+                document.documentElement.style.setProperty('--tb-hover-bg', hoverBg);
+                document.documentElement.style.setProperty('--tb-hover-text', hoverText);
 
                 // Cluster containers (.tb-group, .tb-gridsize)
                 editorControls.querySelectorAll('.tb-group, .tb-gridsize').forEach(g => {

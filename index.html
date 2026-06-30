@@ -43,7 +43,7 @@
             touch-action: none; user-select: none; -webkit-user-select: none;
         }
 
-        #app-wrapper { position: relative; width: 100vw; height: 100vh; overflow: hidden; }
+        #app-wrapper { position: relative; width: 100vw; height: 100vh; height: 100dvh; overflow: hidden; }
         /* Ambient aurora glow — tints the canvas above its flat background colour
            but below the nodes, for depth & atmosphere. z-index sits between
            #bg-grid (1) and #workspace (2). */
@@ -183,6 +183,8 @@
             box-shadow: 0 0 0 3px white, 0 2px 6px rgba(0,0,0,0.16);
             display: flex; align-items: center; justify-content: center;
         }
+        /* Expanded touch target for port-in — invisible ring around the small dot */
+        .port-in::before { content:''; position:absolute; inset:-12px; border-radius:50%; }
         .port-in { left: -10px; cursor: crosshair; }
         .port-in::after {
             content: ''; width: 8px; height: 8px; border-radius: 50%;
@@ -226,7 +228,7 @@
         /* Header action buttons (edit / delete) — clear, easy-to-press chips */
         .node-hbtn {
             display: flex; align-items: center; justify-content: center;
-            width: 34px; height: 34px; flex-shrink: 0; border-radius: 10px;
+            width: 38px; height: 38px; flex-shrink: 0; border-radius: 10px;
             color: #fff; background: rgba(255,255,255,0.14); border: none;
             box-shadow: inset 0 0 0 1px rgba(255,255,255,0.16);
             cursor: pointer; transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
@@ -259,7 +261,7 @@
         #custom-modal-container button.bg-red-600 { box-shadow: 0 1px 2px rgba(220,38,38,0.20), 0 6px 16px -4px rgba(220,38,38,0.40); }
         #custom-modal-container button.bg-red-600:hover { box-shadow: 0 2px 4px rgba(220,38,38,0.24), 0 10px 22px -4px rgba(220,38,38,0.50); transform: translateY(-1px); }
         /* Inputs inside modals: smoother focus */
-        .modal-input { transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease; }
+        .modal-input { transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease; font-size: 16px !important; } /* 16px prevents iOS auto-zoom on focus */
         /* ── Settings tabs (folder-style) ── */
         .stg-tab {
             position: relative; bottom: -1.5px;           /* overlap the content's top border */
@@ -284,7 +286,7 @@
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        .custom-scrollbar { scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
+        .custom-scrollbar { scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; touch-action: pan-y; }
         #client-sentence-strip::-webkit-scrollbar { height: 4px; }
         #client-sentence-strip::-webkit-scrollbar-track { background: transparent; }
         #client-sentence-strip::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 4px; }
@@ -382,7 +384,7 @@
         /* Search */
         .sp-search-wrapper { position:relative; margin-bottom:10px; }
         .sp-search-icon { position:absolute; left:14px; top:50%; transform:translateY(-50%); color:#94a3b8; pointer-events:none; }
-        .sp-search-input { width:100%; padding:12px 16px 12px 46px; border:2px solid #e2e8f0; border-radius:16px; font-family:'Outfit',sans-serif; font-size:0.925rem; font-weight:500; color:#1e293b; outline:none; transition:all 0.2s; background:#f8fafc; box-sizing:border-box; user-select:auto; -webkit-user-select:auto; }
+        .sp-search-input { width:100%; padding:12px 16px 12px 46px; border:2px solid #e2e8f0; border-radius:16px; font-family:'Outfit',sans-serif; font-size:16px; font-weight:500; color:#1e293b; outline:none; transition:all 0.2s; background:#f8fafc; box-sizing:border-box; user-select:auto; -webkit-user-select:auto; }
         .sp-search-input::placeholder { color:#94a3b8; font-weight:400; }
         .sp-search-input:focus { border-color:#3b82f6; background:white; box-shadow:0 0 0 4px rgba(59,130,246,0.10); }
         /* Results grid */
@@ -571,7 +573,8 @@
             #client-strip-area svg { width: 1rem !important; height: 1rem !important; }
         }
         /* The sentence strip is the priority — never let it collapse. */
-        #client-sentence-strip { min-width: 0; }
+        #client-sentence-strip { min-width: 0; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; touch-action: pan-x; }
+        #custom-modal-container { -webkit-overflow-scrolling: touch; overscroll-behavior: contain; touch-action: pan-y; }
         /* Narrow phones: tighten the surrounding buttons so the strip keeps usable width.
            Icons stay; the small word-labels drop away first so taps stay big & clear. */
         @media (max-width: 480px) {
@@ -761,8 +764,10 @@
             background:rgba(255,255,255,0.82); border-radius:6px; padding:1px 6px;
             max-width:92%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; pointer-events:none;
         }
-        .scene-hot-resize { position:absolute; right:-7px; bottom:-7px; width:16px; height:16px; border-radius:50%;
-            background:#fff; border:2px solid #3b82f6; cursor:se-resize; touch-action:none; }
+        .scene-hot-resize { position:absolute; right:-14px; bottom:-14px; width:28px; height:28px; border-radius:50%;
+            background:#fff; border:2px solid #3b82f6; cursor:se-resize; touch-action:none;
+            display:flex;align-items:center;justify-content:center; }
+        .scene-hot-resize::after { content:''; width:10px; height:10px; border-radius:50%; background:#3b82f6; pointer-events:none; }
         /* Live (client/preview) hotspot — outline only if visible */
         .scene-hot-live { position:absolute; box-sizing:border-box; cursor:pointer; border-radius:6px; -webkit-tap-highlight-color:transparent; touch-action:none; outline:none; }
         .scene-hot-live:focus-visible { outline:2px solid #60a5fa; outline-offset:2px; }
@@ -867,7 +872,7 @@
         .video-clip-active { animation:videoPulse 1.4s ease-in-out infinite; }
         /* Video overlay for fullscreen playback */
         #video-player-overlay { position:fixed;inset:0;z-index:10002;background:rgba(0,0,0,0.92);display:flex;flex-direction:column;align-items:center;justify-content:center; }
-        #video-player-overlay video { max-width:100%;max-height:calc(100vh - 80px);border-radius:12px;background:#000;outline:none; }
+        #video-player-overlay video { max-width:100%;max-height:calc(100vh - 80px);max-height:calc(100dvh - 80px);border-radius:12px;background:#000;outline:none; }
         #video-player-overlay .vpo-title { font-family:Outfit,sans-serif;font-size:15px;font-weight:700;color:#f1f5f9;margin-bottom:10px;text-align:center;padding:0 16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:90vw; }
         #video-player-overlay .vpo-stop { position:absolute;right:20px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:20px 18px;background:#dc2626;color:white;font-family:Outfit,sans-serif;font-size:15px;font-weight:800;border:none;border-radius:18px;cursor:pointer;box-shadow:0 6px 28px rgba(220,38,38,0.55);letter-spacing:0.02em;-webkit-tap-highlight-color:transparent;transition:transform 0.14s,box-shadow 0.14s;min-width:72px; }
         #video-player-overlay .vpo-stop:hover { box-shadow:0 8px 36px rgba(220,38,38,0.70); }
@@ -957,13 +962,15 @@
 
         /* ── Cell Resize Handle (merge via drag) ── */
         .cell-resize-handle {
-            position: absolute; bottom: 3px; right: 3px;
-            width: 14px; height: 14px;
+            position: absolute; bottom: 0; right: 0;
+            width: 28px; height: 28px;
             cursor: se-resize; opacity: 0; transition: opacity 0.15s;
             display: flex; align-items: flex-end; justify-content: flex-end;
+            padding: 4px;
             z-index: 2; touch-action: none; pointer-events: auto;
         }
         .grid-cell:hover .cell-resize-handle { opacity: 1; }
+        @media (hover: none) { .cell-resize-handle { opacity: 0.6; } }
         .grid-cell.merge-resize-src {
             outline: 2px solid #7c3aed; outline-offset: -2px;
             box-shadow: 0 0 0 6px rgba(124,58,237,0.20) !important;
@@ -1097,7 +1104,7 @@
                 <button onpointerdown="exportBoard()" class="tb-btn" title="Save board to file" aria-label="Export board to file">
                     <i data-lucide="download" class="w-3.5 h-3.5 pointer-events-none" aria-hidden="true"></i>
                 </button>
-                <button onpointerdown="importBoardClick()" class="tb-btn" title="Load board from file" aria-label="Import board from file">
+                <button onclick="importBoardClick()" class="tb-btn" title="Load board from file" aria-label="Import board from file">
                     <i data-lucide="upload" class="w-3.5 h-3.5 pointer-events-none" aria-hidden="true"></i>
                 </button>
                 <button onpointerdown="promptClearAll()" class="tb-btn danger" title="Clear whole board" aria-label="Clear board">
@@ -1223,7 +1230,7 @@
     </div>
 
     <!-- Photo Manager Modal -->
-    <div id="photo-mgr-overlay" role="dialog" aria-modal="true" aria-labelledby="photo-mgr-title" style="display:none;position:fixed;inset:0;z-index:9998;background:rgba(15,23,42,0.72);backdrop-filter:blur(4px);overflow-y:auto;">
+    <div id="photo-mgr-overlay" role="dialog" aria-modal="true" aria-labelledby="photo-mgr-title" style="display:none;position:fixed;inset:0;z-index:9998;background:rgba(15,23,42,0.72);backdrop-filter:blur(4px);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;">
         <div style="max-width:820px;margin:32px auto;padding:0 16px 48px;">
             <div style="background:#fff;border-radius:24px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.32);">
                 <!-- Header -->
@@ -1261,7 +1268,7 @@
     </div>
 
     <!-- Routine Board Manager Modal -->
-    <div id="routine-mgr-overlay" role="dialog" aria-modal="true" aria-labelledby="routine-mgr-title" style="display:none;position:fixed;inset:0;z-index:9998;background:rgba(15,23,42,0.72);backdrop-filter:blur(4px);overflow-y:auto;">
+    <div id="routine-mgr-overlay" role="dialog" aria-modal="true" aria-labelledby="routine-mgr-title" style="display:none;position:fixed;inset:0;z-index:9998;background:rgba(15,23,42,0.72);backdrop-filter:blur(4px);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;">
         <div style="max-width:820px;margin:32px auto;padding:0 16px 48px;">
             <div style="background:#fff;border-radius:24px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.32);">
                 <!-- Header -->
@@ -1302,7 +1309,7 @@
     </div>
 
     <!-- Music Manager Overlay -->
-    <div id="music-mgr-overlay" role="dialog" aria-modal="true" aria-labelledby="music-mgr-title" style="display:none;position:fixed;inset:0;z-index:9998;background:rgba(15,23,42,0.72);backdrop-filter:blur(4px);overflow-y:auto;">
+    <div id="music-mgr-overlay" role="dialog" aria-modal="true" aria-labelledby="music-mgr-title" style="display:none;position:fixed;inset:0;z-index:9998;background:rgba(15,23,42,0.72);backdrop-filter:blur(4px);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;">
         <div style="max-width:820px;margin:32px auto;padding:0 16px 48px;">
             <div style="background:#fff;border-radius:24px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.32);">
                 <!-- Header -->
@@ -1335,7 +1342,7 @@
     </div>
 
     <!-- Video Manager Overlay -->
-    <div id="video-mgr-overlay" role="dialog" aria-modal="true" aria-labelledby="video-mgr-title" style="display:none;position:fixed;inset:0;z-index:9998;background:rgba(15,23,42,0.72);backdrop-filter:blur(4px);overflow-y:auto;">
+    <div id="video-mgr-overlay" role="dialog" aria-modal="true" aria-labelledby="video-mgr-title" style="display:none;position:fixed;inset:0;z-index:9998;background:rgba(15,23,42,0.72);backdrop-filter:blur(4px);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;">
         <div style="max-width:820px;margin:32px auto;padding:0 16px 48px;">
             <div style="background:#fff;border-radius:24px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.32);">
                 <!-- Header -->
@@ -1570,7 +1577,7 @@
         
         const activePointers = new Map(); let prevPinchDiff = -1;
         let _activeTouchCount = 0;
-        let isCellPointerDown = false, isDraggingCell = false, _lastDropTarget = null;
+        let isCellPointerDown = false, isDraggingCell = false, _lastDropTarget = null, _cellPointerId = null;
         let activeCellTarget = null, cellStartCoords = { x: 0, y: 0 }, cellGhostEl = null;
         let _lfDragSource = null; // { nodeId, index } when dragging a Lost & Found drawer item
         let isMergeResizing = false, mergeResizeAnchorEl = null, mergeResizeNodeId = null, mergeResizeAnchorIdx = -1;
@@ -2431,6 +2438,7 @@
             el.querySelector('.node-header').addEventListener('pointerdown', (e) => {
                 if (e.target.closest('button') || _isMultiTouch()) return;
                 e.stopPropagation(); pushHistory(); isDraggingNode = true; activeSourceNodeId = node.id;
+                try { el.setPointerCapture(e.pointerId); } catch(_) {}
                 const coords = getWorkspaceCoords(e.clientX, e.clientY);
                 startPointerX = coords.x - nodesData[node.id].x;
                 startPointerY = coords.y - nodesData[node.id].y;
@@ -2448,7 +2456,7 @@
             el.querySelectorAll('.grid-cell').forEach(cell => {
                 cell.addEventListener('pointerdown', (e) => {
                     if (_isMultiTouch()) return;
-                    e.stopPropagation(); activeCellTarget = cell; cellStartCoords = { x: e.clientX, y: e.clientY }; isCellPointerDown = true;
+                    e.stopPropagation(); activeCellTarget = cell; cellStartCoords = { x: e.clientX, y: e.clientY }; isCellPointerDown = true; _cellPointerId = e.pointerId; try { cell.setPointerCapture(e.pointerId); } catch(_) {}
                 });
             });
 
@@ -2645,6 +2653,7 @@
             el.querySelector('.node-header').addEventListener('pointerdown', (e) => {
                 if (e.target.closest('button') || _isMultiTouch()) return;
                 e.stopPropagation(); pushHistory(); isDraggingNode = true; activeSourceNodeId = node.id;
+                try { el.setPointerCapture(e.pointerId); } catch(_) {}
                 const coords = getWorkspaceCoords(e.clientX, e.clientY);
                 startPointerX = coords.x - nodesData[node.id].x; startPointerY = coords.y - nodesData[node.id].y;
                 el.classList.add('dragging');
@@ -2669,7 +2678,7 @@
                         cell.classList.add('merge-resize-src');
                         return;
                     }
-                    e.stopPropagation(); activeCellTarget = cell; cellStartCoords = { x: e.clientX, y: e.clientY }; isCellPointerDown = true;
+                    e.stopPropagation(); activeCellTarget = cell; cellStartCoords = { x: e.clientX, y: e.clientY }; isCellPointerDown = true; _cellPointerId = e.pointerId; try { cell.setPointerCapture(e.pointerId); } catch(_) {}
                 });
                 // Keyboard activation for grid cells
                 cell.addEventListener('keydown', (e) => {
@@ -3060,6 +3069,7 @@
                 if (isDraggingCell && cellGhostEl) { cellGhostEl.remove(); cellGhostEl = null; }
                 if (activeCellTarget) activeCellTarget.classList.remove('opacity-30');
                 document.querySelectorAll('.grid-cell').forEach(c => c.classList.remove('drop-target'));
+                if (_cellPointerId != null && activeCellTarget) { try { activeCellTarget.releasePointerCapture(_cellPointerId); } catch(_) {} _cellPointerId = null; }
                 isCellPointerDown = false; isDraggingCell = false; activeCellTarget = null; _lfDragSource = null; _lastDropTarget = null;
             }
             if (isWiring) {
@@ -3746,6 +3756,7 @@
             el.querySelector('.node-header').addEventListener('pointerdown', (e) => {
                 if (e.target.closest('button') || _isMultiTouch()) return;
                 e.stopPropagation(); pushHistory(); isDraggingNode = true; activeSourceNodeId = node.id;
+                try { el.setPointerCapture(e.pointerId); } catch(_) {}
                 const coords = getWorkspaceCoords(e.clientX, e.clientY);
                 startPointerX = coords.x - nodesData[node.id].x; startPointerY = coords.y - nodesData[node.id].y;
                 el.classList.add('dragging');
@@ -3945,6 +3956,7 @@
             el.querySelector('.node-header').addEventListener('pointerdown', (e) => {
                 if (e.target.closest('button') || _isMultiTouch()) return;
                 e.stopPropagation(); pushHistory(); isDraggingNode = true; activeSourceNodeId = node.id;
+                try { el.setPointerCapture(e.pointerId); } catch(_) {}
                 const coords = getWorkspaceCoords(e.clientX, e.clientY);
                 startPointerX = coords.x - nodesData[node.id].x; startPointerY = coords.y - nodesData[node.id].y;
                 el.classList.add('dragging');
@@ -4027,19 +4039,23 @@
             requestAnimationFrame(() => { layout(); requestAnimationFrame(layout); });
 
             // Background image upload
-            el.querySelector('.scene-img-btn').addEventListener('pointerdown', (e) => {
+            el.querySelector('.scene-img-btn').addEventListener('click', (e) => {
                 e.stopPropagation();
-                const inp = document.createElement('input');
-                inp.type = 'file'; inp.accept = 'image/*';
-                inp.onchange = () => {
-                    const f = inp.files && inp.files[0]; if (!f) return;
+                const fileInput = document.getElementById('sm-file-input');
+                const prev = fileInput.onchange;
+                fileInput.accept = 'image/*';
+                fileInput.onchange = () => {
+                    const f = fileInput.files && fileInput.files[0];
+                    fileInput.onchange = prev; fileInput.accept = 'image/*,image/heic,image/heif';
+                    if (!f) return;
                     _downscaleImage(f, 1280, 0.78, (url, w, h) => {
                         if (!url) return;
                         pushHistory(); nodesData[node.id].bgImage = url; nodesData[node.id].imgW = w; nodesData[node.id].imgH = h;
                         renderMap(); setTimeout(updateAllWires, 50);
                     });
+                    fileInput.value = '';
                 };
-                inp.click();
+                fileInput.click();
             });
 
             // Drag on empty image area → create a new hotspot (needs a background first)
@@ -4363,6 +4379,7 @@
             el.querySelector('.node-header').addEventListener('pointerdown', (e) => {
                 if (e.target.closest('button') || _isMultiTouch()) return;
                 e.stopPropagation(); pushHistory(); isDraggingNode = true; activeSourceNodeId = node.id;
+                try { el.setPointerCapture(e.pointerId); } catch(_) {}
                 const coords = getWorkspaceCoords(e.clientX, e.clientY);
                 startPointerX = coords.x - nodesData[node.id].x; startPointerY = coords.y - nodesData[node.id].y;
                 el.classList.add('dragging');
@@ -4723,6 +4740,7 @@
             el.querySelector('.node-header').addEventListener('pointerdown', (e) => {
                 if (e.target.closest('button') || _isMultiTouch()) return;
                 e.stopPropagation(); pushHistory(); isDraggingNode = true; activeSourceNodeId = node.id;
+                try { el.setPointerCapture(e.pointerId); } catch(_) {}
                 const coords = getWorkspaceCoords(e.clientX, e.clientY);
                 startPointerX = coords.x - nodesData[node.id].x; startPointerY = coords.y - nodesData[node.id].y;
                 el.classList.add('dragging');
@@ -5850,6 +5868,7 @@
             el.querySelector('.node-header').addEventListener('pointerdown', (e) => {
                 if (e.target.closest('button') || _isMultiTouch()) return;
                 e.stopPropagation(); pushHistory(); isDraggingNode = true; activeSourceNodeId = node.id;
+                try { el.setPointerCapture(e.pointerId); } catch(_) {}
                 const coords = getWorkspaceCoords(e.clientX, e.clientY);
                 startPointerX = coords.x - nodesData[node.id].x;
                 startPointerY = coords.y - nodesData[node.id].y;
@@ -6163,7 +6182,7 @@
                 ov.id = 'video-player-overlay';
                 ov.innerHTML = `
                     <div class="vpo-title">${escHtml(clip.label || 'Video')}</div>
-                    <video src="${escHtml(dataUrl)}" controls autoplay playsinline webkit-playsinline style="max-width:80vw;max-height:calc(100vh - 80px);border-radius:12px;background:#000;"></video>
+                    <video src="${escHtml(dataUrl)}" controls autoplay playsinline webkit-playsinline style="max-width:80vw;max-height:calc(100vh - 80px);max-height:calc(100dvh - 80px);border-radius:12px;background:#000;"></video>
                     <button class="vpo-stop" title="Stop video" aria-label="Stop video">
                         <svg width="36" height="36" viewBox="0 0 24 24" fill="white"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
                         <span>Stop</span>
@@ -6229,6 +6248,7 @@
             el.querySelector('.node-header').addEventListener('pointerdown', (e) => {
                 if (e.target.closest('button') || _isMultiTouch()) return;
                 e.stopPropagation(); pushHistory(); isDraggingNode = true; activeSourceNodeId = node.id;
+                try { el.setPointerCapture(e.pointerId); } catch(_) {}
                 const coords = getWorkspaceCoords(e.clientX, e.clientY);
                 startPointerX = coords.x - nodesData[node.id].x;
                 startPointerY = coords.y - nodesData[node.id].y;
@@ -6602,6 +6622,7 @@
             el.querySelector('.node-header').addEventListener('pointerdown', (e) => {
                 if (e.target.closest('button') || _isMultiTouch()) return;
                 e.stopPropagation(); pushHistory(); isDraggingNode = true; activeSourceNodeId = node.id;
+                try { el.setPointerCapture(e.pointerId); } catch(_) {}
                 const coords = getWorkspaceCoords(e.clientX, e.clientY);
                 startPointerX = coords.x - nodesData[node.id].x; startPointerY = coords.y - nodesData[node.id].y;
                 el.classList.add('dragging');
@@ -9965,22 +9986,44 @@
             const lang = (navigator.language || 'en').toLowerCase().split('-')[0];
             const langVoices = voices.filter(v => v.lang.toLowerCase().startsWith(lang));
             const pool = langVoices.length ? langVoices : voices;
+            // Prefer local (high-quality) voices; avoid names that indicate robotic synthesizers
+            const localPool = pool.filter(v => v.localService !== false);
+            const searchPool = localPool.length ? localPool : pool;
             if (gender === 'male') {
-                const m = pool.find(v => /\bmale\b|\bman\b|daniel|\bfred\b|\bralph\b|\balex\b|\btom\b|\bdavid\b|\bmark\b|\brichard\b|\bravi\b|cosimo|andika|google uk english male/i.test(v.name));
-                return m || pool[pool.length - 1] || null;
+                // Apple: Daniel (UK), Tom (US), Alex (US), Rishi (India), Aaron (US)
+                // Google: Google UK English Male, David
+                // Generic: names strongly associated with male voices
+                const mPref = searchPool.find(v => /\btom\b|\bdaniel\b|\balex\b|\baaron\b|\brishi\b|\bluca\b|\bmatthias\b|\bjonas\b/i.test(v.name));
+                if (mPref) return mPref;
+                const mFall = searchPool.find(v => /\bmale\b|\bman\b|\bfred\b|\bralph\b|\bdavid\b|\bmark\b|\brichard\b|\bravi\b|cosimo|andika|google uk english male/i.test(v.name));
+                // Avoid the last voice in the list as a fallback (often a robotic synth on iOS)
+                return mFall || searchPool.find(v => !(/female|\bwoman\b|samantha|victoria|karen|hazel|moira|tessa|fiona|\balice\b|\banna\b|kathy|vicki|nicky|\bsara\b|\bsusan\b|linda/i.test(v.name))) || searchPool[0] || null;
             } else {
-                const f = pool.find(v => /female|\bwoman\b|samantha|victoria|karen|\bzira\b|hazel|moira|tessa|fiona|\balice\b|\banna\b|kathy|vicki|nicky|\bsara\b|\bsusan\b|linda|paulina|google uk english female|google us english/i.test(v.name));
-                return f || pool[0] || null;
+                const fPref = searchPool.find(v => /\bsamantha\b|\bvictoria\b|\bkaren\b|\bmoira\b|\bfiona\b|\btessa\b|\bhazel\b/i.test(v.name));
+                if (fPref) return fPref;
+                const f = searchPool.find(v => /female|\bwoman\b|\bzira\b|\balice\b|\banna\b|kathy|vicki|nicky|\bsara\b|\bsusan\b|linda|paulina|google uk english female|google us english/i.test(v.name));
+                return f || searchPool[0] || null;
             }
         }
 
         let _speechKeepAlive = null;
+        function _sanitizeSpeechText(text) {
+            if (!text) return text;
+            // Single capital letter: speech engines say "capital X" — convert to lowercase
+            // so they say just the letter sound. Exception: "I" (pronoun) stays as-is
+            // but we lowercase it so it reads as "I" not "capital I".
+            if (/^[A-Z]$/.test(text.trim())) return text.trim().toLowerCase();
+            // A single lowercase letter — fine as-is
+            if (/^[a-z]$/.test(text.trim())) return text.trim();
+            return text;
+        }
         function speakWord(text) {
             if(!text || !window.speechSynthesis) return;
+            const spokenText = _sanitizeSpeechText(text);
             // Stop current speech before speaking new to prevent long queues
             window.speechSynthesis.cancel();
             if (_speechKeepAlive) { clearInterval(_speechKeepAlive); _speechKeepAlive = null; }
-            const utterance = new SpeechSynthesisUtterance(text);
+            const utterance = new SpeechSynthesisUtterance(spokenText);
             utterance.rate = 0.95;
             utterance.pitch = 1.0;
             const voice = _getVoiceForGender(clientSettings.voiceGender || 'female');

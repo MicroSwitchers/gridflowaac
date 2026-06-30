@@ -6692,6 +6692,7 @@
             stripDisplay: 'both',     // 'both' (icon+text), 'icons' (symbols only), 'text' (text only)
             speakOnTap: true,         // speak word immediately on cell tap
             voiceGender: 'female',    // 'female' | 'male'
+            specificVoice: '',        // exact voice name override ('' = auto)
             showBackButton: true,      // show the Back button in the client sentence strip
             showMasked: false,         // reveal masked (placeholder) cells in client mode
             dragSelect: false,         // enlarge symbols as finger slides over; release to select
@@ -7379,6 +7380,22 @@
             const inactive = 'px-3 py-1 rounded-md text-xs font-bold transition-all text-slate-500';
             fBtn.className = gender !== 'male' ? active : inactive;
             mBtn.className = gender === 'male' ? active : inactive;
+            _populateVoiceSelect();
+        }
+
+        function setSpecificVoice(name) {
+            clientSettings.specificVoice = name || '';
+            saveClientSettings();
+        }
+
+        function _populateVoiceSelect() {
+            const sel = document.getElementById('vg-voice-select');
+            if (!sel) return;
+            const voices = window.speechSynthesis ? window.speechSynthesis.getVoices() : [];
+            const lang = (navigator.language || 'en').toLowerCase().split('-')[0];
+            const relevant = voices.filter(v => v.lang.toLowerCase().startsWith(lang) || v.lang.toLowerCase().startsWith('en'));
+            sel.innerHTML = '<option value="">Auto-select voice</option>' +
+                relevant.map(v => '<option value="' + escHtml(v.name) + '"' + (clientSettings.specificVoice === v.name ? ' selected' : '') + '>' + escHtml(v.name) + (v.localService ? ' ✓' : '') + '</option>').join('');
         }
 
         function toggleDragSelect(btn) {
@@ -7998,9 +8015,14 @@
                                         <span class="text-xs text-slate-400">Choose a male or female voice</span>
                                     </div>
                                 </div>
-                                <div class="flex bg-slate-200 rounded-lg p-0.5 gap-0.5 flex-shrink-0">
-                                    <button id="vg-btn-female" onclick="setVoiceGender('female')" class="px-3 py-1 rounded-md text-xs font-bold transition-all ${(clientSettings.voiceGender||'female')!=='male'?'bg-white text-blue-700 shadow':'text-slate-500'}">&#9792; Female</button>
-                                    <button id="vg-btn-male"   onclick="setVoiceGender('male')"   class="px-3 py-1 rounded-md text-xs font-bold transition-all ${clientSettings.voiceGender==='male'?'bg-white text-blue-700 shadow':'text-slate-500'}">&#9794; Male</button>
+                                <div class="flex flex-col gap-2 flex-shrink-0">
+                                    <div class="flex bg-slate-200 rounded-lg p-0.5 gap-0.5">
+                                        <button id="vg-btn-female" onclick="setVoiceGender('female')" class="px-3 py-1 rounded-md text-xs font-bold transition-all ${(clientSettings.voiceGender||'female')!=='male'?'bg-white text-blue-700 shadow':'text-slate-500'}">&#9792; Female</button>
+                                        <button id="vg-btn-male"   onclick="setVoiceGender('male')"   class="px-3 py-1 rounded-md text-xs font-bold transition-all ${clientSettings.voiceGender==='male'?'bg-white text-blue-700 shadow':'text-slate-500'}">&#9794; Male</button>
+                                    </div>
+                                    <select id="vg-voice-select" onchange="setSpecificVoice(this.value)" class="text-xs border border-slate-200 rounded-lg px-2 py-1.5 bg-white text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-200 w-full" title="Pick an exact voice">
+                                        <option value="">Auto-select voice</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -8161,6 +8183,7 @@
             `);
             setTimeout(() => {
                 _refreshCellPreview(); _refreshTextOptions(); _refreshFolderBorderBtns(); _refreshLockoutBtns();
+                _populateVoiceSelect();
                 // Reopen on the tab the user last used.
                 _setSettingsTab(_settingsTab || 'text');
                 // Restore the within-tab scroll position from last time, and keep tracking it.
@@ -9977,32 +10000,45 @@
         // ── Voice selection helpers ──────────────────────────────────────────
         let _voiceList = [];
         function _initVoices() { _voiceList = window.speechSynthesis ? window.speechSynthesis.getVoices() : []; }
-        if (window.speechSynthesis) { window.speechSynthesis.onvoiceschanged = _initVoices; _initVoices(); }
+        if (window.speechSynthesis) { window.speechSynthesis.onvoiceschanged = () => { _initVoices(); _populateVoiceSelect(); }; _initVoices(); }
 
         function _getVoiceForGender(gender) {
             if (!window.speechSynthesis) return null;
             const voices = _voiceList.length ? _voiceList : window.speechSynthesis.getVoices();
             if (!voices.length) return null;
-            const lang = (navigator.language || 'en').toLowerCase().split('-')[0];
-            const langVoices = voices.filter(v => v.lang.toLowerCase().startsWith(lang));
-            const pool = langVoices.length ? langVoices : voices;
-            // Prefer local (high-quality) voices; avoid names that indicate robotic synthesizers
-            const localPool = pool.filter(v => v.localService !== false);
-            const searchPool = localPool.length ? localPool : pool;
+
+            const lang = (navigator.language || 'en-US').toLowerCase();
+            const langBase = lang.split('-')[0];
+
+            // Score and rank voices — higher = better quality
+            const score = (v) => {
+                let s = 0;
+                const n = v.name.toLowerCase();
+                // Strong preference for on-device (local) voices
+                if (v.localService) s += 40;
+                // Exact language match beats just base lang
+                if (v.lang.toLowerCase() === lang) s += 20;
+                else if (v.lang.toLowerCase().startsWith(langBase)) s += 10;
+                // Penalise names that typically indicate low-quality synth voices
+                if (/eloquence|espeak|espeak-ng|mbrola|cmu|festival|flite|pico|vocalizer compact/i.test(n)) s -= 50;
+                // Apple high-quality voices (all local, sound natural)
+                if (/\bsamantha\b|\bvictoria\b|\bkaren\b|\bmoira\b|\btessa\b|\bfiona\b|\bhazel\b|\bnicky\b|\bsiri\b/i.test(n)) s += 30; // female
+                if (/\btom\b|\bdaniel\b|\balex\b|\baaron\b|\brishi\b|\bluca\b|\blee\b|\bgordon\b|\barthur\b/i.test(n)) s += 30; // male
+                // Google high-quality voices
+                if (/google us english|google uk english/i.test(n)) s += 20;
+                return s;
+            };
+
+            const isFemale = (v) => /female|\bwoman\b|samantha|victoria|karen|hazel|moira|tessa|fiona|\balice\b|\banna\b|kathy|vicki|nicky|\bsara\b|\bsusan\b|linda|paulina|google uk english female|google us english/i.test(v.name);
+            const isMale   = (v) => /\bmale\b|\bman\b|daniel|\btom\b|\balex\b|\baaron\b|\brishi\b|\blee\b|\bgordon\b|\barthur\b|\bfred\b|\bralph\b|\bdavid\b|\bmark\b|google uk english male/i.test(v.name);
+
+            const langVoices = voices.filter(v => v.lang.toLowerCase().startsWith(langBase));
+            const pool = (langVoices.length ? langVoices : voices).slice().sort((a, b) => score(b) - score(a));
+
             if (gender === 'male') {
-                // Apple: Daniel (UK), Tom (US), Alex (US), Rishi (India), Aaron (US)
-                // Google: Google UK English Male, David
-                // Generic: names strongly associated with male voices
-                const mPref = searchPool.find(v => /\btom\b|\bdaniel\b|\balex\b|\baaron\b|\brishi\b|\bluca\b|\bmatthias\b|\bjonas\b/i.test(v.name));
-                if (mPref) return mPref;
-                const mFall = searchPool.find(v => /\bmale\b|\bman\b|\bfred\b|\bralph\b|\bdavid\b|\bmark\b|\brichard\b|\bravi\b|cosimo|andika|google uk english male/i.test(v.name));
-                // Avoid the last voice in the list as a fallback (often a robotic synth on iOS)
-                return mFall || searchPool.find(v => !(/female|\bwoman\b|samantha|victoria|karen|hazel|moira|tessa|fiona|\balice\b|\banna\b|kathy|vicki|nicky|\bsara\b|\bsusan\b|linda/i.test(v.name))) || searchPool[0] || null;
+                return pool.find(v => isMale(v) && !isFemale(v)) || pool.find(v => !isFemale(v)) || pool[0] || null;
             } else {
-                const fPref = searchPool.find(v => /\bsamantha\b|\bvictoria\b|\bkaren\b|\bmoira\b|\bfiona\b|\btessa\b|\bhazel\b/i.test(v.name));
-                if (fPref) return fPref;
-                const f = searchPool.find(v => /female|\bwoman\b|\bzira\b|\balice\b|\banna\b|kathy|vicki|nicky|\bsara\b|\bsusan\b|linda|paulina|google uk english female|google us english/i.test(v.name));
-                return f || searchPool[0] || null;
+                return pool.find(v => isFemale(v)) || pool[0] || null;
             }
         }
 
@@ -10026,7 +10062,12 @@
             const utterance = new SpeechSynthesisUtterance(spokenText);
             utterance.rate = 0.95;
             utterance.pitch = 1.0;
-            const voice = _getVoiceForGender(clientSettings.voiceGender || 'female');
+            let voice = null;
+            if (clientSettings.specificVoice) {
+                const allVoices = window.speechSynthesis.getVoices();
+                voice = allVoices.find(v => v.name === clientSettings.specificVoice) || null;
+            }
+            if (!voice) voice = _getVoiceForGender(clientSettings.voiceGender || 'female');
             if (voice) utterance.voice = voice;
             // iOS Safari stalls speechSynthesis after ~15s — keep it alive with pause/resume
             _speechKeepAlive = setInterval(() => {

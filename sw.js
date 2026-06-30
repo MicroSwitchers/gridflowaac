@@ -7,7 +7,7 @@
  * the 'controllerchange' event and reloads automatically so users always
  * run the latest code.
  */
-const CACHE = 'aac-v8';
+const CACHE = 'aac-v9';
 
 const CORE = ['./', './index.html'];
 

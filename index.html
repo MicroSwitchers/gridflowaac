@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="en" style="background:#060d1b;color-scheme:dark;">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -8,11 +8,11 @@
 
     <!-- PWA -->
     <link rel="manifest" href="./manifest.json">
-    <meta id="meta-theme-color" name="theme-color" content="#ffffff">
+    <meta id="meta-theme-color" name="theme-color" content="#060d1b">
     <link rel="apple-touch-icon" href="./icon.svg">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="GridFlowAAC">
     
     <!-- Premium Google Fonts -->
@@ -81,7 +81,7 @@
         .wire-bg   { fill: none; stroke-width: 22; stroke-linecap: round; pointer-events: none; opacity: 0.18; }
         .wire-visible { fill: none; stroke-width: 7; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; opacity: 0.95;
                         transition: stroke 0.18s ease, stroke-width 0.18s ease, opacity 0.18s ease, filter 0.18s ease; }
-        .wire-arrow { pointer-events: none; transition: opacity 0.18s ease; }
+
         .wire-flow  { fill: none; stroke: rgba(255,255,255,0.75); stroke-width: 3; stroke-linecap: round;
                       stroke-dasharray: 10 16; pointer-events: none;
                       animation: wireFlow 0.55s linear infinite; }
@@ -1034,7 +1034,7 @@
         }
     </style>
 </head>
-<body>
+<body style="background:#060d1b;">
 
     <!-- Splash Screen -->
     <div id="splash-screen">
@@ -1596,7 +1596,8 @@
         function openModal(htmlContent) {
             isModalOpen = true;
             _modalTriggerEl = document.activeElement;
-            activePointers.clear(); _activeTouchCount = 0; // Safety: cancel any lingering touch states
+            activePointers.clear(); _activeTouchCount = 0;
+            if (_stripDrag) _stripDragCleanup(); // cancel any in-progress sentence strip drag
             modalContainer.innerHTML = htmlContent;
             modalContainer.setAttribute('role', 'dialog');
             modalContainer.setAttribute('aria-modal', 'true');
@@ -1812,6 +1813,7 @@
         }
 
         function toggleCellMask(nodeId, cellIdx) {
+            if (!nodesData[nodeId]?.cells?.[cellIdx]) return;
             pushHistory();
             const cell = nodesData[nodeId].cells[cellIdx];
             cell.masked = !cell.masked;
@@ -1821,6 +1823,7 @@
         }
 
         function promptCellEdit(nodeId, cellIdx) {
+            if (!nodesData[nodeId]?.cells?.[cellIdx] && nodesData[nodeId]?.cells?.[cellIdx] !== 0) return;
             const cell = nodesData[nodeId].cells[cellIdx];
             const isLink = !!cell.linkId;
             
@@ -2793,19 +2796,7 @@
         function getBezierPath(x1, y1, x2, y2) {
             return _bezierParts(x1, y1, x2, y2).d;
         }
-        // Build an arrowhead triangle path at (tx,ty), pointing along the tangent
-        // from (fromx,fromy) → (tx,ty). `size` is the arrow length in px.
-        function _arrowPath(fromx, fromy, tx, ty, size) {
-            let dx = tx - fromx, dy = ty - fromy;
-            const len = Math.hypot(dx, dy) || 1;
-            dx /= len; dy /= len;
-            // Pull the tip back to just before the port so it sits cleanly on the edge
-            const tipX = tx - dx * 2, tipY = ty - dy * 2;
-            const baseX = tipX - dx * size, baseY = tipY - dy * size;
-            const nx = -dy, ny = dx; // perpendicular
-            const half = size * 0.55;
-            return `M ${tipX} ${tipY} L ${baseX + nx * half} ${baseY + ny * half} L ${baseX - nx * half} ${baseY - ny * half} Z`;
-        }
+
 
         // Source anchor in workspace coords for a wire. Grid cells use their routing-tab
         // port; scene hotspots (cellIdx like 'scene:<hid>') anchor to the scene's right edge.
@@ -2833,8 +2824,6 @@
             const parts = _bezierParts(p1.x, p1.y, p2.x, p2.y);
             const pathData = parts.d;
             const wireColor = nodesData[targetId].color || '#94a3b8';
-            const ARROW = 14; // arrowhead length in px
-
             // Glow halo — wide stroke blurred via shared SVG filter
             const glowPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
             glowPath.setAttribute('d', pathData); glowPath.setAttribute('class', 'wire-bg');
@@ -2853,13 +2842,6 @@
             visiblePath.setAttribute('data-source', sourceId); visiblePath.setAttribute('data-target', targetId); visiblePath.setAttribute('data-cell-idx', cellIdx);
             visiblePath.style.stroke = wireColor;
 
-            // Static arrowhead at the target — shows direction without any motion
-            const arrowEl = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            arrowEl.setAttribute('d', _arrowPath(parts.c2x, parts.c2y, p2.x, p2.y, ARROW));
-            arrowEl.setAttribute('class', 'wire-arrow');
-            arrowEl.setAttribute('data-source', sourceId); arrowEl.setAttribute('data-target', targetId); arrowEl.setAttribute('data-cell-idx', cellIdx);
-            arrowEl.style.fill = wireColor;
-
             // Hover — red highlight + animated directional flow dashes
             let flowPath = null;
             hitPath.addEventListener('pointerenter', () => {
@@ -2867,7 +2849,6 @@
                 visiblePath.style.filter = 'drop-shadow(0 0 8px rgba(239,68,68,0.65))';
                 visiblePath.style.opacity = '1';
                 glowPath.style.stroke = '#ef4444'; glowPath.style.opacity = '0.55';
-                arrowEl.style.fill = '#ef4444';
                 if (!flowPath) {
                     flowPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
                     flowPath.setAttribute('d', visiblePath.getAttribute('d'));
@@ -2882,7 +2863,6 @@
                 visiblePath.style.stroke = wireColor; visiblePath.style.strokeWidth = '';
                 visiblePath.style.filter = ''; visiblePath.style.opacity = '';
                 glowPath.style.stroke = wireColor; glowPath.style.opacity = '';
-                arrowEl.style.fill = wireColor;
                 if (flowPath) { flowPath.remove(); flowPath = null; }
             });
             hitPath.addEventListener('pointerdown', (e) => {
@@ -2902,19 +2882,14 @@
                 });
             });
 
-            svgLayer.appendChild(glowPath); svgLayer.appendChild(hitPath); svgLayer.appendChild(visiblePath); svgLayer.appendChild(arrowEl);
+            svgLayer.appendChild(glowPath); svgLayer.appendChild(hitPath); svgLayer.appendChild(visiblePath);
         }
 
         // Re-point a single wire path element (curve, glow, hit, flow, or arrowhead)
         // given its two live endpoints. Arrowheads get a triangle; everything else a bezier.
         function _repointWire(line, p1, p2) {
             if (!p1 || !p2) return;
-            if (line.classList.contains('wire-arrow')) {
-                const parts = _bezierParts(p1.x, p1.y, p2.x, p2.y);
-                line.setAttribute('d', _arrowPath(parts.c2x, parts.c2y, p2.x, p2.y, 14));
-            } else {
-                line.setAttribute('d', getBezierPath(p1.x, p1.y, p2.x, p2.y));
-            }
+            line.setAttribute('d', getBezierPath(p1.x, p1.y, p2.x, p2.y));
         }
 
         function updateAllWires() {
@@ -3248,7 +3223,7 @@
                             } else {
                                 renderMap(); setTimeout(updateAllWires, 50); // dropped nowhere — stays in drawer
                             }
-                            if (cellGhostEl) cellGhostEl.remove(); cellGhostEl = null; isDraggingCell = false; _lastDropTarget = null;
+                            if (cellGhostEl) cellGhostEl.remove(); cellGhostEl = null; isDraggingCell = false; _lastDropTarget = null; if (_cellPointerId != null && activeCellTarget) { try { activeCellTarget.releasePointerCapture(_cellPointerId); } catch(_) {} _cellPointerId = null; }
                             document.querySelectorAll('.grid-cell').forEach(c => c.classList.remove('drop-target'));
                         }
                         // A plain tap on a drawer item does nothing — it stays put.
@@ -3289,7 +3264,7 @@
                             }
                         } else { renderMap(); setTimeout(updateAllWires, 50); } 
                         
-                        if (cellGhostEl) cellGhostEl.remove(); cellGhostEl = null; isDraggingCell = false; _lastDropTarget = null;
+                        if (cellGhostEl) cellGhostEl.remove(); cellGhostEl = null; isDraggingCell = false; _lastDropTarget = null; if (_cellPointerId != null && activeCellTarget) { try { activeCellTarget.releasePointerCapture(_cellPointerId); } catch(_) {} _cellPointerId = null; }
                         document.querySelectorAll('.grid-cell').forEach(c => c.classList.remove('drop-target'));
                     } else if (e.type !== 'pointercancel') {
                         const nodeId = activeCellTarget.closest('.aac-node').id.replace('dom-node-', '');

@@ -7373,14 +7373,6 @@
         function setVoiceGender(gender) {
             clientSettings.voiceGender = gender;
             saveClientSettings();
-            const fBtn = document.getElementById('vg-btn-female');
-            const mBtn = document.getElementById('vg-btn-male');
-            if (!fBtn || !mBtn) return;
-            const active   = 'px-3 py-1 rounded-md text-xs font-bold transition-all bg-white text-blue-700 shadow';
-            const inactive = 'px-3 py-1 rounded-md text-xs font-bold transition-all text-slate-500';
-            fBtn.className = gender !== 'male' ? active : inactive;
-            mBtn.className = gender === 'male' ? active : inactive;
-            _populateVoiceSelect();
         }
 
         function setSpecificVoice(name) {
@@ -7388,14 +7380,101 @@
             saveClientSettings();
         }
 
+        function previewVoice() {
+            if (!window.speechSynthesis) return;
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance('I want a drink please.');
+            utterance.rate = 0.95;
+            utterance.pitch = 1.0;
+            let voice = null;
+            if (clientSettings.specificVoice) {
+                const all = window.speechSynthesis.getVoices();
+                voice = all.find(v => v.name === clientSettings.specificVoice) || null;
+            }
+            if (!voice) voice = _getVoiceForGender(clientSettings.voiceGender || 'female');
+            if (voice) utterance.voice = voice;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        const _isNoveltyVoice = (v) => /\balberto\b|\balbert\b|\bbad.?news\b|\bbahh\b|\bbells\b|\bboing\b|\bbubbles\b|\bcellos\b|\bderanged\b|\bgood.?news\b|\bhysterical\b|\bjunior\b|\borgan\b|\bprincess\b|\bralph\b|\btrinoids\b|\bwhisper\b|\bzarvox\b|\bkathy\b|\bvictoria.?compact\b|\bnovelty\b|\bfunny\b|\brobot\b|\bsuperstar\b/i.test(v.name);
+
+        const _LANG_LABELS = {
+            'en':    'English',
+            'en-us': 'English (United States)',
+            'en-gb': 'English (United Kingdom)',
+            'en-au': 'English (Australia)',
+            'en-in': 'English (India)',
+            'en-ie': 'English (Ireland)',
+            'en-za': 'English (South Africa)',
+            'en-nz': 'English (New Zealand)',
+            'en-sg': 'English (Singapore)',
+            'en-ng': 'English (Nigeria)',
+            'en-pk': 'English (Pakistan)',
+            'hi':'Hindi','ur':'Urdu','ar':'Arabic','zh':'Chinese',
+            'zh-cn':'Chinese (Mandarin)','zh-tw':'Chinese (Taiwan)','zh-hk':'Chinese (Hong Kong)',
+            'ja':'Japanese','ko':'Korean',
+            'fr':'French','fr-fr':'French (France)','fr-ca':'French (Canadian)','fr-be':'French (Belgian)','fr-ch':'French (Swiss)',
+            'de':'German','de-at':'German (Austrian)','de-ch':'German (Swiss)',
+            'it':'Italian','pt':'Portuguese','pt-br':'Portuguese (Brazilian)','pt-pt':'Portuguese (European)',
+            'es':'Spanish','es-es':'Spanish (Spain)','es-mx':'Spanish (Mexican)','es-us':'Spanish (US)',
+            'nl':'Dutch','pl':'Polish','ru':'Russian','sv':'Swedish','no':'Norwegian',
+            'da':'Danish','fi':'Finnish','tr':'Turkish','el':'Greek','he':'Hebrew',
+            'id':'Indonesian','ms':'Malay','th':'Thai','vi':'Vietnamese','ro':'Romanian',
+            'hu':'Hungarian','cs':'Czech','sk':'Slovak','uk':'Ukrainian','bg':'Bulgarian','hr':'Croatian',
+            'ca':'Catalan','nb':'Norwegian','nn':'Norwegian (Nynorsk)',
+        };
+        function _getLangLabel(langCode) {
+            const lc = langCode.toLowerCase();
+            // Try exact match first, then base language
+            return _LANG_LABELS[lc] || _LANG_LABELS[lc.split('-')[0]] || langCode;
+        }
         function _populateVoiceSelect() {
             const sel = document.getElementById('vg-voice-select');
             if (!sel) return;
             const voices = window.speechSynthesis ? window.speechSynthesis.getVoices() : [];
-            const lang = (navigator.language || 'en').toLowerCase().split('-')[0];
-            const relevant = voices.filter(v => v.lang.toLowerCase().startsWith(lang) || v.lang.toLowerCase().startsWith('en'));
-            sel.innerHTML = '<option value="">Auto-select voice</option>' +
-                relevant.map(v => '<option value="' + escHtml(v.name) + '"' + (clientSettings.specificVoice === v.name ? ' selected' : '') + '>' + escHtml(v.name) + (v.localService ? ' ✓' : '') + '</option>').join('');
+            const devLang = (navigator.language || 'en').toLowerCase();
+            const devBase = devLang.split('-')[0];
+            const filtered = voices.filter(v => !_isNoveltyVoice(v)).sort((a, b) => {
+                const aLang = a.lang.toLowerCase(), bLang = b.lang.toLowerCase();
+                const aBase = aLang.split('-')[0], bBase = bLang.split('-')[0];
+                // Device language first
+                const aMatch = aBase === devBase ? 0 : 1;
+                const bMatch = bBase === devBase ? 0 : 1;
+                if (aMatch !== bMatch) return aMatch - bMatch;
+                // Local before online
+                if (a.localService && !b.localService) return -1;
+                if (!a.localService && b.localService) return 1;
+                // Group by language, then name
+                if (aBase !== bBase) return aBase.localeCompare(bBase);
+                return a.name.localeCompare(b.name);
+            });
+            // Group into optgroups — use the full lang code as key so en-US and en-IN are separate
+            const groups = {};
+            filtered.forEach(v => {
+                const key = v.lang.toLowerCase();
+                const label = _getLangLabel(v.lang);
+                if (!groups[label]) groups[label] = { key, voices: [] };
+                groups[label].voices.push(v);
+            });
+            // Sort groups: English variants first (alphabetically by region), then other languages
+            const sortedGroups = Object.entries(groups).sort(([aLabel, aG], [bLabel, bG]) => {
+                const aEn = aG.key.startsWith('en');
+                const bEn = bG.key.startsWith('en');
+                if (aEn && !bEn) return -1;
+                if (!aEn && bEn) return 1;
+                return aLabel.localeCompare(bLabel);
+            });
+            let html = '<option value="">Default voice</option>';
+            sortedGroups.forEach(([label, { voices: vList }]) => {
+                html += '<optgroup label="' + escHtml(label) + '">';
+                vList.forEach(v => {
+                    const selected = clientSettings.specificVoice === v.name ? ' selected' : '';
+                    const tag = v.localService ? '' : ' ↗';
+                    html += '<option value="' + escHtml(v.name) + '"' + selected + '>' + escHtml(v.name) + tag + '</option>';
+                });
+                html += '</optgroup>';
+            });
+            sel.innerHTML = html;
         }
 
         function toggleDragSelect(btn) {
@@ -8006,23 +8085,23 @@
                                     <span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ${clientSettings.speakOnTap!==false?'translate-x-5':'translate-x-0'}"></span>
                                 </button>
                             </label>
-                            <!-- Voice gender -->
-                            <div class="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-100">
-                                <div class="flex items-center gap-3">
-                                    <i data-lucide="mic-2" class="w-5 h-5 text-slate-500"></i>
+                            <!-- Voice selector -->
+                            <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <i data-lucide="mic-2" class="w-5 h-5 text-slate-500 flex-shrink-0"></i>
                                     <div>
                                         <span class="text-sm font-semibold text-slate-700 block">Voice</span>
-                                        <span class="text-xs text-slate-400">Choose a male or female voice</span>
+                                        <span class="text-xs text-slate-400">Select any speech voice on this device</span>
                                     </div>
                                 </div>
-                                <div class="flex flex-col gap-2 flex-shrink-0">
-                                    <div class="flex bg-slate-200 rounded-lg p-0.5 gap-0.5">
-                                        <button id="vg-btn-female" onclick="setVoiceGender('female')" class="px-3 py-1 rounded-md text-xs font-bold transition-all ${(clientSettings.voiceGender||'female')!=='male'?'bg-white text-blue-700 shadow':'text-slate-500'}">&#9792; Female</button>
-                                        <button id="vg-btn-male"   onclick="setVoiceGender('male')"   class="px-3 py-1 rounded-md text-xs font-bold transition-all ${clientSettings.voiceGender==='male'?'bg-white text-blue-700 shadow':'text-slate-500'}">&#9794; Male</button>
-                                    </div>
-                                    <select id="vg-voice-select" onchange="setSpecificVoice(this.value)" class="text-xs border border-slate-200 rounded-lg px-2 py-1.5 bg-white text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-200 w-full" title="Pick an exact voice">
-                                        <option value="">Auto-select voice</option>
+                                <div class="flex gap-2 items-center">
+                                    <select id="vg-voice-select" onchange="setSpecificVoice(this.value)" class="flex-1 text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-200" title="Pick a voice" style="font-size:16px;">
+                                        <option value="">Default voice</option>
                                     </select>
+                                    <button onclick="previewVoice()" title="Preview this voice" aria-label="Preview voice" class="flex-shrink-0 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 transition-colors active:scale-95" style="font-size:13px;font-weight:700;font-family:Outfit,sans-serif;">
+                                        <i data-lucide="play" class="w-3.5 h-3.5 pointer-events-none fill-current"></i>
+                                        <span class="pointer-events-none">Try</span>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -10019,8 +10098,9 @@
                 // Exact language match beats just base lang
                 if (v.lang.toLowerCase() === lang) s += 20;
                 else if (v.lang.toLowerCase().startsWith(langBase)) s += 10;
-                // Penalise names that typically indicate low-quality synth voices
+                // Penalise names that typically indicate low-quality synth or novelty voices
                 if (/eloquence|espeak|espeak-ng|mbrola|cmu|festival|flite|pico|vocalizer compact/i.test(n)) s -= 50;
+                if (_isNoveltyVoice(v)) s -= 100;
                 // Apple high-quality voices (all local, sound natural)
                 if (/\bsamantha\b|\bvictoria\b|\bkaren\b|\bmoira\b|\btessa\b|\bfiona\b|\bhazel\b|\bnicky\b|\bsiri\b/i.test(n)) s += 30; // female
                 if (/\btom\b|\bdaniel\b|\balex\b|\baaron\b|\brishi\b|\bluca\b|\blee\b|\bgordon\b|\barthur\b/i.test(n)) s += 30; // male
@@ -10029,8 +10109,8 @@
                 return s;
             };
 
-            const isFemale = (v) => /female|\bwoman\b|samantha|victoria|karen|hazel|moira|tessa|fiona|\balice\b|\banna\b|kathy|vicki|nicky|\bsara\b|\bsusan\b|linda|paulina|google uk english female|google us english/i.test(v.name);
-            const isMale   = (v) => /\bmale\b|\bman\b|daniel|\btom\b|\balex\b|\baaron\b|\brishi\b|\blee\b|\bgordon\b|\barthur\b|\bfred\b|\bralph\b|\bdavid\b|\bmark\b|google uk english male/i.test(v.name);
+            const isFemale = (v) => /female|\bwoman\b|samantha|victoria|karen|hazel|moira|tessa|fiona|\balice\b|\banna\b|vicki|nicky|\bsara\b|\bsusan\b|linda|paulina|google uk english female|google us english/i.test(v.name);
+            const isMale   = (v) => /\bmale\b|\bman\b|daniel|\btom\b|\balex\b|\baaron\b|\brishi\b|\blee\b|\bgordon\b|\barthur\b|\bdavid\b|\bmark\b|google uk english male/i.test(v.name);
 
             const langVoices = voices.filter(v => v.lang.toLowerCase().startsWith(langBase));
             const pool = (langVoices.length ? langVoices : voices).slice().sort((a, b) => score(b) - score(a));

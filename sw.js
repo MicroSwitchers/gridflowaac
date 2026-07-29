@@ -3,13 +3,12 @@
  *
  * To publish a new version: change CACHE to a new name (e.g. 'aac-v2').
  * The browser will detect the changed SW file, install the new worker,
- * and then skipWaiting() activates it immediately. The page listens for
- * the 'controllerchange' event and reloads automatically so users always
- * run the latest code.
+ * and then skipWaiting() activates it immediately. The current AAC session
+ * is never force-reloaded; the latest shell appears on the next launch.
  */
-const CACHE = 'aac-v9';
+const CACHE = 'aac-v25';
 
-const CORE = ['./', './index.html'];
+const CORE = ['./', './index.html', './ui-theme.css', './icon.svg', './manifest.json'];
 
 // ── Install: pre-cache the shell ──────────────────────────────────────────────
 self.addEventListener('install', event => {
@@ -25,7 +24,7 @@ self.addEventListener('activate', event => {
     event.waitUntil(
         caches.keys()
             .then(keys => Promise.all(
-                keys.filter(k => k !== CACHE).map(k => caches.delete(k))
+                keys.filter(k => k.startsWith('aac-') && k !== CACHE).map(k => caches.delete(k))
             ))
             .then(() => self.clients.claim())
     );
@@ -62,7 +61,7 @@ self.addEventListener('fetch', event => {
             caches.match(request).then(cached => {
                 if (cached) return cached;
                 return fetch(request).then(response => {
-                    if (response.ok) {
+                    if (response.ok || response.type === 'opaque') {
                         const clone = response.clone();
                         caches.open(CACHE).then(c => c.put(request, clone));
                     }

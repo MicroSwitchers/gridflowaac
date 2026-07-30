@@ -2,8 +2,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#1d4ed8"/>
-      <stop offset="100%" stop-color="#7c3aed"/>
+      <stop offset="0%" stop-color="#1f78bd"/>
+      <stop offset="100%" stop-color="#188a78"/>
     </linearGradient>
   </defs>
 
@@ -17,13 +17,15 @@
     Row y: 50, 192, 334   (image centers: 102, 244, 386  — 104px image area + 24px label)
   -->
 
+  <!-- Keep all meaningful artwork inside the maskable-icon safe zone. -->
+  <g transform="translate(56.32 56.32) scale(0.78)">
   <!-- ── Cell backgrounds ── -->
   <rect x="50"  y="50"  width="128" height="128" rx="18" fill="white" opacity="0.90"/>
   <rect x="192" y="50"  width="128" height="128" rx="18" fill="white" opacity="0.90"/>
   <rect x="334" y="50"  width="128" height="128" rx="18" fill="white" opacity="0.90"/>
   <rect x="50"  y="192" width="128" height="128" rx="18" fill="white" opacity="0.90"/>
   <!-- Center cell: accent blue -->
-  <rect x="192" y="192" width="128" height="128" rx="18" fill="#93c5fd"/>
+  <rect x="192" y="192" width="128" height="128" rx="18" fill="#8fd8e8"/>
   <rect x="334" y="192" width="128" height="128" rx="18" fill="white" opacity="0.90"/>
   <rect x="50"  y="334" width="128" height="128" rx="18" fill="white" opacity="0.90"/>
   <rect x="192" y="334" width="128" height="128" rx="18" fill="white" opacity="0.90"/>
@@ -63,8 +65,8 @@
   <!-- ── Cell 5 (256, 244): Speech bubble (on accent blue) ── -->
   <rect x="208" y="210" width="96" height="58" rx="16" fill="white"/>
   <polygon points="234,268 220,290 264,268" fill="white"/>
-  <rect x="222" y="224" width="68" height="8" rx="4" fill="#4f46e5" opacity="0.75"/>
-  <rect x="222" y="238" width="50" height="8" rx="4" fill="#4f46e5" opacity="0.55"/>
+  <rect x="222" y="224" width="68" height="8" rx="4" fill="#176ca8" opacity="0.78"/>
+  <rect x="222" y="238" width="50" height="8" rx="4" fill="#176ca8" opacity="0.56"/>
 
   <!-- ── Cell 6 (398, 244): House ── -->
   <polygon points="398,210 436,240 436,280 360,280 360,240" fill="#fb923c"/>
@@ -78,4 +80,5 @@
 
   <!-- ── Cell 9 (398, 386): Star ── -->
   <polygon points="398,348 406.8,373.9 434.1,374.3 412.3,390.6 420.3,416.8 398,401 375.7,416.8 383.7,390.6 361.9,374.3 389.2,373.9" fill="#c084fc"/>
+  </g>
 </svg>
